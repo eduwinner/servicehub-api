@@ -14,6 +14,9 @@ O projeto evolui em fases, uma por bloco de aulas, e cada fase tem uma tag git. 
 
 ```bash
 docker compose up -d postgres        # Postgres em localhost:5433
+# a API não sobe sem JWT_SECRET (mínimo 32 caracteres)
+export JWT_SECRET=troque-este-segredo-de-desenvolvimento-com-32-bytes
+export SERVICEHUB_ADMIN_EMAIL=admin@servicehub.com SERVICEHUB_ADMIN_PASSWORD=Admin123
 ./mvnw.cmd spring-boot:run           # Windows  (./mvnw no Linux/macOS)
 ```
 
@@ -30,6 +33,10 @@ Todas têm valor padrão de desenvolvimento; defina-as (ou crie um `.env`, nunca
 | `DB_PASS` | `secret` | Senha do banco |
 | `DB_NAME` | `servicehub` | Nome do banco (usado pelo Compose) |
 | `SERVER_PORT` | `8080` | Porta HTTP da API |
+| `JWT_SECRET` | *(obrigatório)* | Chave HS256 dos tokens, mínimo 32 bytes; sem ela a API não sobe |
+| `JWT_EXPIRATION_SECONDS` | `86400` | Validade do token (24 h) |
+| `SERVICEHUB_ADMIN_EMAIL` / `SERVICEHUB_ADMIN_PASSWORD` | *(vazio)* | Cria o primeiro ADMIN no startup ([ADR-0007](docs/adr/0007-admin-inicial-por-variavel-de-ambiente.md)) |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:5173` | Origens do navegador autorizadas (a bancada de testes usa 5173) |
 
 ## Como testar
 
@@ -44,6 +51,14 @@ Os testes sobem um PostgreSQL real em container (Testcontainers), então **o Doc
 - Swagger UI: `http://localhost:8080/docs`
 - Especificação OpenAPI (grupo v1): `http://localhost:8080/api-docs/v1`
 - Todas as rotas da API começam com `/api/v1`. Listagens são paginadas (`?page=0&size=20&sort=id`, máximo 100 por página).
+
+## Autenticação
+
+1. `POST /api/v1/auth/register` com `fullName`, `email`, `password` e `role` (`CLIENT` ou `PROVIDER`).
+2. `POST /api/v1/auth/login` devolve `accessToken` (JWT, 24 h).
+3. Envie `Authorization: Bearer <accessToken>` nas rotas protegidas. No Swagger, use o botão **Authorize**.
+
+Públicas: cadastro, login, leitura do catálogo de serviços e `/api/v1/info`. Detalhes em [ADR-0003](docs/adr/0003-jwt-nativo-spring-security.md).
 
 ## Contrato de erro
 
@@ -84,7 +99,5 @@ Design completo: [docs/superpowers/specs/2026-10-22-servicehub-api-design.md](do
 
 ## Limitações conhecidas (nesta fase)
 
-- Sem autenticação; senhas gravadas em texto puro (Fase 2).
-- O prestador de um serviço ainda vem no corpo (`providerId`); passa a vir do token na Fase 2.
-- Exclusão ainda é física (`DELETE`); a exclusão lógica entra na Fase 2.
+- Excluir usuário ou serviço com ordens ativas ainda não é bloqueado (409 entra na Fase 3, com as ordens).
 - Ordens de serviço e avaliações existem só no banco, sem endpoints (Fase 3).

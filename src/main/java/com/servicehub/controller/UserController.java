@@ -45,7 +45,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Buscar usuário por ID", description = "Retorna os dados públicos de um usuário.")
+    @Operation(summary = "Buscar usuário por ID", description = "O próprio usuário ou ADMIN.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
@@ -57,7 +57,7 @@ public class UserController {
     }
 
     @Operation(summary = "Listar usuários",
-            description = "Lista paginada de usuários. Paginação: page (a partir de 0), size (padrão 20, máximo 100) e sort por id, fullName, email ou createdAt (ex.: fullName,asc).")
+            description = "Apenas ADMIN. Lista paginada de usuários. Paginação: page (a partir de 0), size (padrão 20, máximo 100) e sort por id, fullName, email ou createdAt (ex.: fullName,asc).")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de usuários"),
             @ApiResponse(responseCode = "400", description = "Ordenação por campo não permitido",
@@ -70,7 +70,7 @@ public class UserController {
     }
 
     @Operation(summary = "Atualizar perfil",
-            description = "Altera nome, telefone, bio e avatar. E-mail, papel e senha não são alterados por este endpoint.")
+            description = "O próprio usuário ou ADMIN. Altera nome, telefone, bio e avatar; e-mail, papel e senha não mudam por aqui.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Perfil atualizado"),
             @ApiResponse(responseCode = "400", description = "Campos inválidos",
@@ -84,7 +84,7 @@ public class UserController {
         return userService.updateUser(id, dto);
     }
 
-    @Operation(summary = "Remover usuário", description = "Remove um usuário.")
+    @Operation(summary = "Remover usuário (ADMIN)", description = "Exclusão lógica: a conta deixa de logar, tokens emitidos deixam de valer e os serviços do usuário saem do catálogo.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Usuário removido"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado",

@@ -53,11 +53,21 @@ The Dockerfile just copies a pre-built `target/*.jar` — run `mvnw.cmd clean pa
 - Pagination: controllers take `@ParameterObject @PageableDefault Pageable`; JSON is `{content, page{size,number,totalElements,totalPages}}` via `spring.data.web.pageable.serialization-mode=via-dto`. Do **not** add `@EnableSpringDataWebSupport` — it disables Boot's pageable autoconfig and silently drops `max-page-size=100`.
 - `?sort=` is allowlisted per endpoint via `controller/SortGuard` (`SORTABLE` set in each controller); never accept arbitrary JPA paths (e.g. `passwordHash`, `provider.*`).
 - Framework errors (type mismatch, 404 route, 405, 415) are normalized in `GlobalExceptionHandler.handleExceptionInternal`/`handleTypeMismatch` to the same ProblemDetail contract in Portuguese.
-- **Phase 2 hazard:** the `@ExceptionHandler(Exception.class)` catch-all will turn Spring Security's `AccessDeniedException`/`AuthenticationException` thrown from `@PreAuthorize` service methods into 500. Add explicit 401/403 handlers before enabling method security.
 - `ServiceOfferingRepository.findAll(Specification, Pageable)` has `@EntityGraph("provider")` to avoid N+1 in the listing; keep response mapping inside the read-only transaction.
 - `config/RequestIdFilter` sets/echoes `X-Request-Id` and MDC `requestId`.
 - OpenAPI: Swagger UI at `/docs`, spec at `/api-docs/v1`; every endpoint documents each status code with `ProblemDetail` schema for errors.
 - `POST` returns `ResponseEntity.created(Location)`.
+
+## Security (Phase 2)
+
+- Spring Security 7 + `oauth2-resource-server`, JWT HS256 (`security/SecurityConfig`, `TokenService`). `JWT_SECRET` (>= 32 bytes) is mandatory: `JwtProperties` fails fast. Tests set it in `AbstractIntegrationTest`.
+- `JwtUserConverter` (registered as `@Bean`, NOT `@Component`: `@WebMvcTest` loads every `Converter`) loads the user by claim `uid` on every request; inactive means 401. Authorities come from the DB role, so role changes apply immediately.
+- Services get the caller via `security/CurrentUser`; role rules use `@PreAuthorize` on service methods; owner rules (BOLA) are explicit `AccessDeniedException`s in the service. 401/403 are ProblemDetail both in filters (`ProblemResponseWriter`) and in `GlobalExceptionHandler`.
+- Registration is `POST /api/v1/auth/register` (role CLIENT|PROVIDER only); there is no `POST /users`. Admin bootstrap: `AdminInitializer` from `SERVICEHUB_ADMIN_*`.
+- Soft delete (ADR-0002): users and services set `active=false`; deactivating a user deactivates their services.
+- Free text (`description`, `bio`) goes through `service/TextSanitizer` (HTML escape).
+- OpenAPI: global `bearerAuth`; public operations declare `@SecurityRequirements` (empty); `OpenApiConfig.securityResponsesCustomizer` adds 401/403 to every protected operation. Groups `v1` and `public`.
+- Web slice tests use `@AutoConfigureMockMvc(addFilters = false)`; security behaviour is covered by integration tests (`*SecurityIntegrationTest`, `AuthApiIntegrationTest`) using helpers in `AbstractIntegrationTest` (`registrar`, `login`, `adminToken`, `get/post/put/patch/delete`).
 
 ## Architecture
 
@@ -81,8 +91,5 @@ This project is on Spring Boot 4.1.1, which split autoconfiguration into per-fea
 
 ### Current known gaps (not yet implemented)
 
-- No authentication/security layer at all (Phase 2).
-- Passwords are stored as-is into `password_hash` (`UserDTO.password` → `User.passwordHash`) — no hashing yet (Phase 2).
-- `ServiceOfferingDTO.providerId` still comes from the request body (Phase 2 takes it from the JWT). Deletes are physical (Phase 2: soft delete).
 - `service_requests` and `reviews` have no entities or endpoints (Phase 3).
 - `.env.example` could not be created by the agent (permission deny rule on `.env*`); the variable list is in README.

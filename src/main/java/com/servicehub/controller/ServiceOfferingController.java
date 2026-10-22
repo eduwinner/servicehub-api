@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
@@ -51,12 +52,12 @@ public class ServiceOfferingController {
     }
 
     @Operation(summary = "Cadastrar serviço",
-            description = "Publica um novo serviço no catálogo. Responde com o serviço criado e o header Location apontando para ele.")
+            description = "Apenas PROVIDER. O prestador é o usuário do token (providerId não é aceito no corpo). Responde com o serviço criado e o header Location.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Serviço criado"),
             @ApiResponse(responseCode = "400", description = "Campos inválidos, categoria inexistente ou JSON malformado",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "404", description = "Prestador informado não existe",
+            @ApiResponse(responseCode = "403", description = "Apenas PROVIDER publica serviços",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
     })
     @PostMapping
@@ -65,12 +66,13 @@ public class ServiceOfferingController {
         return ResponseEntity.created(URI.create("/api/v1/services/" + body.getId())).body(body);
     }
 
-    @Operation(summary = "Buscar serviço por ID", description = "Retorna os dados completos de um serviço, incluindo o nome do prestador.")
+    @Operation(summary = "Buscar serviço por ID", description = "Público. Retorna os dados de um serviço e o nome do prestador. Serviço inativo responde 404, exceto para o dono e o ADMIN (envie o token).")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Serviço encontrado"),
             @ApiResponse(responseCode = "404", description = "Serviço não encontrado",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
     })
+    @SecurityRequirements
     @GetMapping("/{id}")
     public ServiceOfferingResponseDTO findById(
             @Parameter(description = "ID do serviço", example = "12") @PathVariable Long id) {
@@ -85,6 +87,7 @@ public class ServiceOfferingController {
             @ApiResponse(responseCode = "400", description = "Parâmetro de filtro com formato inválido ou ordenação por campo não permitido",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
     })
+    @SecurityRequirements
     @GetMapping
     public Page<ServiceOfferingResponseDTO> findAll(
             @Parameter(description = "Categoria do serviço", example = "ELETRICA")
@@ -104,7 +107,7 @@ public class ServiceOfferingController {
                 SortGuard.requireAllowed(pageable, SORTABLE));
     }
 
-    @Operation(summary = "Atualizar serviço", description = "Substitui título, descrição, preço e categoria de um serviço existente.")
+    @Operation(summary = "Atualizar serviço", description = "Apenas o prestador dono ou ADMIN. Substitui título, descrição, preço e categoria; active=true reativa e active=false desativa.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Serviço atualizado"),
             @ApiResponse(responseCode = "400", description = "Campos inválidos",
@@ -119,7 +122,7 @@ public class ServiceOfferingController {
         return serviceOfferingService.updateService(id, dto);
     }
 
-    @Operation(summary = "Remover serviço", description = "Remove um serviço do catálogo.")
+    @Operation(summary = "Remover serviço", description = "Apenas o prestador dono ou ADMIN. Exclusão lógica: o serviço sai do catálogo, mas o histórico é preservado.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Serviço removido"),
             @ApiResponse(responseCode = "404", description = "Serviço não encontrado",

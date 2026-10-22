@@ -41,4 +41,22 @@ class OpenApiIntegrationTest extends AbstractIntegrationTest {
         assertThat(docs.getStatusCode().is2xxSuccessful() || docs.getStatusCode().is3xxRedirection()).isTrue();
         assertThat(ui.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    @DisplayName("deve documentar o esquema bearerAuth (botão Authorize no Swagger)")
+    void deveDocumentarEsquemaBearer() {
+        String body = rest.getForEntity("/api-docs/v1", String.class).getBody();
+
+        assertThat(body).contains("\"bearerAuth\"").contains("\"scheme\":\"bearer\"").contains("\"bearerFormat\":\"JWT\"");
+    }
+
+    @Test
+    @DisplayName("deve expor o grupo público só com autenticação e leitura do catálogo")
+    void deveExporGrupoPublico() {
+        ResponseEntity<String> resp = rest.getForEntity("/api-docs/public", String.class);
+
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resp.getBody()).contains("/api/v1/auth/login").contains("/api/v1/services")
+                .doesNotContain("/api/v1/users");
+    }
 }
