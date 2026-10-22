@@ -12,7 +12,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * Base dos testes de integração: sobe a aplicação inteira numa porta aleatória,
  * com PostgreSQL real (Testcontainers) e banco limpo antes de cada teste.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.jpa.properties.hibernate.generate_statistics=true")
 @AutoConfigureTestRestTemplate
 @Import(TestcontainersConfiguration.class)
 public abstract class AbstractIntegrationTest {

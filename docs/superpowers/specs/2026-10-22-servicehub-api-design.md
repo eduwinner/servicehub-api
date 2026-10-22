@@ -2,7 +2,7 @@
 
 **Data:** 2026-10-22
 **Autor:** Claude (a pedido do Prof. Eduardo Dias Pereira)
-**Status:** decisões fechadas em 2026-10-22; aguardando aprovação final para iniciar o plano de implementação
+**Status:** aprovado em 2026-10-22; Fases 0 e 1 implementadas (tags `fase-0-baseline`, `fase-1-contrato-qualidade`)
 **Público:** quem for construir a API de referência (humano ou agente de IA) sem acesso ao autor do pedido
 
 ---

@@ -76,4 +76,12 @@ class UserApiIntegrationTest extends AbstractIntegrationTest {
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(resp.getBody()).containsEntry("email", "maria@x.com");
     }
+
+    @Test
+    @DisplayName("deve recusar ordenação por passwordHash")
+    void deveRetornar400QuandoSortPorPasswordHash() {
+        ResponseEntity<Map> resp = rest.getForEntity("/api/v1/users?sort=passwordHash,desc", Map.class);
+
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
 }

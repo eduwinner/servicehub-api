@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -91,5 +92,60 @@ class ServiceOfferingControllerTest {
 
         verify(service).search(eq(new ServiceFilter(ServiceCategory.ELETRICA, null, new BigDecimal("10"), null, "tom")),
                 any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("deve retornar 400 em ProblemDetail listando categorias quando filtro de categoria é inválido")
+    void deveRetornar400QuandoFiltroCategoriaInvalido() throws Exception {
+        mockMvc.perform(get("/api/v1/services?category=FOO"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("urn:servicehub:problem:validation-error"))
+                .andExpect(jsonPath("$.title").value("Dados inválidos"))
+                .andExpect(jsonPath("$.detail").value(containsString("LIMPEZA")))
+                .andExpect(jsonPath("$.timestamp").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("deve retornar 400 em ProblemDetail quando minPrice não é número")
+    void deveRetornar400QuandoMinPriceNaoNumerico() throws Exception {
+        mockMvc.perform(get("/api/v1/services?minPrice=abc"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.type").value("urn:servicehub:problem:validation-error"))
+                .andExpect(jsonPath("$.detail").value(containsString("minPrice")));
+    }
+
+    @Test
+    @DisplayName("deve retornar 405 em ProblemDetail em português quando o método não é suportado")
+    void deveRetornar405QuandoMetodoNaoSuportado() throws Exception {
+        mockMvc.perform(patch("/api/v1/services"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.type").value("urn:servicehub:problem:method-not-allowed"))
+                .andExpect(jsonPath("$.title").value("Método não permitido"));
+    }
+
+    @Test
+    @DisplayName("deve retornar 415 em ProblemDetail quando o corpo não é JSON")
+    void deveRetornar415QuandoConteudoNaoJson() throws Exception {
+        mockMvc.perform(post("/api/v1/services").contentType(MediaType.TEXT_PLAIN).content("x"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath("$.type").value("urn:servicehub:problem:unsupported-media-type"));
+    }
+
+    @Test
+    @DisplayName("deve retornar 404 em ProblemDetail quando a rota não existe")
+    void deveRetornar404QuandoRotaInexistente() throws Exception {
+        mockMvc.perform(get("/api/v1/nada"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value("urn:servicehub:problem:not-found"))
+                .andExpect(jsonPath("$.title").value("Recurso não encontrado"));
+    }
+
+    @Test
+    @DisplayName("deve retornar 400 quando o preço tem mais de duas casas decimais")
+    void deveRetornar400QuandoPrecoComTresCasas() throws Exception {
+        mockMvc.perform(post("/api/v1/services").contentType(MediaType.APPLICATION_JSON)
+                        .content(servico("150.005", "ELETRICA")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].field").value("price"));
     }
 }

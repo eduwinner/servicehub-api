@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -37,6 +38,7 @@ import java.net.URI;
 public class UserController {
 
     private static final String PROBLEM = "application/problem+json";
+    static final Set<String> SORTABLE = Set.of("id", "fullName", "email", "createdAt");
 
     private final UserService userService;
 
@@ -72,12 +74,16 @@ public class UserController {
     }
 
     @Operation(summary = "Listar usuários",
-            description = "Lista paginada de usuários. Paginação: page (a partir de 0), size (padrão 20, máximo 100) e sort (ex.: fullName,asc).")
-    @ApiResponse(responseCode = "200", description = "Página de usuários")
+            description = "Lista paginada de usuários. Paginação: page (a partir de 0), size (padrão 20, máximo 100) e sort por id, fullName, email ou createdAt (ex.: fullName,asc).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Página de usuários"),
+            @ApiResponse(responseCode = "400", description = "Ordenação por campo não permitido",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
+    })
     @GetMapping
     public Page<UserResponseDTO> findAll(
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
-        return userService.findAll(pageable);
+        return userService.findAll(SortGuard.requireAllowed(pageable, SORTABLE));
     }
 
     @Operation(summary = "Atualizar perfil",

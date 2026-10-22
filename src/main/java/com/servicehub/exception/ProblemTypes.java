@@ -9,6 +9,8 @@ public final class ProblemTypes {
     public static final URI EMAIL_ALREADY_EXISTS = URI.create("urn:servicehub:problem:email-already-exists");
     public static final URI BUSINESS_RULE = URI.create("urn:servicehub:problem:business-rule");
     public static final URI VALIDATION = URI.create("urn:servicehub:problem:validation-error");
+    public static final URI METHOD_NOT_ALLOWED = URI.create("urn:servicehub:problem:method-not-allowed");
+    public static final URI UNSUPPORTED_MEDIA_TYPE = URI.create("urn:servicehub:problem:unsupported-media-type");
     public static final URI INTERNAL = URI.create("urn:servicehub:problem:internal-error");
 
     private ProblemTypes() {

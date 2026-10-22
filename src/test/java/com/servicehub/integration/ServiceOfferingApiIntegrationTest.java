@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.servicehub.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.hibernate.SessionFactory;
+import org.hibernate.stat.Statistics;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityManagerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -78,5 +82,42 @@ class ServiceOfferingApiIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(page.content()).hasSize(1);
         assertThat(page.page().totalPages()).isEqualTo(3);
+    }
+
+    @Autowired
+    EntityManagerFactory emf;
+
+    @Test
+    @DisplayName("deve retornar 400 quando sort usa propriedade inexistente")
+    void deveRetornar400QuandoSortInexistente() {
+        ResponseEntity<Map> resp = rest.getForEntity("/api/v1/services?sort=foo", Map.class);
+
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(resp.getBody()).containsEntry("type", "urn:servicehub:problem:validation-error");
+    }
+
+    @Test
+    @DisplayName("deve recusar ordenação por campo interno do prestador")
+    void deveRetornar400QuandoSortPorCampoDoPrestador() {
+        ResponseEntity<Map> resp = rest.getForEntity("/api/v1/services?sort=provider.passwordHash", Map.class);
+
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("deve listar serviços de vários prestadores sem N+1 consultas")
+    void deveListarSemNMaisUmQuandoVariosPrestadores() {
+        for (int i = 2; i <= 4; i++) {
+            Number pid = (Number) rest.postForEntity("/api/v1/users",
+                    Map.of("fullName", "Prestador " + i, "email", "p" + i + "@x.com", "password", "Senha123"), Map.class)
+                    .getBody().get("id");
+            criarServico("Serviço " + i, "90.00", "PINTURA", pid);
+        }
+        Statistics stats = emf.unwrap(SessionFactory.class).getStatistics();
+        stats.clear();
+
+        listar("?size=50");
+
+        assertThat(stats.getPrepareStatementCount()).isLessThanOrEqualTo(2);
     }
 }

@@ -51,6 +51,10 @@ The Dockerfile just copies a pre-built `target/*.jar` — run `mvnw.cmd clean pa
 - Errors: `exception/GlobalExceptionHandler` (extends `ResponseEntityExceptionHandler`) returns `ProblemDetail`; `type` URNs live in `exception/ProblemTypes`. Throw `ResourceNotFoundException` (404), `EmailAlreadyExistsException` / `BusinessRuleException` (409); never bare `RuntimeException`.
 - Validation: Bean Validation on request DTOs + `@Valid`; 400 carries `errors: [{field, message}]`. Enum parse errors list accepted values (Jackson 3: `tools.jackson.databind.exc.InvalidFormatException`).
 - Pagination: controllers take `@ParameterObject @PageableDefault Pageable`; JSON is `{content, page{size,number,totalElements,totalPages}}` via `spring.data.web.pageable.serialization-mode=via-dto`. Do **not** add `@EnableSpringDataWebSupport` — it disables Boot's pageable autoconfig and silently drops `max-page-size=100`.
+- `?sort=` is allowlisted per endpoint via `controller/SortGuard` (`SORTABLE` set in each controller); never accept arbitrary JPA paths (e.g. `passwordHash`, `provider.*`).
+- Framework errors (type mismatch, 404 route, 405, 415) are normalized in `GlobalExceptionHandler.handleExceptionInternal`/`handleTypeMismatch` to the same ProblemDetail contract in Portuguese.
+- **Phase 2 hazard:** the `@ExceptionHandler(Exception.class)` catch-all will turn Spring Security's `AccessDeniedException`/`AuthenticationException` thrown from `@PreAuthorize` service methods into 500. Add explicit 401/403 handlers before enabling method security.
+- `ServiceOfferingRepository.findAll(Specification, Pageable)` has `@EntityGraph("provider")` to avoid N+1 in the listing; keep response mapping inside the read-only transaction.
 - `config/RequestIdFilter` sets/echoes `X-Request-Id` and MDC `requestId`.
 - OpenAPI: Swagger UI at `/docs`, spec at `/api-docs/v1`; every endpoint documents each status code with `ProblemDetail` schema for errors.
 - `POST` returns `ResponseEntity.created(Location)`.

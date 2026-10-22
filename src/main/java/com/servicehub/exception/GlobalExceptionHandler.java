@@ -3,6 +3,8 @@ package com.servicehub.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -14,6 +16,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -77,6 +80,58 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
         ProblemDetail pd = problem(HttpStatus.BAD_REQUEST, ProblemTypes.VALIDATION, "Dados inválidos", detail, request);
         return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    public ProblemDetail handleInvalidRequest(InvalidRequestException ex, HttpServletRequest request) {
+        return problem(HttpStatus.BAD_REQUEST, ProblemTypes.VALIDATION, "Dados inválidos", ex.getMessage(), request);
+    }
+
+    /** Rede de proteção: propriedade inexistente em sort/consulta derivada é erro do cliente, não 500. */
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ProblemDetail handlePropertyReference(PropertyReferenceException ex, HttpServletRequest request) {
+        return problem(HttpStatus.BAD_REQUEST, ProblemTypes.VALIDATION, "Dados inválidos",
+                "Campo desconhecido: '" + ex.getPropertyName() + "'.", request);
+    }
+
+    /** Parâmetro de rota/consulta com tipo errado (ex.: ?category=FOO, ?minPrice=abc). */
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
+            HttpStatusCode status, WebRequest request) {
+        String name = ex instanceof MethodArgumentTypeMismatchException m ? m.getName() : ex.getPropertyName();
+        Class<?> type = ex.getRequiredType();
+        String detail = (type != null && type.isEnum())
+                ? "Valor inválido para '" + name + "'. Valores aceitos: " + Arrays.toString(type.getEnumConstants())
+                : "Formato inválido para o parâmetro '" + name + "'.";
+        ProblemDetail pd = problem(HttpStatus.BAD_REQUEST, ProblemTypes.VALIDATION, "Dados inválidos", detail, request);
+        return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+    }
+
+    /**
+     * Demais erros tratados pelo próprio Spring MVC (404 de rota, 405, 415, 400 genéricos):
+     * mesmo contrato (type URN, título em português, timestamp) em vez do padrão "about:blank" em inglês.
+     */
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
+            HttpStatusCode statusCode, WebRequest request) {
+        ProblemDetail pd = switch (statusCode.value()) {
+            case 400 -> problem(HttpStatus.BAD_REQUEST, ProblemTypes.VALIDATION, "Dados inválidos",
+                    "Requisição inválida.", request);
+            case 404 -> problem(HttpStatus.NOT_FOUND, ProblemTypes.NOT_FOUND, "Recurso não encontrado",
+                    "Rota não encontrada.", request);
+            case 405 -> problem(HttpStatus.METHOD_NOT_ALLOWED, ProblemTypes.METHOD_NOT_ALLOWED, "Método não permitido",
+                    "O método HTTP usado não é suportado nesta rota.", request);
+            case 415 -> problem(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ProblemTypes.UNSUPPORTED_MEDIA_TYPE,
+                    "Tipo de conteúdo não suportado", "Envie o corpo como application/json.", request);
+            default -> null;
+        };
+        if (pd == null) {
+            return super.handleExceptionInternal(ex, body, headers, statusCode, request);
+        }
+        HttpHeaders out = new HttpHeaders();
+        out.putAll(headers);
+        out.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
+        return new ResponseEntity<>(pd, out, statusCode);
     }
 
     @ExceptionHandler(Exception.class)

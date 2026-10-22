@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -40,6 +41,7 @@ import java.net.URI;
 public class ServiceOfferingController {
 
     private static final String PROBLEM = "application/problem+json";
+    static final Set<String> SORTABLE = Set.of("id", "title", "price", "category", "createdAt");
 
     private final ServiceOfferingService serviceOfferingService;
 
@@ -76,10 +78,10 @@ public class ServiceOfferingController {
 
     @Operation(summary = "Listar serviços",
             description = "Lista paginada dos serviços ativos. Todos os filtros são opcionais e combináveis. "
-                    + "Paginação: page (a partir de 0), size (padrão 20, máximo 100) e sort (ex.: price,asc).")
+                    + "Paginação: page (a partir de 0), size (padrão 20, máximo 100) e sort por id, title, price, category ou createdAt (ex.: price,asc).")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Página de serviços"),
-            @ApiResponse(responseCode = "400", description = "Parâmetro de filtro com formato inválido",
+            @ApiResponse(responseCode = "400", description = "Parâmetro de filtro com formato inválido ou ordenação por campo não permitido",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
     })
     @GetMapping
@@ -95,7 +97,8 @@ public class ServiceOfferingController {
             @Parameter(description = "Trecho do título, sem diferenciar maiúsculas", example = "tomada")
             @RequestParam(required = false) String q,
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
-        return serviceOfferingService.search(new ServiceFilter(category, providerId, minPrice, maxPrice, q), pageable);
+        return serviceOfferingService.search(new ServiceFilter(category, providerId, minPrice, maxPrice, q),
+                SortGuard.requireAllowed(pageable, SORTABLE));
     }
 
     @Operation(summary = "Atualizar serviço", description = "Substitui título, descrição, preço e categoria de um serviço existente.")
