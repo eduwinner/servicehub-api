@@ -34,6 +34,9 @@ public class ServiceOfferingResponseDTO {
     @Schema(description = "Data de criação do serviço", example = "2026-11-05T14:35:00")
     private LocalDateTime createdAt;
 
+    @Schema(description = "Data da última alteração", example = "2026-11-05T14:35:00")
+    private LocalDateTime updatedAt;
+
     @Schema(description = "ID do usuário que presta o serviço", example = "1")
     private Long providerId;
 

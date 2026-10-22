@@ -1,6 +1,8 @@
 package com.servicehub.service;
 
+import com.servicehub.exception.BusinessRuleException;
 import com.servicehub.exception.EmailAlreadyExistsException;
+import com.servicehub.model.RequestStatus;
 import com.servicehub.exception.ResourceNotFoundException;
 import com.servicehub.model.Role;
 import com.servicehub.model.User;
@@ -8,6 +10,7 @@ import com.servicehub.model.dto.RegisterDTO;
 import com.servicehub.model.dto.UserResponseDTO;
 import com.servicehub.model.dto.UserUpdateDTO;
 import com.servicehub.repository.ServiceOfferingRepository;
+import com.servicehub.repository.ServiceRequestRepository;
 import com.servicehub.repository.UserRepository;
 import com.servicehub.security.CurrentUser;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -29,9 +32,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ServiceOfferingRepository serviceOfferingRepository;
     private final CurrentUser currentUser;
+    private final ServiceRequestRepository requestRepository;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       ServiceOfferingRepository serviceOfferingRepository, CurrentUser currentUser) {
+                       ServiceOfferingRepository serviceOfferingRepository, CurrentUser currentUser,
+                       ServiceRequestRepository requestRepository) {
+        this.requestRepository = requestRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.serviceOfferingRepository = serviceOfferingRepository;
@@ -91,6 +97,11 @@ public class UserService {
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDTO changeActive(Long id, boolean active) {
         User user = findEntityById(id);
+        if (!active && (requestRepository.existsByClient_IdAndStatusIn(id, RequestStatus.ACTIVE)
+                || requestRepository.existsByService_Provider_IdAndStatusIn(id, RequestStatus.ACTIVE))) {
+            throw new BusinessRuleException("O usuário tem ordens em andamento (como cliente ou prestador). "
+                    + "Conclua ou cancele as ordens antes de desativá-lo.");
+        }
         user.setActive(active);
         if (!active) {
             serviceOfferingRepository.deactivateAllByProvider(id);

@@ -51,6 +51,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.CONFLICT, ProblemTypes.EMAIL_ALREADY_EXISTS, "Conflito", ex.getMessage(), request);
     }
 
+    @ExceptionHandler(InvalidStateTransitionException.class)
+    public ProblemDetail handleInvalidTransition(InvalidStateTransitionException ex, HttpServletRequest request) {
+        return problem(HttpStatus.CONFLICT, ProblemTypes.INVALID_TRANSITION, "Transição de status inválida",
+                ex.getMessage(), request);
+    }
+
     @ExceptionHandler(BusinessRuleException.class)
     public ProblemDetail handleBusinessRule(BusinessRuleException ex, HttpServletRequest request) {
         return problem(HttpStatus.CONFLICT, ProblemTypes.BUSINESS_RULE, "Regra de negócio violada", ex.getMessage(), request);

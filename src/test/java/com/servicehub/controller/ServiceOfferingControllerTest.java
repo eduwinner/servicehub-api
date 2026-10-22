@@ -76,7 +76,7 @@ class ServiceOfferingControllerTest {
     void deveRetornar201ComLocationQuandoCriarServico() throws Exception {
         when(service.createService(any())).thenReturn(new ServiceOfferingResponseDTO(
                 12L, "Instalação de tomadas", "Troca e instalação", new BigDecimal("150.00"),
-                ServiceCategory.ELETRICA, true, null, 1L, "João Silva"));
+                ServiceCategory.ELETRICA, true, null, null, 1L, "João Silva"));
 
         mockMvc.perform(post("/api/v1/services").contentType(MediaType.APPLICATION_JSON)
                         .content(servico("150.00", "ELETRICA")))

@@ -60,6 +60,18 @@ Os testes sobem um PostgreSQL real em container (Testcontainers), então **o Doc
 
 Públicas: cadastro, login, leitura do catálogo de serviços e `/api/v1/info`. Detalhes em [ADR-0003](docs/adr/0003-jwt-nativo-spring-security.md).
 
+## Fluxo principal
+
+| Passo | Quem | Chamada |
+|---|---|---|
+| Publicar serviço | PROVIDER | `POST /api/v1/services` |
+| Contratar (ordem PENDING) | CLIENT ou outro PROVIDER | `POST /api/v1/service-requests` |
+| Aceitar, iniciar, concluir | prestador do serviço | `PATCH /api/v1/service-requests/{id}/status` |
+| Cancelar (antes de iniciar) | cliente ou prestador | `PATCH /api/v1/service-requests/{id}/status` |
+| Avaliar (nota 1–5) | quem contratou, após COMPLETED | `POST /api/v1/service-requests/{id}/reviews` |
+
+Regras da máquina de estados em [ADR-0006](docs/adr/0006-maquina-de-estados-da-ordem.md).
+
 ## Contrato de erro
 
 Todo erro responde `application/problem+json` no formato ProblemDetail (RFC 9457). Exemplo de validação:
@@ -90,7 +102,7 @@ Toda resposta traz o header `X-Request-Id`, também gravado nos logs, para rastr
 | 0 | `fase-0-baseline` | 3–5 | Projeto base, Java 21, testes com Testcontainers |
 | 1 | `fase-1-contrato-qualidade` | 2, 5, 6, 8 | `/api/v1`, erros `ProblemDetail`, validação, paginação, OpenAPI |
 | 2 | `fase-2-seguranca` | 8, 9 | Spring Security, BCrypt, JWT, papéis, BOLA |
-| 3 | `fase-3-dominio-ordens` | 4, 9 | Ordens de serviço, máquina de estados, avaliações |
+| 3 | `fase-3-dominio-ordens` | 4, 9 | Ordens de serviço, máquina de estados, avaliações, V9 alinhada ao schema dos alunos |
 | 4 | `fase-4-testes` | 10 | Pirâmide de testes completa, cobertura, Postman |
 | 5 | `fase-5-docker` | 11, 12 | Dockerfile multi-stage, Compose com healthcheck e perfis |
 | 6 | `fase-6-ci-observabilidade` | 14, 16 | GitHub Actions, Actuator, Prometheus, logs estruturados |
@@ -99,5 +111,5 @@ Design completo: [docs/superpowers/specs/2026-10-22-servicehub-api-design.md](do
 
 ## Limitações conhecidas (nesta fase)
 
-- Excluir usuário ou serviço com ordens ativas ainda não é bloqueado (409 entra na Fase 3, com as ordens).
+- Sem refresh token: o JWT vale 24 h e é revogado só pela desativação da conta.
 - Ordens de serviço e avaliações existem só no banco, sem endpoints (Fase 3).

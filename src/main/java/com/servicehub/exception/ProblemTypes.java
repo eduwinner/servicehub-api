@@ -7,6 +7,7 @@ public final class ProblemTypes {
 
     public static final URI NOT_FOUND = URI.create("urn:servicehub:problem:not-found");
     public static final URI EMAIL_ALREADY_EXISTS = URI.create("urn:servicehub:problem:email-already-exists");
+    public static final URI INVALID_TRANSITION = URI.create("urn:servicehub:problem:invalid-transition");
     public static final URI BUSINESS_RULE = URI.create("urn:servicehub:problem:business-rule");
     public static final URI VALIDATION = URI.create("urn:servicehub:problem:validation-error");
     public static final URI UNAUTHORIZED = URI.create("urn:servicehub:problem:unauthorized");

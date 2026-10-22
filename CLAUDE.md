@@ -69,6 +69,15 @@ The Dockerfile just copies a pre-built `target/*.jar` — run `mvnw.cmd clean pa
 - OpenAPI: global `bearerAuth`; public operations declare `@SecurityRequirements` (empty); `OpenApiConfig.securityResponsesCustomizer` adds 401/403 to every protected operation. Groups `v1` and `public`.
 - Web slice tests use `@AutoConfigureMockMvc(addFilters = false)`; security behaviour is covered by integration tests (`*SecurityIntegrationTest`, `AuthApiIntegrationTest`) using helpers in `AbstractIntegrationTest` (`registrar`, `login`, `adminToken`, `get/post/put/patch/delete`).
 
+## Domain (Phase 3)
+
+- `model/RequestStatus` holds the order state machine as data (`canTransitionTo`, `allowedFor(target, Actor)`, `ACTIVE`). Invalid transition: `InvalidStateTransitionException` (409 `invalid-transition`); valid but not allowed for the caller: `AccessDeniedException` (403). See ADR-0006.
+- `ServiceRequestService`: create (RN06/RN07: price snapshot, no own/inactive service, ADMIN cannot order), list by participation (`role=client|provider`, `status`), changeStatus; increments counter `servicehub.service_requests.transitions{to}`.
+- `ReviewService`: only the order client, only COMPLETED, one per order (exists check + UNIQUE fallback). `Review.rating` is `Short` because the column is SMALLINT (`ddl-auto=validate`).
+- RN10: deactivating a service or user with PENDING/ACCEPTED/IN_PROGRESS orders → 409.
+- Repositories use `@EntityGraph` on `findAll(Specification, Pageable)`/`findById` to avoid N+1; tests assert statement counts via Hibernate statistics.
+- V9 aligned the DB with `docs/alunos/servicehub_schema.sql` (NOT NULLs, CHECKs, RESTRICT FKs, indexes).
+
 ## Architecture
 
 Standard layered Spring MVC structure under `src/main/java/com/servicehub/`:
@@ -81,7 +90,7 @@ Standard layered Spring MVC structure under `src/main/java/com/servicehub/`:
 ### Database & migrations
 
 - Postgres, managed exclusively through **Flyway** (`src/main/resources/db/migration/V{n}__description.sql`). `spring.jpa.hibernate.ddl-auto=validate` — Hibernate never creates/alters schema, so any entity change must ship a matching Flyway migration. **Never edit or rename V1–V7**; add new versions only.
-- Tables: `users` (V1, extended in V3), `services` (V2, FK `ON DELETE CASCADE` since V4), `service_requests` (V5, `CHECK` on status), `reviews` (V7). Only `users` and `services` have entities/endpoints so far. `services` is backed by the `ServiceOffering` entity (named to avoid clashing with `org.springframework.stereotype.Service`). `ServiceOffering.category` is a Java enum (`ServiceCategory`, `EnumType.STRING`); the DB column is a plain `VARCHAR(50)` with no `CHECK` constraint, so only the app enforces valid values.
+- Tables: `users` (V1, extended in V3), `services` (V2, FK `ON DELETE CASCADE` since V4), `service_requests` (V5, `CHECK` on status), `reviews` (V7). All four tables have entities and endpoints. `services` is backed by the `ServiceOffering` entity (named to avoid clashing with `org.springframework.stereotype.Service`). `ServiceOffering.category` is a Java enum (`ServiceCategory`, `EnumType.STRING`); the DB column is a plain `VARCHAR(50)` with no `CHECK` constraint, so only the app enforces valid values.
 - Config comes from env vars with dev defaults: `DB_URL` (default `jdbc:postgresql://localhost:5433/servicehub`, the Compose-published port), `DB_USER`, `DB_PASS`, `SERVER_PORT`. The Compose `api` service sets `DB_URL` to `postgres:5432`. `spring.jpa.open-in-view=false`: build response DTOs inside `@Transactional` service methods.
 - Target schema for the end state (handed to students): `docs/alunos/servicehub_schema.sql`; Phase 3 adds a V9 migration to match it (see design 5.2).
 
@@ -91,5 +100,4 @@ This project is on Spring Boot 4.1.1, which split autoconfiguration into per-fea
 
 ### Current known gaps (not yet implemented)
 
-- `service_requests` and `reviews` have no entities or endpoints (Phase 3).
 - `.env.example` could not be created by the agent (permission deny rule on `.env*`); the variable list is in README.

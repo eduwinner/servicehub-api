@@ -1,6 +1,8 @@
 package com.servicehub.service;
 
+import com.servicehub.exception.BusinessRuleException;
 import com.servicehub.exception.ResourceNotFoundException;
+import com.servicehub.model.RequestStatus;
 import com.servicehub.model.ServiceOffering;
 import com.servicehub.model.User;
 import com.servicehub.model.dto.ServiceFilter;
@@ -9,6 +11,7 @@ import com.servicehub.model.dto.ServiceOfferingResponseDTO;
 import com.servicehub.model.dto.ServiceUpdateDTO;
 import com.servicehub.repository.ServiceOfferingRepository;
 import com.servicehub.repository.ServiceOfferingSpecifications;
+import com.servicehub.repository.ServiceRequestRepository;
 import com.servicehub.repository.UserRepository;
 import com.servicehub.security.AuthUser;
 import com.servicehub.security.CurrentUser;
@@ -26,12 +29,14 @@ public class ServiceOfferingService {
     private final ServiceOfferingRepository serviceOfferingRepository;
     private final UserRepository userRepository;
     private final CurrentUser currentUser;
+    private final ServiceRequestRepository requestRepository;
 
     public ServiceOfferingService(ServiceOfferingRepository serviceOfferingRepository, UserRepository userRepository,
-                                  CurrentUser currentUser) {
+                                  CurrentUser currentUser, ServiceRequestRepository requestRepository) {
         this.serviceOfferingRepository = serviceOfferingRepository;
         this.userRepository = userRepository;
         this.currentUser = currentUser;
+        this.requestRepository = requestRepository;
     }
 
     /** RN04: o prestador é sempre o usuário autenticado. */
@@ -69,6 +74,9 @@ public class ServiceOfferingService {
         requireOwnerOrAdmin(service);
         apply(service, dto);
         if (dto.getActive() != null) {
+            if (!dto.getActive()) {
+                requireNoActiveRequests(service);
+            }
             service.setActive(dto.getActive());
         }
         return toResponseDTO(serviceOfferingRepository.saveAndFlush(service));
@@ -78,7 +86,16 @@ public class ServiceOfferingService {
     public void deleteService(Long id) {
         ServiceOffering service = findEntityById(id);
         requireOwnerOrAdmin(service);
+        requireNoActiveRequests(service);
         service.setActive(false);
+    }
+
+    /** RN10: não se tira do ar um serviço com ordem em andamento. */
+    private void requireNoActiveRequests(ServiceOffering service) {
+        if (requestRepository.existsByService_IdAndStatusIn(service.getId(), RequestStatus.ACTIVE)) {
+            throw new BusinessRuleException("O serviço tem ordens em andamento (PENDING, ACCEPTED ou IN_PROGRESS). "
+                    + "Conclua ou cancele as ordens antes de excluí-lo.");
+        }
     }
 
     private void apply(ServiceOffering service, ServiceOfferingDTO dto) {
@@ -118,6 +135,7 @@ public class ServiceOfferingService {
                 service.getCategory(),
                 service.isActive(),
                 service.getCreatedAt(),
+                service.getUpdatedAt(),
                 provider.getId(),
                 provider.getFullName()
         );
