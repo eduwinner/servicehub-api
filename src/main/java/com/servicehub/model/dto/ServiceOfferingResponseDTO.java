@@ -25,13 +25,13 @@ public class ServiceOfferingResponseDTO {
     @Schema(description = "Preço do serviço", example = "150.00")
     private BigDecimal price;
 
-    @Schema(description = "Categoria do serviço")
+    @Schema(description = "Categoria do serviço", example = "ELETRICA")
     private ServiceCategory category;
 
     @Schema(description = "Indica se o serviço está ativo", example = "true")
     private boolean active;
 
-    @Schema(description = "Data de criação do serviço")
+    @Schema(description = "Data de criação do serviço", example = "2026-11-05T14:35:00")
     private LocalDateTime createdAt;
 
     @Schema(description = "ID do usuário que presta o serviço", example = "1")
