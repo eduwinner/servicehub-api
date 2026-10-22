@@ -4,7 +4,10 @@ import com.servicehub.model.ServiceCategory;
 
 import java.math.BigDecimal;
 
-/** Filtros opcionais de GET /api/v1/services. Campos nulos são ignorados. */
+/**
+ * Filtros opcionais de GET /api/v1/services. Campos nulos são ignorados.
+ * includeInactive só tem efeito para ADMIN.
+ */
 public record ServiceFilter(ServiceCategory category, Long providerId, BigDecimal minPrice, BigDecimal maxPrice,
-                            String q) {
+                            String q, boolean includeInactive) {
 }

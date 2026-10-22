@@ -22,4 +22,8 @@ public record UserUpdateDTO(
         @Schema(description = "URL da foto de perfil", example = "https://cdn.servicehub.com/avatars/7.png")
         @Size(max = 500, message = "A URL do avatar deve ter no máximo 500 caracteres")
         String avatarUrl) {
+
+    public UserUpdateDTO {
+        fullName = fullName == null ? null : fullName.trim();
+    }
 }

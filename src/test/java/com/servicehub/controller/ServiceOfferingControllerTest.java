@@ -7,6 +7,7 @@ import com.servicehub.service.ServiceOfferingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ServiceOfferingController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ServiceOfferingControllerTest {
 
     @Autowired
@@ -39,7 +41,7 @@ class ServiceOfferingControllerTest {
 
     private static String servico(String price, String category) {
         return "{\"title\":\"Instalação de tomadas\",\"description\":\"Troca e instalação\","
-                + "\"price\":" + price + ",\"category\":\"" + category + "\",\"providerId\":1}";
+                + "\"price\":" + price + ",\"category\":\"" + category + "\"}";
     }
 
     @Test
@@ -90,7 +92,7 @@ class ServiceOfferingControllerTest {
         mockMvc.perform(get("/api/v1/services?category=ELETRICA&minPrice=10&q=tom"))
                 .andExpect(status().isOk());
 
-        verify(service).search(eq(new ServiceFilter(ServiceCategory.ELETRICA, null, new BigDecimal("10"), null, "tom")),
+        verify(service).search(eq(new ServiceFilter(ServiceCategory.ELETRICA, null, new BigDecimal("10"), null, "tom", false)),
                 any(Pageable.class));
     }
 

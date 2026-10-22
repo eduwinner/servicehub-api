@@ -1,6 +1,7 @@
 package com.servicehub.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.servicehub.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -19,6 +20,12 @@ public class UserResponseDTO {
 
     @Schema(description = "E-mail do usuário", example = "maria.silva@email.com")
     private String email;
+
+    @Schema(description = "Papel na plataforma", example = "PROVIDER")
+    private Role role;
+
+    @Schema(description = "false quando a conta foi desativada (exclusão lógica)", example = "true")
+    private boolean active;
 
     @Schema(description = "Telefone com DDD", example = "62999990000")
     private String phone;

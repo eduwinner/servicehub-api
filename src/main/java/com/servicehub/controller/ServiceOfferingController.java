@@ -4,6 +4,7 @@ import com.servicehub.model.ServiceCategory;
 import com.servicehub.model.dto.ServiceFilter;
 import com.servicehub.model.dto.ServiceOfferingDTO;
 import com.servicehub.model.dto.ServiceOfferingResponseDTO;
+import com.servicehub.model.dto.ServiceUpdateDTO;
 import com.servicehub.service.ServiceOfferingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -96,8 +97,10 @@ public class ServiceOfferingController {
             @RequestParam(required = false) BigDecimal maxPrice,
             @Parameter(description = "Trecho do título, sem diferenciar maiúsculas", example = "tomada")
             @RequestParam(required = false) String q,
+            @Parameter(description = "Inclui serviços inativos (só tem efeito para ADMIN)", example = "false")
+            @RequestParam(defaultValue = "false") boolean includeInactive,
             @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
-        return serviceOfferingService.search(new ServiceFilter(category, providerId, minPrice, maxPrice, q),
+        return serviceOfferingService.search(new ServiceFilter(category, providerId, minPrice, maxPrice, q, includeInactive),
                 SortGuard.requireAllowed(pageable, SORTABLE));
     }
 
@@ -112,7 +115,7 @@ public class ServiceOfferingController {
     @PutMapping("/{id}")
     public ServiceOfferingResponseDTO update(
             @Parameter(description = "ID do serviço", example = "12") @PathVariable Long id,
-            @Valid @RequestBody ServiceOfferingDTO dto) {
+            @Valid @RequestBody ServiceUpdateDTO dto) {
         return serviceOfferingService.updateService(id, dto);
     }
 

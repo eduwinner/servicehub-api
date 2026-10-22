@@ -29,18 +29,11 @@ class ServiceOfferingApiIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void semear() {
-        Number providerId = (Number) rest.postForEntity("/api/v1/users",
-                Map.of("fullName", "João Prestador", "email", "joao@x.com", "password", "Senha123"), Map.class)
-                .getBody().get("id");
-        criarServico("Limpeza residencial", "100.00", "LIMPEZA", providerId);
-        criarServico("Limpeza pós-obra", "250.00", "LIMPEZA", providerId);
-        criarServico("Instalação de tomadas", "150.00", "ELETRICA", providerId);
-    }
-
-    private void criarServico(String title, String price, String category, Number providerId) {
-        ResponseEntity<Map> resp = rest.postForEntity("/api/v1/services",
-                Map.of("title", title, "price", price, "category", category, "providerId", providerId), Map.class);
-        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        registrar("João Prestador", "joao@x.com", "PROVIDER");
+        String joao = login("joao@x.com");
+        criarServico(joao, "Limpeza residencial", "100.00", "LIMPEZA");
+        criarServico(joao, "Limpeza pós-obra", "250.00", "LIMPEZA");
+        criarServico(joao, "Instalação de tomadas", "150.00", "ELETRICA");
     }
 
     private ServicePage listar(String query) {
@@ -108,10 +101,8 @@ class ServiceOfferingApiIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("deve listar serviços de vários prestadores sem N+1 consultas")
     void deveListarSemNMaisUmQuandoVariosPrestadores() {
         for (int i = 2; i <= 4; i++) {
-            Number pid = (Number) rest.postForEntity("/api/v1/users",
-                    Map.of("fullName", "Prestador " + i, "email", "p" + i + "@x.com", "password", "Senha123"), Map.class)
-                    .getBody().get("id");
-            criarServico("Serviço " + i, "90.00", "PINTURA", pid);
+            registrar("Prestador " + i, "p" + i + "@x.com", "PROVIDER");
+            criarServico(login("p" + i + "@x.com"), "Serviço " + i, "90.00", "PINTURA");
         }
         Statistics stats = emf.unwrap(SessionFactory.class).getStatistics();
         stats.clear();

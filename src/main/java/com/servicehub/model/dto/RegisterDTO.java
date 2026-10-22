@@ -8,8 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-@Schema(description = "Dados para cadastro de um usuário")
-public class UserDTO {
+@Schema(description = "Dados para cadastro de um usuário (cliente ou prestador)")
+public class RegisterDTO {
 
     @Schema(description = "Nome completo do usuário", example = "Maria Silva", minLength = 2, maxLength = 100)
     @NotBlank(message = "O nome é obrigatório")
@@ -30,6 +30,16 @@ public class UserDTO {
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d).+$",
             message = "A senha deve conter ao menos uma letra maiúscula e um número")
     private String password;
+
+    @Schema(description = "Papel na plataforma: CLIENT (contrata) ou PROVIDER (oferece e também contrata)",
+            example = "PROVIDER", allowableValues = {"CLIENT", "PROVIDER"})
+    @NotBlank(message = "O papel é obrigatório")
+    @Pattern(regexp = "CLIENT|PROVIDER", message = "O papel deve ser CLIENT ou PROVIDER")
+    private String role;
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName == null ? null : fullName.trim();
+    }
 
     /** Remove espaços das pontas antes da validação: " maria@x.com " é um e-mail válido digitado com descuido. */
     public void setEmail(String email) {

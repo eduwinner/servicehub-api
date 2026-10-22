@@ -7,14 +7,13 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
-@Schema(description = "Dados para cadastro ou atualização de um serviço oferecido")
+@Schema(description = "Dados para cadastrar um serviço. O prestador é o usuário autenticado (nunca vem do corpo).")
 public class ServiceOfferingDTO {
 
     @Schema(description = "Título do serviço", example = "Instalação elétrica residencial", minLength = 3, maxLength = 150)
@@ -37,8 +36,4 @@ public class ServiceOfferingDTO {
     @NotNull(message = "A categoria é obrigatória")
     private ServiceCategory category;
 
-    @Schema(description = "ID do usuário que presta o serviço (sai do corpo na Fase 2: passa a vir do token)", example = "1")
-    @NotNull(message = "O prestador é obrigatório")
-    @Positive(message = "O id do prestador deve ser positivo")
-    private Long providerId;
 }

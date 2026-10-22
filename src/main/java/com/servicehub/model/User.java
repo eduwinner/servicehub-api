@@ -24,6 +24,13 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role = Role.CLIENT;
+
+    @Column(name = "is_active")
+    private boolean active = true;
+
     @Column(length = 20)
     private String phone;
 

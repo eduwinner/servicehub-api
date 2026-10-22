@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -80,6 +82,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
         ProblemDetail pd = problem(HttpStatus.BAD_REQUEST, ProblemTypes.VALIDATION, "Dados inválidos", detail, request);
         return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+    }
+
+    /** Credenciais inválidas no login ou falta de autenticação detectada na camada de serviço. */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ProblemDetail> handleAuthentication(AuthenticationException ex, HttpServletRequest request) {
+        ProblemDetail pd = problem(HttpStatus.UNAUTHORIZED, ProblemTypes.UNAUTHORIZED, "Não autenticado",
+                ex.getMessage(), request);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header("WWW-Authenticate", "Bearer")
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);
+    }
+
+    /** @PreAuthorize negado ou regra de dono violada (BOLA). Sem isso o catch-all transformaria em 500. */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        return problem(HttpStatus.FORBIDDEN, ProblemTypes.FORBIDDEN, "Acesso negado",
+                "Você não tem permissão para esta operação.", request);
     }
 
     @ExceptionHandler(InvalidRequestException.class)

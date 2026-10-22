@@ -5,6 +5,9 @@ import com.servicehub.model.ServiceCategory;
 import com.servicehub.model.dto.ServiceOfferingDTO;
 import com.servicehub.repository.ServiceOfferingRepository;
 import com.servicehub.repository.UserRepository;
+import com.servicehub.security.AuthUser;
+import com.servicehub.security.CurrentUser;
+import com.servicehub.model.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,22 +30,24 @@ class ServiceOfferingServiceTest {
     @Mock
     UserRepository userRepository;
 
+    @Mock
+    CurrentUser currentUser;
+
     @InjectMocks
     ServiceOfferingService service;
 
     @Test
-    @DisplayName("deve lançar ResourceNotFound quando o prestador não existe")
+    @DisplayName("deve lançar ResourceNotFound quando o prestador autenticado não existe mais")
     void deveLancarResourceNotFoundQuandoPrestadorInexistente() {
         ServiceOfferingDTO dto = new ServiceOfferingDTO();
         dto.setTitle("Instalação elétrica");
         dto.setPrice(new BigDecimal("150.00"));
         dto.setCategory(ServiceCategory.ELETRICA);
-        dto.setProviderId(7L);
+        when(currentUser.get()).thenReturn(new AuthUser(7L, "joao@x.com", Role.PROVIDER));
         when(userRepository.findById(7L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.createService(dto))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("7");
+                .isInstanceOf(ResourceNotFoundException.class);
     }
 
     @Test

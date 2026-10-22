@@ -1,6 +1,7 @@
 package com.servicehub.controller;
 
-import com.servicehub.model.dto.UserDTO;
+import com.servicehub.model.dto.ActiveUpdateDTO;
+import com.servicehub.model.dto.RoleUpdateDTO;
 import com.servicehub.model.dto.UserResponseDTO;
 import com.servicehub.model.dto.UserUpdateDTO;
 import com.servicehub.service.UserService;
@@ -18,18 +19,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
 import java.util.Set;
 
 @RestController
@@ -44,22 +43,6 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-
-    @Operation(summary = "Cadastrar usuário",
-            description = "Cria um usuário. O e-mail é normalizado (minúsculas, sem espaços) e precisa ser único. "
-                    + "A senha nunca aparece nas respostas.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Usuário criado"),
-            @ApiResponse(responseCode = "400", description = "Campos inválidos (nome, e-mail ou senha fraca)",
-                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
-            @ApiResponse(responseCode = "409", description = "E-mail já cadastrado",
-                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
-    })
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody UserDTO dto) {
-        UserResponseDTO body = userService.createUser(dto);
-        return ResponseEntity.created(URI.create("/api/v1/users/" + body.getId())).body(body);
     }
 
     @Operation(summary = "Buscar usuário por ID", description = "Retorna os dados públicos de um usuário.")
@@ -111,5 +94,43 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@Parameter(description = "ID do usuário", example = "7") @PathVariable Long id) {
         userService.deleteUser(id);
+    }
+
+    @Operation(summary = "Alterar papel (ADMIN)", description = "Promove ou rebaixa um usuário. O novo papel vale imediatamente, inclusive para tokens já emitidos.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Papel alterado"),
+            @ApiResponse(responseCode = "400", description = "Papel inválido",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "403", description = "Apenas ADMIN",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PatchMapping("/{id}/role")
+    public UserResponseDTO changeRole(@Parameter(description = "ID do usuário", example = "7") @PathVariable Long id,
+                                      @Valid @RequestBody RoleUpdateDTO dto) {
+        return userService.changeRole(id, dto.role());
+    }
+
+    @Operation(summary = "Ativar ou desativar conta (ADMIN)",
+            description = "Desativar impede o login, invalida tokens já emitidos e tira os serviços do usuário do catálogo. "
+                    + "Reativar não reativa os serviços.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Situação alterada"),
+            @ApiResponse(responseCode = "400", description = "Campo active ausente",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "403", description = "Apenas ADMIN",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PatchMapping("/{id}/active")
+    public UserResponseDTO changeActive(@Parameter(description = "ID do usuário", example = "7") @PathVariable Long id,
+                                        @Valid @RequestBody ActiveUpdateDTO dto) {
+        return userService.changeActive(id, dto.active());
     }
 }

@@ -41,14 +41,14 @@ public final class ServiceOfferingSpecifications {
         return (root, query, cb) -> cb.like(cb.lower(root.get("title")), pattern);
     }
 
-    public static Specification<ServiceOffering> fromFilter(ServiceFilter f) {
+    public static Specification<ServiceOffering> fromFilter(ServiceFilter f, boolean includeInactive) {
         List<Specification<ServiceOffering>> specs = new ArrayList<>();
-        specs.add(isActive());
+        if (!includeInactive) specs.add(isActive());
         if (f.category() != null) specs.add(hasCategory(f.category()));
         if (f.providerId() != null) specs.add(hasProvider(f.providerId()));
         if (f.minPrice() != null) specs.add(priceGte(f.minPrice()));
         if (f.maxPrice() != null) specs.add(priceLte(f.maxPrice()));
         if (f.q() != null && !f.q().isBlank()) specs.add(titleContains(f.q().trim()));
-        return Specification.allOf(specs);
+        return specs.isEmpty() ? Specification.unrestricted() : Specification.allOf(specs);
     }
 }
