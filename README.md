@@ -41,7 +41,32 @@ Os testes sobem um PostgreSQL real em container (Testcontainers), então **o Doc
 
 ## Documentação
 
-Swagger UI em `http://localhost:8080/swagger-ui.html` (passa para `/docs` na Fase 1).
+- Swagger UI: `http://localhost:8080/docs`
+- Especificação OpenAPI (grupo v1): `http://localhost:8080/api-docs/v1`
+- Todas as rotas da API começam com `/api/v1`. Listagens são paginadas (`?page=0&size=20&sort=id`, máximo 100 por página).
+
+## Contrato de erro
+
+Todo erro responde `application/problem+json` no formato ProblemDetail (RFC 9457). Exemplo de validação:
+
+```json
+{
+  "type": "urn:servicehub:problem:validation-error",
+  "title": "Dados inválidos",
+  "status": 400,
+  "detail": "Um ou mais campos estão inválidos.",
+  "instance": "/api/v1/services",
+  "timestamp": "2026-11-05T17:30:12Z",
+  "errors": [{ "field": "price", "message": "O preço deve ser maior que zero" }]
+}
+```
+
+Toda resposta traz o header `X-Request-Id`, também gravado nos logs, para rastrear uma requisição. Detalhes em [ADR-0004](docs/adr/0004-problem-detail-rfc-9457.md).
+
+## Material dos alunos
+
+- [Mapa de Construção (PDF)](docs/alunos/ServiceHub-Mapa-de-Construcao.pdf): schema, endpoints e regras de negócio que a API deve atingir.
+- [Schema-alvo PostgreSQL](docs/alunos/servicehub_schema.sql).
 
 ## Fases e tags
 
@@ -60,5 +85,6 @@ Design completo: [docs/superpowers/specs/2026-10-22-servicehub-api-design.md](do
 ## Limitações conhecidas (nesta fase)
 
 - Sem autenticação; senhas gravadas em texto puro (Fase 2).
-- Erros de negócio respondem 500 genérico; não há validação de entrada nem paginação (Fase 1).
+- O prestador de um serviço ainda vem no corpo (`providerId`); passa a vir do token na Fase 2.
+- Exclusão ainda é física (`DELETE`); a exclusão lógica entra na Fase 2.
 - Ordens de serviço e avaliações existem só no banco, sem endpoints (Fase 3).

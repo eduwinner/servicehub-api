@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -93,7 +94,7 @@ public class ServiceOfferingController {
             @RequestParam(required = false) BigDecimal maxPrice,
             @Parameter(description = "Trecho do título, sem diferenciar maiúsculas", example = "tomada")
             @RequestParam(required = false) String q,
-            @Parameter(hidden = true) @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "id") Pageable pageable) {
         return serviceOfferingService.search(new ServiceFilter(category, providerId, minPrice, maxPrice, q), pageable);
     }
 

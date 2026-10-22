@@ -41,8 +41,19 @@ The Dockerfile just copies a pre-built `target/*.jar` — run `mvnw.cmd clean pa
 
 ## Tests
 
+- Integration tests extend `com.servicehub.AbstractIntegrationTest` (`RANDOM_PORT`, `TestRestTemplate`, `TRUNCATE ... RESTART IDENTITY` before each test). Boot 4 moved `TestRestTemplate` to `spring-boot-resttestclient` (needs `@AutoConfigureTestRestTemplate`). Web slice tests: `@WebMvcTest` from `org.springframework.boot.webmvc.test.autoconfigure` + `@MockitoBean`.
 - Tests that need a database use **Testcontainers** (`postgres:16-alpine`) via `com.servicehub.TestcontainersConfiguration` (`@ServiceConnection`), imported with `@Import`. **Docker must be running**; no Compose needed. H2 is deliberately not used (ADR-0005): migrations rely on Postgres-only SQL.
 - The context test lives in `com.servicehub.servicehub_api` (see `HELP.md`) — an artifact of the original Maven artifactId being an invalid package name. Don't "fix" this without checking whether it's intentional.
+
+## API conventions (Phase 1)
+
+- All routes under `/api/v1`. `HelloController` was replaced by `InfoController` (`GET /api/v1/info`).
+- Errors: `exception/GlobalExceptionHandler` (extends `ResponseEntityExceptionHandler`) returns `ProblemDetail`; `type` URNs live in `exception/ProblemTypes`. Throw `ResourceNotFoundException` (404), `EmailAlreadyExistsException` / `BusinessRuleException` (409); never bare `RuntimeException`.
+- Validation: Bean Validation on request DTOs + `@Valid`; 400 carries `errors: [{field, message}]`. Enum parse errors list accepted values (Jackson 3: `tools.jackson.databind.exc.InvalidFormatException`).
+- Pagination: controllers take `@ParameterObject @PageableDefault Pageable`; JSON is `{content, page{size,number,totalElements,totalPages}}` via `spring.data.web.pageable.serialization-mode=via-dto`. Do **not** add `@EnableSpringDataWebSupport` — it disables Boot's pageable autoconfig and silently drops `max-page-size=100`.
+- `config/RequestIdFilter` sets/echoes `X-Request-Id` and MDC `requestId`.
+- OpenAPI: Swagger UI at `/docs`, spec at `/api-docs/v1`; every endpoint documents each status code with `ProblemDetail` schema for errors.
+- `POST` returns `ResponseEntity.created(Location)`.
 
 ## Architecture
 
@@ -57,7 +68,8 @@ Standard layered Spring MVC structure under `src/main/java/com/servicehub/`:
 
 - Postgres, managed exclusively through **Flyway** (`src/main/resources/db/migration/V{n}__description.sql`). `spring.jpa.hibernate.ddl-auto=validate` — Hibernate never creates/alters schema, so any entity change must ship a matching Flyway migration. **Never edit or rename V1–V7**; add new versions only.
 - Tables: `users` (V1, extended in V3), `services` (V2, FK `ON DELETE CASCADE` since V4), `service_requests` (V5, `CHECK` on status), `reviews` (V7). Only `users` and `services` have entities/endpoints so far. `services` is backed by the `ServiceOffering` entity (named to avoid clashing with `org.springframework.stereotype.Service`). `ServiceOffering.category` is a Java enum (`ServiceCategory`, `EnumType.STRING`); the DB column is a plain `VARCHAR(50)` with no `CHECK` constraint, so only the app enforces valid values.
-- Connection settings in `application.properties` are the docker defaults (`jdbc:postgresql://postgres:5432/servicehub`); `docker-compose.yml` overrides them via env vars for the `api` service. (Phase 1 switches to `DB_URL`/`DB_USER`/`DB_PASS` with localhost defaults.)
+- Config comes from env vars with dev defaults: `DB_URL` (default `jdbc:postgresql://localhost:5433/servicehub`, the Compose-published port), `DB_USER`, `DB_PASS`, `SERVER_PORT`. The Compose `api` service sets `DB_URL` to `postgres:5432`. `spring.jpa.open-in-view=false`: build response DTOs inside `@Transactional` service methods.
+- Target schema for the end state (handed to students): `docs/alunos/servicehub_schema.sql`; Phase 3 adds a V9 migration to match it (see design 5.2).
 
 ### Spring Boot 4 dependency gotcha
 
@@ -67,6 +79,6 @@ This project is on Spring Boot 4.1.1, which split autoconfiguration into per-fea
 
 - No authentication/security layer at all (Phase 2).
 - Passwords are stored as-is into `password_hash` (`UserDTO.password` → `User.passwordHash`) — no hashing yet (Phase 2).
-- Errors are surfaced via bare `RuntimeException` (duplicate email, not found) → generic 500s; no validation; no pagination (Phase 1).
+- `ServiceOfferingDTO.providerId` still comes from the request body (Phase 2 takes it from the JWT). Deletes are physical (Phase 2: soft delete).
 - `service_requests` and `reviews` have no entities or endpoints (Phase 3).
 - `.env.example` could not be created by the agent (permission deny rule on `.env*`); the variable list is in README.

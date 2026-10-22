@@ -67,4 +67,13 @@ class UserApiIntegrationTest extends AbstractIntegrationTest {
         assertThat((java.util.List<?>) resp.getBody().get("content")).hasSize(1);
         assertThat(((Map<?, ?>) resp.getBody().get("page")).get("totalElements")).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("deve aceitar e normalizar e-mail com espaços e maiúsculas no cadastro")
+    void deveAceitarEmailComEspacosQuandoCriar() {
+        ResponseEntity<Map> resp = criarUsuario("Maria Silva", "  Maria@X.com ");
+
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(resp.getBody()).containsEntry("email", "maria@x.com");
+    }
 }

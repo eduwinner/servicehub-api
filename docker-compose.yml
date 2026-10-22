@@ -34,15 +34,9 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/servicehub
-      SPRING_DATASOURCE_USERNAME: servicehub
-      SPRING_DATASOURCE_PASSWORD: secret
-
-      # Flyway
-      SPRING_FLYWAY_ENABLED: "true"
-      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/servicehub
-      SPRING_FLYWAY_USER: servicehub
-      SPRING_FLYWAY_PASSWORD: secret
+      DB_URL: jdbc:postgresql://postgres:5432/servicehub
+      DB_USER: servicehub
+      DB_PASS: secret
 
     ports:
       - "8090:8080"

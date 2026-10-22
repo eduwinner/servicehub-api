@@ -30,4 +30,9 @@ public class UserDTO {
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d).+$",
             message = "A senha deve conter ao menos uma letra maiúscula e um número")
     private String password;
+
+    /** Remove espaços das pontas antes da validação: " maria@x.com " é um e-mail válido digitado com descuido. */
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
 }
