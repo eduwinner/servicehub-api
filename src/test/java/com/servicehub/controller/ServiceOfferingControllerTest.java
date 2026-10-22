@@ -1,12 +1,15 @@
 package com.servicehub.controller;
 
 import com.servicehub.model.ServiceCategory;
+import com.servicehub.model.dto.ServiceFilter;
 import com.servicehub.model.dto.ServiceOfferingResponseDTO;
 import com.servicehub.service.ServiceOfferingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,7 +18,10 @@ import java.math.BigDecimal;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -73,5 +79,17 @@ class ServiceOfferingControllerTest {
                         .content(servico("150.00", "ELETRICA")))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/v1/services/12"));
+    }
+
+    @Test
+    @DisplayName("deve repassar os filtros ao service quando listar")
+    void deveRepassarFiltrosAoServiceQuandoListar() throws Exception {
+        when(service.search(any(), any())).thenReturn(Page.empty());
+
+        mockMvc.perform(get("/api/v1/services?category=ELETRICA&minPrice=10&q=tom"))
+                .andExpect(status().isOk());
+
+        verify(service).search(eq(new ServiceFilter(ServiceCategory.ELETRICA, null, new BigDecimal("10"), null, "tom")),
+                any(Pageable.class));
     }
 }

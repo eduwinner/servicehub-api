@@ -1,5 +1,7 @@
 package com.servicehub.controller;
 
+import com.servicehub.model.ServiceCategory;
+import com.servicehub.model.dto.ServiceFilter;
 import com.servicehub.model.dto.ServiceOfferingDTO;
 import com.servicehub.model.dto.ServiceOfferingResponseDTO;
 import com.servicehub.service.ServiceOfferingService;
@@ -10,12 +12,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -55,8 +60,14 @@ public class ServiceOfferingController {
     @Operation(summary = "Listar serviços", description = "Retorna todos os serviços cadastrados")
     @ApiResponse(responseCode = "200", description = "Lista de serviços retornada com sucesso")
     @GetMapping
-    public List<ServiceOfferingResponseDTO> findAll() {
-        return serviceOfferingService.findAll();
+    public Page<ServiceOfferingResponseDTO> findAll(
+            @RequestParam(required = false) ServiceCategory category,
+            @RequestParam(required = false) Long providerId,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) String q,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return serviceOfferingService.search(new ServiceFilter(category, providerId, minPrice, maxPrice, q), pageable);
     }
 
     @Operation(summary = "Atualizar serviço", description = "Atualiza os dados de um serviço existente")

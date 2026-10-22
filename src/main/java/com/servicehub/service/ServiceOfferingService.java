@@ -3,14 +3,17 @@ package com.servicehub.service;
 import com.servicehub.exception.ResourceNotFoundException;
 import com.servicehub.model.ServiceOffering;
 import com.servicehub.model.User;
+import com.servicehub.model.dto.ServiceFilter;
 import com.servicehub.model.dto.ServiceOfferingDTO;
 import com.servicehub.model.dto.ServiceOfferingResponseDTO;
 import com.servicehub.repository.ServiceOfferingRepository;
+import com.servicehub.repository.ServiceOfferingSpecifications;
 import com.servicehub.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @Transactional
@@ -44,10 +47,9 @@ public class ServiceOfferingService {
     }
 
     @Transactional(readOnly = true)
-    public List<ServiceOfferingResponseDTO> findAll() {
-        return serviceOfferingRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .toList();
+    public Page<ServiceOfferingResponseDTO> search(ServiceFilter filter, Pageable pageable) {
+        return serviceOfferingRepository.findAll(ServiceOfferingSpecifications.fromFilter(filter), pageable)
+                .map(this::toResponseDTO);
     }
 
     public ServiceOfferingResponseDTO updateService(Long id, ServiceOfferingDTO dto) {

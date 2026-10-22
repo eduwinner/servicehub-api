@@ -54,4 +54,17 @@ class UserApiIntegrationTest extends AbstractIntegrationTest {
                 .contains("\"updatedAt\":\"")
                 .doesNotContainIgnoringCase("password");
     }
+
+    @Test
+    @DisplayName("deve listar usuários paginados quando GET")
+    void deveListarUsuariosPaginadosQuandoGet() {
+        criarUsuario("Maria Silva", "maria@x.com");
+        criarUsuario("João Pereira", "joao@x.com");
+
+        ResponseEntity<Map> resp = rest.getForEntity("/api/v1/users?size=1", Map.class);
+
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat((java.util.List<?>) resp.getBody().get("content")).hasSize(1);
+        assertThat(((Map<?, ?>) resp.getBody().get("page")).get("totalElements")).isEqualTo(2);
+    }
 }

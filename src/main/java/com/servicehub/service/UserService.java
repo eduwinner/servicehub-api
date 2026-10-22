@@ -7,9 +7,10 @@ import com.servicehub.model.dto.UserDTO;
 import com.servicehub.model.dto.UserResponseDTO;
 import com.servicehub.model.dto.UserUpdateDTO;
 import com.servicehub.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -56,10 +57,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserResponseDTO> findAll() {
-        return userRepository.findAll().stream()
-                .map(this::toResponseDTO)
-                .toList();
+    public Page<UserResponseDTO> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     private User findEntityById(Long id) {

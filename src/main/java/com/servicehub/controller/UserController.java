@@ -11,12 +11,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -56,8 +58,8 @@ public class UserController {
     @Operation(summary = "Listar usuários", description = "Retorna todos os usuários cadastrados")
     @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso")
     @GetMapping
-    public List<UserResponseDTO> findAll() {
-        return userService.findAll();
+    public Page<UserResponseDTO> findAll(@PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        return userService.findAll(pageable);
     }
 
     @Operation(summary = "Atualizar usuário", description = "Atualiza os dados de um usuário existente")
