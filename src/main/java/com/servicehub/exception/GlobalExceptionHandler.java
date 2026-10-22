@@ -80,11 +80,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         String detail = "Corpo da requisição inválido ou malformado.";
-        if (ex.getCause() instanceof InvalidFormatException ife && ife.getTargetType() != null
-                && ife.getTargetType().isEnum()) {
+        if (ex.getCause() instanceof InvalidFormatException ife) {
             String field = ife.getPath().isEmpty() ? "?" : ife.getPath().getLast().getPropertyName();
-            detail = "Valor inválido para '" + field + "'. Valores aceitos: "
-                    + Arrays.toString(ife.getTargetType().getEnumConstants());
+            Class<?> type = ife.getTargetType();
+            detail = (type != null && type.isEnum())
+                    ? "Valor inválido para '" + field + "'. Valores aceitos: " + Arrays.toString(type.getEnumConstants())
+                    : "Formato inválido para o campo '" + field + "'.";
         }
         ProblemDetail pd = problem(HttpStatus.BAD_REQUEST, ProblemTypes.VALIDATION, "Dados inválidos", detail, request);
         return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_PROBLEM_JSON).body(pd);

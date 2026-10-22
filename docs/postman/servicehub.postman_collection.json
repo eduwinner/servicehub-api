@@ -1,0 +1,193 @@
+{
+  "info": {
+    "name": "ServiceHub API — ciclo completo",
+    "description": "Fluxo de ponta a ponta do ServiceHub: cadastro de prestador e cliente, login, serviço, ordem, aceite, execução, conclusão e avaliação. Rode a pasta inteira com o Collection Runner. Ajuste a variável baseUrl (padrão: Docker Compose em http://localhost:8090).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8090" },
+    { "key": "senha", "value": "Senha123" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// gera e-mails únicos uma vez por execução, para rodar a coleção várias vezes",
+          "if (!pm.collectionVariables.get('sufixo')) {",
+          "  pm.collectionVariables.set('sufixo', Date.now().toString());",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Status da API",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/info" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "pm.collectionVariables.unset('sufixo');",
+        "pm.collectionVariables.set('sufixo', Date.now().toString());"
+      ] } }]
+    },
+    {
+      "name": "1. Cadastrar prestador",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/auth/register",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"João Prestador\",\n  \"email\": \"joao.{{sufixo}}@servicehub.com\",\n  \"password\": \"{{senha}}\",\n  \"role\": \"PROVIDER\"\n}" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created com Location', () => { pm.response.to.have.status(201); pm.response.to.have.header('Location'); });",
+        "pm.test('sem senha na resposta', () => pm.expect(pm.response.text().toLowerCase()).to.not.include('password'));",
+        "pm.collectionVariables.set('providerId', pm.response.json().id);"
+      ] } }]
+    },
+    {
+      "name": "2. Cadastrar cliente",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/auth/register",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Maria Cliente\",\n  \"email\": \"maria.{{sufixo}}@servicehub.com\",\n  \"password\": \"{{senha}}\",\n  \"role\": \"CLIENT\"\n}" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created', () => pm.response.to.have.status(201));",
+        "pm.collectionVariables.set('clientId', pm.response.json().id);"
+      ] } }]
+    },
+    {
+      "name": "3. Login do prestador",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/auth/login",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"joao.{{sufixo}}@servicehub.com\",\n  \"password\": \"{{senha}}\"\n}" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK com token Bearer', () => { pm.response.to.have.status(200); pm.expect(pm.response.json().tokenType).to.eql('Bearer'); });",
+        "pm.collectionVariables.set('providerToken', pm.response.json().accessToken);"
+      ] } }]
+    },
+    {
+      "name": "4. Login do cliente",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/auth/login",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"maria.{{sufixo}}@servicehub.com\",\n  \"password\": \"{{senha}}\"\n}" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('200 OK', () => pm.response.to.have.status(200));",
+        "pm.collectionVariables.set('clientToken', pm.response.json().accessToken);"
+      ] } }]
+    },
+    {
+      "name": "5. Prestador publica serviço",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/services",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{providerToken}}" }] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Instalação elétrica residencial\",\n  \"description\": \"Tomadas, disjuntores e fiação\",\n  \"price\": 150.00,\n  \"category\": \"ELETRICA\"\n}" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created', () => pm.response.to.have.status(201));",
+        "pm.test('prestador vem do token', () => pm.expect(pm.response.json().providerId).to.eql(Number(pm.collectionVariables.get('providerId'))));",
+        "pm.collectionVariables.set('serviceId', pm.response.json().id);"
+      ] } }]
+    },
+    {
+      "name": "6. Cliente contrata (ordem PENDING)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/service-requests",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{clientToken}}" }] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"serviceId\": {{serviceId}},\n  \"scheduledAt\": \"2030-11-10T09:00:00\",\n  \"notes\": \"Apartamento 302\"\n}" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created PENDING', () => { pm.response.to.have.status(201); pm.expect(pm.response.json().status).to.eql('PENDING'); });",
+        "pm.collectionVariables.set('requestId', pm.response.json().id);"
+      ] } }]
+    },
+    {
+      "name": "7. Prestador aceita",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/v1/service-requests/{{requestId}}/status",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{providerToken}}" }] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{ \"status\": \"ACCEPTED\" }" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('ACCEPTED', () => pm.expect(pm.response.json().status).to.eql('ACCEPTED'));"
+      ] } }]
+    },
+    {
+      "name": "8. Prestador inicia a execução",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/v1/service-requests/{{requestId}}/status",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{providerToken}}" }] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{ \"status\": \"IN_PROGRESS\" }" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('IN_PROGRESS', () => pm.expect(pm.response.json().status).to.eql('IN_PROGRESS'));"
+      ] } }]
+    },
+    {
+      "name": "9. Prestador conclui",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/v1/service-requests/{{requestId}}/status",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{providerToken}}" }] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{ \"status\": \"COMPLETED\" }" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('COMPLETED', () => pm.expect(pm.response.json().status).to.eql('COMPLETED'));"
+      ] } }]
+    },
+    {
+      "name": "10. Cliente avalia",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/service-requests/{{requestId}}/reviews",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{clientToken}}" }] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Pontual e caprichoso.\"\n}" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('201 Created', () => pm.response.to.have.status(201));"
+      ] } }]
+    },
+    {
+      "name": "11. Avaliações do serviço (público)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/services/{{serviceId}}/reviews" },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('1 avaliação', () => pm.expect(pm.response.json().content.length).to.eql(1));"
+      ] } }]
+    },
+    {
+      "name": "12. Erro esperado: transição inválida (409)",
+      "request": {
+        "method": "PATCH",
+        "url": "{{baseUrl}}/api/v1/service-requests/{{requestId}}/status",
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{providerToken}}" }] },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{ \"status\": \"PENDING\" }" }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('409 ProblemDetail invalid-transition', () => {",
+        "  pm.response.to.have.status(409);",
+        "  pm.expect(pm.response.json().type).to.eql('urn:servicehub:problem:invalid-transition');",
+        "});"
+      ] } }]
+    }
+  ]
+}

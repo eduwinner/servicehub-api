@@ -59,7 +59,8 @@ class ServiceOfferingControllerTest {
         mockMvc.perform(post("/api/v1/services").contentType(MediaType.APPLICATION_JSON)
                         .content(servico("\"abc\"", "ELETRICA")))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("Dados inválidos"));
+                .andExpect(jsonPath("$.title").value("Dados inválidos"))
+                .andExpect(jsonPath("$.detail").value(containsString("price")));
     }
 
     @Test

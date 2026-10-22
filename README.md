@@ -44,7 +44,7 @@ Todas têm valor padrão de desenvolvimento; defina-as (ou crie um `.env`, nunca
 ./mvnw.cmd verify
 ```
 
-Os testes sobem um PostgreSQL real em container (Testcontainers), então **o Docker precisa estar rodando**. Não é preciso subir o Compose antes.
+Os testes sobem um PostgreSQL real em container (Testcontainers), então **o Docker precisa estar rodando**. Não é preciso subir o Compose antes. O relatório de cobertura (JaCoCo) fica em `target/site/jacoco/index.html`.
 
 ## Documentação
 
@@ -71,6 +71,11 @@ Públicas: cadastro, login, leitura do catálogo de serviços e `/api/v1/info`. 
 | Avaliar (nota 1–5) | quem contratou, após COMPLETED | `POST /api/v1/service-requests/{id}/reviews` |
 
 Regras da máquina de estados em [ADR-0006](docs/adr/0006-maquina-de-estados-da-ordem.md).
+
+## Testar manualmente
+
+- **Swagger UI** em `/docs`: faça login em `POST /api/v1/auth/login` e use o botão **Authorize**.
+- **Postman**: importe [docs/postman/servicehub.postman_collection.json](docs/postman/servicehub.postman_collection.json) e rode a coleção inteira (Collection Runner). Ela executa o ciclo completo e confere status codes; ajuste `baseUrl` se não estiver no Compose (8090).
 
 ## Contrato de erro
 

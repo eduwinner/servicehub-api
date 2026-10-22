@@ -78,6 +78,14 @@ The Dockerfile just copies a pre-built `target/*.jar` — run `mvnw.cmd clean pa
 - Repositories use `@EntityGraph` on `findAll(Specification, Pageable)`/`findById` to avoid N+1; tests assert statement counts via Hibernate statistics.
 - V9 aligned the DB with `docs/alunos/servicehub_schema.sql` (NOT NULLs, CHECKs, RESTRICT FKs, indexes).
 
+## Tests & coverage (Phase 4)
+
+- `mvnw verify` generates JaCoCo at `target/site/jacoco/index.html` (~96% lines). Surefire loads Mockito as `-javaagent` via `maven-dependency-plugin:properties`; keep `@{argLine}` so JaCoCo still works.
+- `ProtectedRoutesIntegrationTest` sweeps every protected route for 401; add new protected routes to its CSV.
+- `ServiceOfferingSpecifications.titleContains` escapes `%`, `_` with `!` as LIKE escape char.
+- SQL is logged through `org.hibernate.SQL` (DEBUG), not `show-sql`, so lines carry the MDC `requestId`.
+- Postman collection: `docs/postman/servicehub.postman_collection.json` (full cycle, default baseUrl 8090).
+
 ## Architecture
 
 Standard layered Spring MVC structure under `src/main/java/com/servicehub/`:

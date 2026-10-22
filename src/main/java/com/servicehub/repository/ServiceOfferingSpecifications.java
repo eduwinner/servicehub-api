@@ -36,9 +36,12 @@ public final class ServiceOfferingSpecifications {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("price"), max);
     }
 
+    /** Busca parcial no título. %, _ e ! digitados pelo usuário são escapados: valem como texto, não como curinga. */
     public static Specification<ServiceOffering> titleContains(String q) {
-        String pattern = "%" + q.toLowerCase(Locale.ROOT) + "%";
-        return (root, query, cb) -> cb.like(cb.lower(root.get("title")), pattern);
+        String literal = q.toLowerCase(Locale.ROOT)
+                .replace("!", "!!").replace("%", "!%").replace("_", "!_");
+        String pattern = "%" + literal + "%";
+        return (root, query, cb) -> cb.like(cb.lower(root.get("title")), pattern, '!');
     }
 
     public static Specification<ServiceOffering> fromFilter(ServiceFilter f, boolean includeInactive) {

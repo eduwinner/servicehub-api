@@ -111,4 +111,12 @@ class ServiceOfferingApiIntegrationTest extends AbstractIntegrationTest {
 
         assertThat(stats.getPrepareStatementCount()).isLessThanOrEqualTo(2);
     }
+
+    @Test
+    @DisplayName("deve tratar % e _ da busca como texto literal, não como curinga")
+    void deveTratarCuringasComoTextoQuandoBuscar() {
+        assertThat(listar("?q=%25").page().totalElements()).isZero();
+        assertThat(listar("?q=Limpeza_residencial").page().totalElements()).isZero();
+        assertThat(listar("?q=Limpeza res").page().totalElements()).isEqualTo(1);
+    }
 }
