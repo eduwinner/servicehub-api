@@ -1,5 +1,7 @@
 package com.servicehub.service;
 
+import com.servicehub.exception.EmailAlreadyExistsException;
+import com.servicehub.exception.ResourceNotFoundException;
 import com.servicehub.model.User;
 import com.servicehub.model.dto.UserDTO;
 import com.servicehub.model.dto.UserResponseDTO;
@@ -7,6 +9,7 @@ import com.servicehub.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Transactional
@@ -19,13 +22,14 @@ public class UserService {
     }
 
     public UserResponseDTO createUser(UserDTO dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("E-mail já cadastrado.");
+        String email = normalizeEmail(dto.getEmail());
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException(email);
         }
 
         User user = new User();
         user.setFullName(dto.getFullName());
-        user.setEmail(dto.getEmail());
+        user.setEmail(email);
         user.setPasswordHash(dto.getPassword()); // depois trocar por hash
 
         return toResponseDTO(userRepository.save(user));
@@ -56,7 +60,11 @@ public class UserService {
 
     private User findEntityById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
+    }
+
+    private static String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 
     private UserResponseDTO toResponseDTO(User user) {

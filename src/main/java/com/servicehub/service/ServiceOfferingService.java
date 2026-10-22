@@ -1,5 +1,6 @@
 package com.servicehub.service;
 
+import com.servicehub.exception.ResourceNotFoundException;
 import com.servicehub.model.ServiceOffering;
 import com.servicehub.model.User;
 import com.servicehub.model.dto.ServiceOfferingDTO;
@@ -25,7 +26,7 @@ public class ServiceOfferingService {
 
     public ServiceOfferingResponseDTO createService(ServiceOfferingDTO dto) {
         User provider = userRepository.findById(dto.getProviderId())
-                .orElseThrow(() -> new RuntimeException("Usuário (provedor) não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Prestador não encontrado: " + dto.getProviderId()));
 
         ServiceOffering service = new ServiceOffering();
         service.setTitle(dto.getTitle());
@@ -65,7 +66,7 @@ public class ServiceOfferingService {
 
     private ServiceOffering findEntityById(Long id) {
         return serviceOfferingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado: " + id));
     }
 
     private ServiceOfferingResponseDTO toResponseDTO(ServiceOffering service) {
