@@ -12,46 +12,59 @@
   :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
           --get:#047857; --post:#1d4ed8; --put:#b45309; --patch:#7c3aed; --del:#b91c1c; }
   * { box-sizing: border-box; }
-  body { font: 10pt/1.5 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
-  h1 { font-size: 20pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
-  h2 { font-size: 13pt; margin: 7mm 0 2.5mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
-  h3 { font-size: 11pt; margin: 5mm 0 2mm; break-after: avoid; }
+  body { font: 11.5pt/1.55 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15pt; margin: 7mm 0 2.5mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
   p { margin: 0 0 2.5mm; }
   ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
   li { margin-bottom: 1mm; }
-  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 8.8pt; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
   code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
-  pre { font: 8.4pt/1.42 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
         border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3mm; white-space: pre-wrap; break-inside: avoid; }
-  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 8.8pt; break-inside: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; break-inside: auto; }
   thead { display: table-header-group; }
   tr { break-inside: avoid; }
   th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
   td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
-  td.m { width: 15mm; font-weight: 700; font-family: Consolas, monospace; font-size: 8.4pt; }
+  td.m { width: 17mm; font-weight: 700; font-family: Consolas, monospace; font-size: 9.4pt; }
   .GET { color: var(--get); } .POST { color: var(--post); } .PUT { color: var(--put); } .PATCH { color: var(--patch); } .DELETE { color: var(--del); }
   .page { break-before: page; }
   .note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 2mm 3mm; margin: 0 0 3.5mm; break-inside: avoid; }
   .warn { border-left: 3px solid #b45309; background: #fdf3e6; padding: 2mm 3mm; margin: 0 0 3.5mm; break-inside: avoid; }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
   .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
-  .card h4 { margin: 0 0 1.5mm; font-size: 10pt; }
-  .tag { display: inline-block; font-size: 7.6pt; font-weight: 600; padding: 0 1.5mm; border-radius: 2px; border: 1px solid var(--line); background: #fff; }
+  .card h4 { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .tag { display: inline-block; font-size: 8.6pt; font-weight: 600; padding: 0 1.5mm; border-radius: 2px; border: 1px solid var(--line); background: #fff; }
   .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
-  .figure figcaption { font-size: 8.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .figure svg { max-width: 92%; }
+  .fig-sm svg { max-width: 72%; }
+  .endpoints table { font-size: 9.4pt; }
+  .endpoints td { padding: 1.1mm 1.8mm; }
+  .figure figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
   .checklist li { list-style: none; margin-left: -5mm; }
   .checklist li::before { content: "☐  "; }
   /* capa */
-  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; }
-  .cover .top { border-top: 6px solid var(--accent); padding-top: 10mm; }
+  .cover { }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
   .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-  .cover h1 { font-size: 34pt; line-height: 1.1; margin: 4mm 0 3mm; color: var(--ink); }
-  .cover .sub { font-size: 14pt; color: var(--accent); margin-bottom: 10mm; }
-  .cover .lead { font-size: 11pt; max-width: 150mm; }
-  .cover dl { display: grid; grid-template-columns: 38mm 1fr; gap: 1.5mm 4mm; font-size: 10pt; margin: 0; }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; max-width: 170mm; margin-bottom: 4mm; }
+  .cover dl { display: grid; grid-template-columns: 42mm 1fr; gap: 1.5mm 4mm; font-size: 11pt; margin: 5mm 0 0; padding-top: 3mm; border-top: 1px solid var(--line); font-size: 10.5pt; }
   .cover dt { color: var(--muted); }
   .cover dd { margin: 0; }
-  .toc ol { padding-left: 5mm; columns: 2; column-gap: 10mm; font-size: 10pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; }
+  .toc h3 { margin-top: 0; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11.5pt; margin: 0; }
+  .toc li { margin-bottom: 1.6mm; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
 </style>
 </head>
 <body>
@@ -63,23 +76,71 @@
     <h1>ServiceHub API<br>Mapa de Construção</h1>
     <div class="sub">Especificação de banco de dados e endpoints para a refatoração do Ciclo 3</div>
     <p class="lead">Até aqui vocês construíram a API seguindo o norte de cada aula. Este documento é o <strong>alvo</strong>: o schema do banco, o contrato dos endpoints e as regras de negócio que a API do ServiceHub precisa cumprir. O trabalho agora é o de qualquer engenheiro que entra num projeto existente: comparar o que existe com o que foi especificado e refatorar até chegar lá, sem jogar fora o que já funciona.</p>
-  </div>
-  <div>
-    <div class="toc">
+
+    <figure class="figure illus" style="border:none;padding:0;margin:0 0 4mm">
+<svg viewBox="0 0 720 250" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="ca" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+    <linearGradient id="cg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#eef3ff"/><stop offset="1" stop-color="#dfe8fd"/></linearGradient>
+  </defs>
+  <!-- cliente -->
+  <rect x="8" y="70" width="128" height="104" rx="10" fill="#fff" stroke="#9ca3af" stroke-width="1.4"/>
+  <rect x="22" y="84" width="100" height="58" rx="4" fill="#f3f4f6" stroke="#9ca3af"/>
+  <rect x="30" y="94" width="50" height="6" rx="2" fill="#1d4ed8"/>
+  <rect x="30" y="106" width="80" height="5" rx="2" fill="#cbd5e1"/>
+  <rect x="30" y="116" width="66" height="5" rx="2" fill="#cbd5e1"/>
+  <rect x="30" y="126" width="74" height="5" rx="2" fill="#cbd5e1"/>
+  <text x="72" y="162" text-anchor="middle" font-size="12" font-weight="700" fill="#1f2937">Cliente</text>
+  <text x="72" y="190" text-anchor="middle" font-size="10" fill="#6b7280">Postman · Front-end</text>
+  <!-- seta http -->
+  <path d="M140 112 H214" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#ca)"/>
+  <path d="M214 134 H140" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#ca)" stroke-dasharray="5 4"/>
+  <text x="177" y="104" text-anchor="middle" font-size="10" fill="#1d4ed8" font-weight="600">HTTP + JSON</text>
+  <text x="177" y="152" text-anchor="middle" font-size="9.5" fill="#6b7280">Bearer JWT</text>
+  <!-- docker compose -->
+  <rect x="222" y="18" width="490" height="222" rx="14" fill="none" stroke="#0ea5e9" stroke-width="1.6" stroke-dasharray="7 5"/>
+  <text x="238" y="38" font-size="11" font-weight="700" fill="#0369a1">docker compose</text>
+  <!-- api -->
+  <rect x="240" y="52" width="262" height="172" rx="10" fill="url(#cg)" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="256" y="74" font-size="12" font-weight="700" fill="#1d4ed8">API Spring Boot · /api/v1</text>
+  <g font-size="11" fill="#1f2937">
+    <rect x="256" y="84" width="230" height="30" rx="5" fill="#fff" stroke="#93c5fd"/>
+    <text x="268" y="103"><tspan font-weight="700">Controller</tspan>  rotas, DTOs, @Valid</text>
+    <rect x="256" y="122" width="230" height="30" rx="5" fill="#fff" stroke="#93c5fd"/>
+    <text x="268" y="141"><tspan font-weight="700">Service</tspan>  regras de negócio</text>
+    <rect x="256" y="160" width="230" height="30" rx="5" fill="#fff" stroke="#93c5fd"/>
+    <text x="268" y="179"><tspan font-weight="700">Repository</tspan>  Spring Data JPA</text>
+  </g>
+  <text x="256" y="212" font-size="9.5" fill="#4b5563">Spring Security · ProblemDetail · OpenAPI em /docs</text>
+  <!-- seta jdbc -->
+  <path d="M502 175 H566" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#ca)"/>
+  <text x="534" y="167" text-anchor="middle" font-size="10" fill="#1d4ed8" font-weight="600">JDBC</text>
+  <!-- postgres cilindro -->
+  <path d="M574 92 v116 a56 14 0 0 0 112 0 v-116" fill="#fff" stroke="#334155" stroke-width="1.4"/>
+  <ellipse cx="630" cy="92" rx="56" ry="14" fill="#e2e8f0" stroke="#334155" stroke-width="1.4"/>
+  <path d="M574 130 a56 14 0 0 0 112 0 M574 168 a56 14 0 0 0 112 0" fill="none" stroke="#cbd5e1"/>
+  <text x="630" y="152" text-anchor="middle" font-size="12" font-weight="700" fill="#1f2937">PostgreSQL</text>
+  <text x="630" y="196" text-anchor="middle" font-size="9.5" fill="#6b7280">Flyway V1…Vn</text>
+  <text x="630" y="72" text-anchor="middle" font-size="9.5" fill="#6b7280">volume persistente</text>
+</svg>
+      <figcaption>A API que vocês vão entregar: cliente, API em camadas e banco, orquestrados pelo Docker Compose.</figcaption>
+    </figure>
+
+    <div class="toc" id="conteudo">
       <h3>Conteúdo</h3>
       <ol>
-        <li>Como usar este mapa</li>
-        <li>Domínio e atores</li>
-        <li>Modelo de dados</li>
-        <li>Ciclo de vida da ordem de serviço</li>
-        <li>Convenções do contrato</li>
-        <li>Mapa de endpoints</li>
-        <li>Payloads de referência</li>
-        <li>Regras de validação</li>
-        <li>Regras de negócio</li>
-        <li>Segurança</li>
-        <li>Roteiro de refatoração</li>
-        <li>Critérios de aceite da entrega</li>
+        <li><a href="#s1">Como usar este mapa</a></li>
+        <li><a href="#s2">Domínio e atores</a></li>
+        <li><a href="#s3">Modelo de dados</a></li>
+        <li><a href="#s4">Ciclo de vida da ordem de serviço</a></li>
+        <li><a href="#s5">Convenções do contrato</a></li>
+        <li><a href="#s6">Mapa de endpoints</a></li>
+        <li><a href="#s7">Payloads de referência</a></li>
+        <li><a href="#s8">Regras de validação</a></li>
+        <li><a href="#s9">Regras de negócio</a></li>
+        <li><a href="#s10">Segurança</a></li>
+        <li><a href="#s11">Roteiro de refatoração</a></li>
+        <li><a href="#s12">Critérios de aceite da entrega</a></li>
       </ol>
     </div>
     <dl>
@@ -87,14 +148,13 @@
       <dt>Instituição</dt><dd>UniEVANGÉLICA — Universidade Evangélica de Goiás</dd>
       <dt>Professor</dt><dd>Prof. Esp. Eduardo Dias Pereira</dd>
       <dt>Versão</dt><dd>1.0 — outubro de 2026</dd>
-      <dt>Arquivo de apoio</dt><dd><code>servicehub_schema.sql</code> (PostgreSQL 16)</dd>
     </dl>
   </div>
 </section>
 
 <!-- ============================== 1 ============================== -->
 <section class="page">
-<h1>1. Como usar este mapa</h1>
+<h1 id="s1"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>1. Como usar este mapa</h1>
 
 <p>Em projetos reais quase ninguém começa do zero. Você recebe um código que já roda, com decisões que você não tomou, e uma especificação do que ele deveria fazer. A distância entre os dois é o seu trabalho. É isso que vamos praticar no Ciclo 3.</p>
 
@@ -107,21 +167,94 @@
 </ol>
 
 <h3>Trabalhando com IA neste ciclo</h3>
-<p>Assistentes de código escrevem Java mais rápido que qualquer um de nós. O que eles <strong>não</strong> sabem é o que a sua API deve fazer. Este documento é exatamente esse conhecimento. Use-o assim:</p>
-<div class="grid2">
-  <div class="card"><h4>1 · Especificar</h4>Antes de pedir código, recorte a parte do mapa que interessa (uma tabela de endpoints, uma regra de negócio, uma tabela do schema) e entregue ao assistente junto com o arquivo atual.</div>
-  <div class="card"><h4>2 · Gerar</h4>Peça uma mudança de cada vez. Mantenha um arquivo de contexto no repositório (<code>CLAUDE.md</code>, <code>AGENTS.md</code> ou similar) com stack, convenções e decisões.</div>
-  <div class="card"><h4>3 · Revisar</h4>Confira o resultado contra o mapa: rota, status code, camada certa (nada de regra no controller), DTO em vez de entidade, nenhuma senha na resposta.</div>
-  <div class="card"><h4>4 · Provar</h4>Escreva (ou peça) o teste que falha quando a regra é quebrada. Se não há teste, não há prova. Mostre o teste verde no commit.</div>
-</div>
 
-<div class="note"><strong>Você é avaliado pelas decisões, não pela digitação.</strong> Na banca, espere perguntas como "por que este endpoint responde 409 e não 400?" ou "onde a sua API impede que um cliente veja a ordem de outro?". A resposta está neste mapa e no seu código.</div>
+<figure class="figure fig-sm">
+<svg viewBox="0 0 640 260" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="ya" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6b7280"/></marker>
+  </defs>
+  <circle cx="320" cy="130" r="62" fill="#eef3ff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="320" y="122" text-anchor="middle" font-size="12" font-weight="700" fill="#1d4ed8">Engenheiro decide</text>
+  <text x="320" y="140" text-anchor="middle" font-size="12" fill="#1f2937">IA escreve</text>
+  <text x="320" y="158" text-anchor="middle" font-size="10" fill="#6b7280">você valida</text>
+  <!-- nós -->
+  <g font-size="12">
+    <rect x="235" y="10" width="170" height="46" rx="23" fill="#1d4ed8"/>
+    <text x="320" y="31" text-anchor="middle" fill="#fff" font-weight="700">1 · Especificar</text>
+    <text x="320" y="47" text-anchor="middle" fill="#dbeafe" font-size="10">recorte do mapa + contexto</text>
+    <rect x="455" y="107" width="170" height="46" rx="23" fill="#7c3aed"/>
+    <text x="540" y="128" text-anchor="middle" fill="#fff" font-weight="700">2 · Gerar</text>
+    <text x="540" y="144" text-anchor="middle" fill="#ede9fe" font-size="10">uma mudança por vez</text>
+    <rect x="235" y="204" width="170" height="46" rx="23" fill="#b45309"/>
+    <text x="320" y="225" text-anchor="middle" fill="#fff" font-weight="700">3 · Revisar</text>
+    <text x="320" y="241" text-anchor="middle" fill="#fdecd3" font-size="10">confira contra o mapa</text>
+    <rect x="15" y="107" width="170" height="46" rx="23" fill="#047857"/>
+    <text x="100" y="128" text-anchor="middle" fill="#fff" font-weight="700">4 · Provar</text>
+    <text x="100" y="144" text-anchor="middle" fill="#d1fae5" font-size="10">teste que falha e passa</text>
+  </g>
+  <path d="M405 40 Q520 50 535 103" stroke="#6b7280" stroke-width="1.6" fill="none" marker-end="url(#ya)"/>
+  <path d="M535 157 Q520 212 409 222" stroke="#6b7280" stroke-width="1.6" fill="none" marker-end="url(#ya)"/>
+  <path d="M235 222 Q120 212 105 157" stroke="#6b7280" stroke-width="1.6" fill="none" marker-end="url(#ya)"/>
+  <path d="M105 103 Q120 50 231 40" stroke="#6b7280" stroke-width="1.6" fill="none" marker-end="url(#ya)"/>
+</svg>
+<figcaption>O ciclo de cada mudança: a especificação vem antes do código e o teste fecha a volta.</figcaption>
+</figure>
+<p>A IA escreve Java mais rápido que qualquer um de nós, mas não sabe o que a sua API deve fazer: esse conhecimento está neste documento. Peça <strong>uma mudança por vez</strong>, entregando ao assistente o trecho do mapa que interessa, e mantenha no repositório um arquivo de contexto (<code>CLAUDE.md</code>, <code>AGENTS.md</code>) com stack, convenções e decisões. Antes de aceitar o código, confira rota, status code, camada certa, DTO em vez de entidade e ausência de senha na resposta; depois, prove com um teste que falha quando a regra é quebrada.</p>
+
 </section>
 
 <!-- ============================== 2 ============================== -->
 <section>
-<h1 class="page">2. Domínio e atores</h1>
+<h1 class="page" id="s2"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>2. Domínio e atores</h1>
 <p>O ServiceHub conecta pessoas que precisam de um serviço (limpeza, elétrica, suporte de TI…) a prestadores que o oferecem. O fluxo principal é: <strong>o prestador publica um serviço → um usuário contrata (abre uma ordem) → o prestador aceita, executa e conclui → quem contratou avalia</strong>.</p>
+
+<figure class="figure">
+<svg viewBox="0 0 720 190" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <path d="M60 62 H660" stroke="#c7d2fe" stroke-width="6" stroke-linecap="round"/>
+  <g text-anchor="middle">
+    <!-- 1 -->
+    <circle cx="72" cy="62" r="34" fill="#fff" stroke="#1d4ed8" stroke-width="2"/>
+    <rect x="54" y="48" width="36" height="26" rx="3" fill="#e8eefc" stroke="#1d4ed8"/>
+    <path d="M60 56 h24 M60 62 h18 M60 68 h21" stroke="#1d4ed8" stroke-width="2"/>
+    <text x="72" y="118" font-size="12" font-weight="700" fill="#1f2937">Publica</text>
+    <text x="72" y="134" font-size="10" fill="#4b5563">prestador cadastra</text>
+    <text x="72" y="148" font-size="10" fill="#4b5563">o serviço</text>
+    <text x="72" y="168" font-size="9.5" fill="#7c3aed" font-family="Consolas, monospace">POST /services</text>
+    <!-- 2 -->
+    <circle cx="219" cy="62" r="34" fill="#fff" stroke="#1d4ed8" stroke-width="2"/>
+    <path d="M203 50 h26 l4 6 v20 h-34 v-20 z" fill="#e8eefc" stroke="#1d4ed8"/>
+    <path d="M211 64 l6 6 l11 -12" stroke="#1d4ed8" stroke-width="2.4" fill="none"/>
+    <text x="219" y="118" font-size="12" font-weight="700" fill="#1f2937">Contrata</text>
+    <text x="219" y="134" font-size="10" fill="#4b5563">abre a ordem</text>
+    <text x="219" y="148" font-size="10" fill="#4b5563">PENDING</text>
+    <text x="219" y="168" font-size="9.5" fill="#7c3aed" font-family="Consolas, monospace">POST /service-requests</text>
+    <!-- 3 -->
+    <circle cx="366" cy="62" r="34" fill="#fff" stroke="#1d4ed8" stroke-width="2"/>
+    <circle cx="366" cy="62" r="13" fill="#e8eefc" stroke="#1d4ed8" stroke-width="2"/>
+    <path d="M366 43 v7 M366 74 v7 M347 62 h7 M378 62 h7 M353 49 l5 5 M374 70 l5 5 M379 49 l-5 5 M358 70 l-5 5" stroke="#1d4ed8" stroke-width="2.4"/>
+    <text x="366" y="118" font-size="12" font-weight="700" fill="#1f2937">Executa</text>
+    <text x="366" y="134" font-size="10" fill="#4b5563">aceita e inicia</text>
+    <text x="366" y="148" font-size="10" fill="#4b5563">ACCEPTED → IN_PROGRESS</text>
+    <text x="366" y="168" font-size="9.5" fill="#7c3aed" font-family="Consolas, monospace">PATCH …/status</text>
+    <!-- 4 -->
+    <circle cx="513" cy="62" r="34" fill="#fff" stroke="#047857" stroke-width="2"/>
+    <circle cx="513" cy="62" r="16" fill="#d1fae5" stroke="#047857" stroke-width="2"/>
+    <path d="M505 62 l6 6 l11 -12" stroke="#047857" stroke-width="2.6" fill="none"/>
+    <text x="513" y="118" font-size="12" font-weight="700" fill="#1f2937">Conclui</text>
+    <text x="513" y="134" font-size="10" fill="#4b5563">prestador encerra</text>
+    <text x="513" y="148" font-size="10" fill="#4b5563">COMPLETED</text>
+    <text x="513" y="168" font-size="9.5" fill="#7c3aed" font-family="Consolas, monospace">PATCH …/status</text>
+    <!-- 5 -->
+    <circle cx="660" cy="62" r="34" fill="#fff" stroke="#b45309" stroke-width="2"/>
+    <path d="M660 44 l5.3 10.8 l11.9 1.7 l-8.6 8.4 l2 11.8 l-10.6 -5.6 l-10.6 5.6 l2 -11.8 l-8.6 -8.4 l11.9 -1.7 z" fill="#fde68a" stroke="#b45309" stroke-width="1.6"/>
+    <text x="660" y="118" font-size="12" font-weight="700" fill="#1f2937">Avalia</text>
+    <text x="660" y="134" font-size="10" fill="#4b5563">quem contratou</text>
+    <text x="660" y="148" font-size="10" fill="#4b5563">dá nota de 1 a 5</text>
+    <text x="660" y="168" font-size="9.5" fill="#7c3aed" font-family="Consolas, monospace">POST …/reviews</text>
+  </g>
+</svg>
+<figcaption>A jornada principal do ServiceHub, com o endpoint que realiza cada passo.</figcaption>
+</figure>
 
 <table>
   <thead><tr><th style="width:24mm">Papel</th><th>Quem é</th><th>O que pode fazer</th></tr></thead>
@@ -147,7 +280,7 @@
 
 <!-- ============================== 3 ============================== -->
 <section class="page">
-<h1>3. Modelo de dados</h1>
+<h1 id="s3"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>3. Modelo de dados</h1>
 <p>O schema completo está no arquivo <code>servicehub_schema.sql</code>. Ele descreve o estado final; não o execute por cima do seu banco. Use-o para escrever as migrações que faltam.</p>
 
 <figure class="figure">
@@ -257,7 +390,7 @@
 
 <!-- ============================== 4 ============================== -->
 <section class="page">
-<h1>4. Ciclo de vida da ordem de serviço</h1>
+<h1 id="s4"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>4. Ciclo de vida da ordem de serviço</h1>
 <p>Esta é a regra de negócio central do ServiceHub. O <code>CHECK</code> do banco só garante que o status é um dos cinco valores; <strong>quem pode ir de qual estado para qual</strong> é responsabilidade da camada de serviço (<code>@Service</code>), e cada transição precisa de teste.</p>
 
 <figure class="figure">
@@ -299,7 +432,7 @@
 
 <!-- ============================== 5 ============================== -->
 <section>
-<h1 class="page">5. Convenções do contrato</h1>
+<h1 class="page" id="s5"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>5. Convenções do contrato</h1>
 <table>
   <thead><tr><th style="width:38mm">Aspecto</th><th>Regra</th></tr></thead>
   <tbody>
@@ -363,9 +496,9 @@
 </section>
 
 <!-- ============================== 6 ============================== -->
-<section>
-<h1 class="page">6. Mapa de endpoints</h1>
-<p>Rotas relativas a <code>/api/v1</code>. "Dono" significa o usuário dono daquele recurso específico (verificado no service, com o usuário do token; nunca com um id vindo do corpo).</p>
+<section class="endpoints">
+<h1 class="page" id="s6"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>6. Mapa de endpoints</h1>
+<p>Rotas relativas a <code>/api/v1</code>. "Dono" significa o usuário dono daquele recurso específico (verificado no service, com o usuário do token; nunca com um id vindo do corpo). Documentação interativa: Swagger UI em <code>/docs</code> e especificação OpenAPI em <code>/api-docs</code>.</p>
 
 <h3>6.1 Autenticação</h3>
 <table>
@@ -421,16 +554,14 @@
   <tbody>
     <tr><td class="m GET">GET</td><td><code>/reviews/{id}</code></td><td>público</td><td>200 Avaliação</td><td>404</td></tr>
     <tr><td class="m GET">GET</td><td><code>/info</code></td><td>público</td><td>200 <code>{status, version, message}</code></td><td>—</td></tr>
-    <tr><td class="m GET">GET</td><td><code>/actuator/health</code> (fora de <code>/api/v1</code>)</td><td>público</td><td>200 <code>{"status":"UP"}</code></td><td>— usado pelo healthcheck do Docker</td></tr>
-    <tr><td class="m GET">GET</td><td><code>/actuator/metrics</code>, <code>/actuator/prometheus</code></td><td>ADMIN</td><td>200</td><td>401 · 403</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/actuator/health</code> · <code>/actuator/metrics</code> · <code>/actuator/prometheus</code> (fora de <code>/api/v1</code>)</td><td>health público; demais ADMIN</td><td>200</td><td>401 · 403 — health é usado pelo healthcheck do Docker</td></tr>
   </tbody>
 </table>
-<p>Documentação interativa: Swagger UI em <code>/docs</code> e especificação OpenAPI em <code>/api-docs</code>, ambos públicos em desenvolvimento.</p>
 </section>
 
 <!-- ============================== 7 ============================== -->
 <section>
-<h1 class="page">7. Payloads de referência</h1>
+<h1 class="page" id="s7"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>7. Payloads de referência</h1>
 <p>Exemplos completos. Os nomes de campo são parte do contrato.</p>
 
 <div class="grid2">
@@ -466,7 +597,7 @@
   "createdAt": "2026-11-05T14:30:00",
   "updatedAt": "2026-11-05T14:30:00"
 }</pre>
-<p style="font-size:8.6pt">Nunca: <code>password</code>, <code>passwordHash</code> ou qualquer campo interno do Hibernate.</p>
+<p style="font-size:10pt">Nunca: <code>password</code>, <code>passwordHash</code> ou qualquer campo interno do Hibernate.</p>
 </div>
 </div>
 
@@ -479,7 +610,7 @@
   "price": 150.00,
   "category": "ELETRICA"
 }</pre>
-<p style="font-size:8.6pt">Sem <code>providerId</code>: o prestador vem do token. <code>PUT</code> aceita os mesmos campos mais <code>active</code>.</p>
+<p style="font-size:10pt">Sem <code>providerId</code>: o prestador vem do token. <code>PUT</code> aceita os mesmos campos mais <code>active</code>.</p>
 </div>
 <div>
 <h3>Serviço (resposta)</h3>
@@ -549,7 +680,7 @@
 
 <!-- ============================== 8 ============================== -->
 <section>
-<h1 class="page">8. Regras de validação</h1>
+<h1 class="page" id="s8"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>8. Regras de validação</h1>
 <p>Validação declarativa com Bean Validation (<code>@Valid</code> no controller, anotações no DTO). Mensagens em português. Violações respondem 400 com a lista <code>errors</code>.</p>
 <table>
   <thead><tr><th style="width:34mm">DTO</th><th style="width:30mm">Campo</th><th>Regra</th></tr></thead>
@@ -578,7 +709,7 @@
 
 <!-- ============================== 9 ============================== -->
 <section>
-<h1 class="page">9. Regras de negócio</h1>
+<h1 class="page" id="s9"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>9. Regras de negócio</h1>
 <p>Cada regra abaixo deve ter <strong>pelo menos um teste</strong> que falha quando ela é quebrada. Citem o código da regra no nome ou no <code>@DisplayName</code> do teste.</p>
 <table>
   <thead><tr><th style="width:14mm">Código</th><th>Regra</th><th style="width:30mm">Resposta</th></tr></thead>
@@ -602,7 +733,7 @@
 
 <!-- ============================== 10 ============================== -->
 <section>
-<h1 class="page">10. Segurança</h1>
+<h1 class="page" id="s10"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>10. Segurança</h1>
 <div class="grid2">
 <div class="card">
 <h4>Autenticação (Aulas 8 e 9)</h4>
@@ -641,7 +772,7 @@
 
 <!-- ============================== 11 ============================== -->
 <section>
-<h1 class="page">11. Roteiro de refatoração</h1>
+<h1 class="page" id="s11"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>11. Roteiro de refatoração</h1>
 <p>Ordem sugerida. Cada etapa termina com testes passando, commit e, de preferência, uma tag (<code>git tag etapa-1</code>…). Assim vocês conseguem mostrar na banca a evolução com <code>git diff</code>.</p>
 <table>
   <thead><tr><th style="width:12mm">Etapa</th><th style="width:44mm">Foco</th><th>O que fazer</th><th style="width:18mm">Aulas</th></tr></thead>
@@ -661,7 +792,7 @@
 
 <!-- ============================== 12 ============================== -->
 <section>
-<h1 class="page">12. Critérios de aceite da entrega</h1>
+<h1 class="page" id="s12"><a class="back" href="#conteudo">↑ voltar ao conteúdo</a>12. Critérios de aceite da entrega</h1>
 <p>A banca vai conferir item a item. Usem como checklist antes de entregar.</p>
 <div class="grid2">
 <div>
@@ -698,6 +829,7 @@
 </ul>
 </div>
 </div>
+<div class="note"><strong>Você é avaliado pelas decisões, não pela digitação.</strong> Na banca, espere perguntas como "por que este endpoint responde 409 e não 400?" ou "onde a sua API impede que um cliente veja a ordem de outro?". A resposta está neste mapa e no seu código.</div>
 <div class="note"><strong>Na banca:</strong> escolham uma regra de negócio, mostrem o teste que a protege, quebrem a regra no código ao vivo e mostrem o teste falhando. Isso prova que vocês entendem o que a IA escreveu.</div>
 </section>
 
