@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>ServiceHub API — Mapa de Construção</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "ServiceHub API · Mapa de Construção · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA · 2026/2"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --get:#047857; --post:#1d4ed8; --put:#b45309; --patch:#7c3aed; --del:#b91c1c; }
+  * { box-sizing: border-box; }
+  body { font: 10pt/1.5 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 20pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 13pt; margin: 7mm 0 2.5mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 11pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.5mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 8.8pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 8.4pt/1.42 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 8.8pt; break-inside: auto; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  td.m { width: 15mm; font-weight: 700; font-family: Consolas, monospace; font-size: 8.4pt; }
+  .GET { color: var(--get); } .POST { color: var(--post); } .PUT { color: var(--put); } .PATCH { color: var(--patch); } .DELETE { color: var(--del); }
+  .page { break-before: page; }
+  .note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 2mm 3mm; margin: 0 0 3.5mm; break-inside: avoid; }
+  .warn { border-left: 3px solid #b45309; background: #fdf3e6; padding: 2mm 3mm; margin: 0 0 3.5mm; break-inside: avoid; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card h4 { margin: 0 0 1.5mm; font-size: 10pt; }
+  .tag { display: inline-block; font-size: 7.6pt; font-weight: 600; padding: 0 1.5mm; border-radius: 2px; border: 1px solid var(--line); background: #fff; }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure figcaption { font-size: 8.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist li { list-style: none; margin-left: -5mm; }
+  .checklist li::before { content: "☐  "; }
+  /* capa */
+  .cover { height: 255mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 10mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 34pt; line-height: 1.1; margin: 4mm 0 3mm; color: var(--ink); }
+  .cover .sub { font-size: 14pt; color: var(--accent); margin-bottom: 10mm; }
+  .cover .lead { font-size: 11pt; max-width: 150mm; }
+  .cover dl { display: grid; grid-template-columns: 38mm 1fr; gap: 1.5mm 4mm; font-size: 10pt; margin: 0; }
+  .cover dt { color: var(--muted); }
+  .cover dd { margin: 0; }
+  .toc ol { padding-left: 5mm; columns: 2; column-gap: 10mm; font-size: 10pt; }
+</style>
+</head>
+<body>
+
+<!-- ============================== CAPA ============================== -->
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Engenharia de Software · 6º período · Projeto PBL</div>
+    <h1>ServiceHub API<br>Mapa de Construção</h1>
+    <div class="sub">Especificação de banco de dados e endpoints para a refatoração do Ciclo 3</div>
+    <p class="lead">Até aqui vocês construíram a API seguindo o norte de cada aula. Este documento é o <strong>alvo</strong>: o schema do banco, o contrato dos endpoints e as regras de negócio que a API do ServiceHub precisa cumprir. O trabalho agora é o de qualquer engenheiro que entra num projeto existente: comparar o que existe com o que foi especificado e refatorar até chegar lá, sem jogar fora o que já funciona.</p>
+  </div>
+  <div>
+    <div class="toc">
+      <h3>Conteúdo</h3>
+      <ol>
+        <li>Como usar este mapa</li>
+        <li>Domínio e atores</li>
+        <li>Modelo de dados</li>
+        <li>Ciclo de vida da ordem de serviço</li>
+        <li>Convenções do contrato</li>
+        <li>Mapa de endpoints</li>
+        <li>Payloads de referência</li>
+        <li>Regras de validação</li>
+        <li>Regras de negócio</li>
+        <li>Segurança</li>
+        <li>Roteiro de refatoração</li>
+        <li>Critérios de aceite da entrega</li>
+      </ol>
+    </div>
+    <dl>
+      <dt>Disciplina</dt><dd>Desenvolvimento de API Back-End (11296)</dd>
+      <dt>Instituição</dt><dd>UniEVANGÉLICA — Universidade Evangélica de Goiás</dd>
+      <dt>Professor</dt><dd>Prof. Esp. Eduardo Dias Pereira</dd>
+      <dt>Versão</dt><dd>1.0 — outubro de 2026</dd>
+      <dt>Arquivo de apoio</dt><dd><code>servicehub_schema.sql</code> (PostgreSQL 16)</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- ============================== 1 ============================== -->
+<section class="page">
+<h1>1. Como usar este mapa</h1>
+
+<p>Em projetos reais quase ninguém começa do zero. Você recebe um código que já roda, com decisões que você não tomou, e uma especificação do que ele deveria fazer. A distância entre os dois é o seu trabalho. É isso que vamos praticar no Ciclo 3.</p>
+
+<h3>As quatro regras do jogo</h3>
+<ol>
+  <li><strong>Refatore, não reescreva.</strong> Parta da API que você já tem. Cada mudança deve deixar o projeto compilando e com os testes passando.</li>
+  <li><strong>O banco evolui por migração.</strong> Nunca edite uma migração Flyway já aplicada. Crie <code>V{n+1}__descricao.sql</code> até o seu banco ficar igual ao schema da seção 3. Mantenha <code>spring.jpa.hibernate.ddl-auto=validate</code>.</li>
+  <li><strong>O contrato é o da seção 6.</strong> Rotas, métodos, status codes e formato de erro são obrigatórios. Nomes internos de classes e pacotes são escolha sua.</li>
+  <li><strong>Commits pequenos e com mensagem clara.</strong> Um commit por mudança coerente, mensagem no padrão <code>feat:</code>, <code>fix:</code>, <code>refactor:</code>, <code>test:</code>, <code>docs:</code>. O histórico do repositório faz parte da avaliação.</li>
+</ol>
+
+<h3>Trabalhando com IA neste ciclo</h3>
+<p>Assistentes de código escrevem Java mais rápido que qualquer um de nós. O que eles <strong>não</strong> sabem é o que a sua API deve fazer. Este documento é exatamente esse conhecimento. Use-o assim:</p>
+<div class="grid2">
+  <div class="card"><h4>1 · Especificar</h4>Antes de pedir código, recorte a parte do mapa que interessa (uma tabela de endpoints, uma regra de negócio, uma tabela do schema) e entregue ao assistente junto com o arquivo atual.</div>
+  <div class="card"><h4>2 · Gerar</h4>Peça uma mudança de cada vez. Mantenha um arquivo de contexto no repositório (<code>CLAUDE.md</code>, <code>AGENTS.md</code> ou similar) com stack, convenções e decisões.</div>
+  <div class="card"><h4>3 · Revisar</h4>Confira o resultado contra o mapa: rota, status code, camada certa (nada de regra no controller), DTO em vez de entidade, nenhuma senha na resposta.</div>
+  <div class="card"><h4>4 · Provar</h4>Escreva (ou peça) o teste que falha quando a regra é quebrada. Se não há teste, não há prova. Mostre o teste verde no commit.</div>
+</div>
+
+<div class="note"><strong>Você é avaliado pelas decisões, não pela digitação.</strong> Na banca, espere perguntas como "por que este endpoint responde 409 e não 400?" ou "onde a sua API impede que um cliente veja a ordem de outro?". A resposta está neste mapa e no seu código.</div>
+</section>
+
+<!-- ============================== 2 ============================== -->
+<section>
+<h1 class="page">2. Domínio e atores</h1>
+<p>O ServiceHub conecta pessoas que precisam de um serviço (limpeza, elétrica, suporte de TI…) a prestadores que o oferecem. O fluxo principal é: <strong>o prestador publica um serviço → um usuário contrata (abre uma ordem) → o prestador aceita, executa e conclui → quem contratou avalia</strong>.</p>
+
+<table>
+  <thead><tr><th style="width:24mm">Papel</th><th>Quem é</th><th>O que pode fazer</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag">CLIENT</span></td><td>Pessoa que contrata serviços</td><td>Ver o catálogo, abrir ordens, cancelar as próprias ordens enquanto não iniciadas, avaliar ordens concluídas, editar o próprio perfil.</td></tr>
+    <tr><td><span class="tag">PROVIDER</span></td><td>Profissional que oferece serviços</td><td>Tudo o que o CLIENT faz (um prestador também contrata outros prestadores) e ainda: publicar, editar e desativar os próprios serviços; aceitar, iniciar, concluir ou cancelar as ordens recebidas.</td></tr>
+    <tr><td><span class="tag">ADMIN</span></td><td>Equipe da plataforma</td><td>Listar e gerenciar usuários, alterar papéis, ativar/desativar contas, intervir em qualquer serviço ou ordem. Não abre ordens.</td></tr>
+  </tbody>
+</table>
+
+<p>Cada usuário tem <strong>um único papel</strong>, escolhido no cadastro (<code>CLIENT</code> ou <code>PROVIDER</code>). Só um ADMIN muda o papel de alguém. O primeiro ADMIN é criado pela própria aplicação no startup, a partir de variáveis de ambiente (nunca por um <code>INSERT</code> com senha dentro de uma migração versionada).</p>
+
+<table>
+  <thead><tr><th style="width:34mm">Entidade</th><th style="width:30mm">Tabela</th><th>Significado</th></tr></thead>
+  <tbody>
+    <tr><td>Usuário</td><td><code>users</code></td><td>Qualquer pessoa autenticável da plataforma.</td></tr>
+    <tr><td>Serviço</td><td><code>services</code></td><td>Oferta publicada por um prestador, com preço e categoria.</td></tr>
+    <tr><td>Ordem de serviço</td><td><code>service_requests</code></td><td>Contratação de um serviço por um usuário. Tem status e preço congelado.</td></tr>
+    <tr><td>Avaliação</td><td><code>reviews</code></td><td>Nota de 1 a 5 dada por quem contratou, após a conclusão.</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ============================== 3 ============================== -->
+<section class="page">
+<h1>3. Modelo de dados</h1>
+<p>O schema completo está no arquivo <code>servicehub_schema.sql</code>. Ele descreve o estado final; não o execute por cima do seu banco. Use-o para escrever as migrações que faltam.</p>
+
+<figure class="figure">
+<svg viewBox="0 0 700 330" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+  <defs>
+    <style>
+      .box{fill:#fff;stroke:#1d4ed8;stroke-width:1.4}
+      .hd{fill:#1d4ed8}
+      .ht{fill:#fff;font-weight:700;font-size:12px}
+      .pk{font-weight:700}
+      .fk{fill:#7c3aed}
+      .rel{stroke:#374151;stroke-width:1.3;fill:none}
+      .card{fill:#374151;font-size:10px}
+    </style>
+  </defs>
+  <!-- users -->
+  <rect class="box" x="10" y="20" width="200" height="200" rx="4"/><rect class="hd" x="10" y="20" width="200" height="22" rx="4"/>
+  <text class="ht" x="20" y="35">users</text>
+  <text x="20" y="58" class="pk">id  BIGSERIAL  PK</text>
+  <text x="20" y="74">full_name  VARCHAR(100)</text>
+  <text x="20" y="90">email  VARCHAR(255)  UNIQUE</text>
+  <text x="20" y="106">password_hash  VARCHAR(255)</text>
+  <text x="20" y="122">role  ADMIN|PROVIDER|CLIENT</text>
+  <text x="20" y="138">phone · bio · avatar_url</text>
+  <text x="20" y="154">is_active  BOOLEAN</text>
+  <text x="20" y="170">created_at · updated_at</text>
+  <!-- services -->
+  <rect class="box" x="260" y="20" width="190" height="168" rx="4"/><rect class="hd" x="260" y="20" width="190" height="22" rx="4"/>
+  <text class="ht" x="270" y="35">services</text>
+  <text x="270" y="58" class="pk">id  BIGSERIAL  PK</text>
+  <text x="270" y="74">title  VARCHAR(150)</text>
+  <text x="270" y="90">description  TEXT</text>
+  <text x="270" y="106">price  NUMERIC(10,2)  &gt; 0</text>
+  <text x="270" y="122">category  VARCHAR(50)</text>
+  <text x="270" y="138" class="fk">provider_id  FK → users</text>
+  <text x="270" y="154">is_active  BOOLEAN</text>
+  <text x="270" y="170">created_at · updated_at</text>
+  <!-- service_requests -->
+  <rect class="box" x="490" y="20" width="200" height="184" rx="4"/><rect class="hd" x="490" y="20" width="200" height="22" rx="4"/>
+  <text class="ht" x="500" y="35">service_requests</text>
+  <text x="500" y="58" class="pk">id  BIGSERIAL  PK</text>
+  <text x="500" y="74" class="fk">service_id  FK → services</text>
+  <text x="500" y="90" class="fk">client_id  FK → users</text>
+  <text x="500" y="106">status  VARCHAR(30)</text>
+  <text x="500" y="122">scheduled_at  TIMESTAMP</text>
+  <text x="500" y="138">notes  TEXT</text>
+  <text x="500" y="154">total_price  NUMERIC(10,2)</text>
+  <text x="500" y="170">created_at · updated_at</text>
+  <!-- reviews -->
+  <rect class="box" x="490" y="235" width="200" height="88" rx="4"/><rect class="hd" x="490" y="235" width="200" height="22" rx="4"/>
+  <text class="ht" x="500" y="250">reviews</text>
+  <text x="500" y="272" class="pk">id  PK · <tspan class="fk" font-weight="400">request_id  FK UNIQUE</tspan></text>
+  <text x="500" y="288" class="fk">reviewer_id  FK → users</text>
+  <text x="500" y="304">rating  1..5 · comment  TEXT</text>
+  <text x="500" y="318">created_at</text>
+  <!-- relations -->
+  <path class="rel" d="M210 70 H260"/><text class="card" x="214" y="64">1</text><text class="card" x="248" y="64">N</text>
+  <path class="rel" d="M450 74 H490"/><text class="card" x="454" y="68">1</text><text class="card" x="478" y="68">N</text>
+  <path class="rel" d="M110 220 V250 H420 V120 H490"/><text class="card" x="114" y="236">1</text><text class="card" x="476" y="114">N</text>
+  <text class="card" x="230" y="246">users 1:N service_requests (client_id)</text>
+  <path class="rel" d="M590 204 V235"/><text class="card" x="596" y="216">1</text><text class="card" x="596" y="232">0..1</text>
+  <path class="rel" d="M60 220 V300 H490"/><text class="card" x="64" y="236">1</text><text class="card" x="476" y="294">N</text>
+  <text class="card" x="230" y="296">users 1:N reviews (reviewer_id)</text>
+</svg>
+<figcaption>Figura 1 — Diagrama entidade-relacionamento do ServiceHub.</figcaption>
+</figure>
+
+<h3>Decisões de modelagem que vocês precisam entender</h3>
+<table>
+  <thead><tr><th style="width:42mm">Decisão</th><th>Por quê</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Exclusão lógica</strong> (<code>is_active</code>)</td><td>Apagar um prestador apagaria o histórico de ordens e avaliações de outras pessoas. "Excluir" usuário ou serviço significa marcar <code>is_active = false</code>.</td></tr>
+    <tr><td><strong><code>ON DELETE RESTRICT</code></strong> em todas as FKs</td><td>Coerente com a exclusão lógica: o banco recusa um <code>DELETE</code> físico que deixaria registros órfãos. Se o seu projeto tem <code>ON DELETE CASCADE</code> (vinha no material da Aula 4), troque por migração.</td></tr>
+    <tr><td><strong><code>total_price</code></strong> na ordem</td><td>É uma cópia do preço no momento da contratação. Se o prestador reajustar o serviço amanhã, a ordem de hoje não muda.</td></tr>
+    <tr><td><strong><code>CHECK</code></strong> em <code>role</code>, <code>category</code>, <code>status</code>, <code>rating</code>, <code>price</code></td><td>Segunda linha de defesa. A primeira é a validação na aplicação, que devolve uma mensagem clara; o banco garante que nenhum caminho (script, bug, console) grave valor inválido.</td></tr>
+    <tr><td><strong><code>email = LOWER(email)</code></strong></td><td>A aplicação normaliza o e-mail (<code>trim</code> + minúsculas) antes de salvar. Sem isso, <code>Maria@X.com</code> e <code>maria@x.com</code> seriam duas contas.</td></tr>
+    <tr><td><strong><code>UNIQUE (request_id)</code></strong> em <code>reviews</code></td><td>No máximo uma avaliação por ordem. A aplicação verifica antes e responde 409; a constraint impede a duplicata mesmo com duas requisições simultâneas.</td></tr>
+    <tr><td>Enums como <code>VARCHAR</code></td><td>Mapeie com <code>@Enumerated(EnumType.STRING)</code>, nunca <code>ORDINAL</code>: reordenar o enum Java não pode corromper os dados.</td></tr>
+  </tbody>
+</table>
+
+<h3>Dicionário de dados</h3>
+<table>
+  <thead><tr><th style="width:38mm">Coluna</th><th style="width:34mm">Tipo</th><th>Regra</th></tr></thead>
+  <tbody>
+    <tr><td colspan="3"><strong>users</strong></td></tr>
+    <tr><td><code>full_name</code></td><td>VARCHAR(100) NOT NULL</td><td>2 a 100 caracteres.</td></tr>
+    <tr><td><code>email</code></td><td>VARCHAR(255) NOT NULL UNIQUE</td><td>Formato de e-mail; minúsculas.</td></tr>
+    <tr><td><code>password_hash</code></td><td>VARCHAR(255) NOT NULL</td><td>Hash BCrypt. Nunca aparece em JSON.</td></tr>
+    <tr><td><code>role</code></td><td>VARCHAR(20) NOT NULL</td><td><code>ADMIN</code>, <code>PROVIDER</code> ou <code>CLIENT</code>; padrão <code>CLIENT</code>.</td></tr>
+    <tr><td><code>phone</code> / <code>bio</code> / <code>avatar_url</code></td><td>VARCHAR(20) / TEXT / VARCHAR(500)</td><td>Opcionais; <code>bio</code> até 2000 caracteres na aplicação.</td></tr>
+    <tr><td><code>is_active</code></td><td>BOOLEAN NOT NULL</td><td>Padrão <code>true</code>.</td></tr>
+    <tr><td colspan="3"><strong>services</strong></td></tr>
+    <tr><td><code>title</code> / <code>description</code></td><td>VARCHAR(150) / TEXT</td><td>Título 3 a 150; descrição até 2000.</td></tr>
+    <tr><td><code>price</code></td><td>NUMERIC(10,2) NOT NULL</td><td>Maior que zero. Use <code>BigDecimal</code> no Java, nunca <code>double</code>.</td></tr>
+    <tr><td><code>category</code></td><td>VARCHAR(50) NOT NULL</td><td>Um dos 21 valores do enum <code>ServiceCategory</code> (lista no SQL).</td></tr>
+    <tr><td><code>provider_id</code></td><td>BIGINT NOT NULL FK</td><td>Sempre o usuário autenticado que criou o serviço.</td></tr>
+    <tr><td colspan="3"><strong>service_requests</strong></td></tr>
+    <tr><td><code>status</code></td><td>VARCHAR(30) NOT NULL</td><td><code>PENDING</code> · <code>ACCEPTED</code> · <code>IN_PROGRESS</code> · <code>COMPLETED</code> · <code>CANCELLED</code>.</td></tr>
+    <tr><td><code>scheduled_at</code> / <code>notes</code></td><td>TIMESTAMP / TEXT</td><td>Data futura, opcional; observações até 1000.</td></tr>
+    <tr><td><code>total_price</code></td><td>NUMERIC(10,2) NOT NULL</td><td>Copiado de <code>services.price</code> na criação.</td></tr>
+    <tr><td colspan="3"><strong>reviews</strong></td></tr>
+    <tr><td><code>rating</code> / <code>comment</code></td><td>SMALLINT / TEXT</td><td>Nota 1 a 5; comentário até 1000.</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ============================== 4 ============================== -->
+<section class="page">
+<h1>4. Ciclo de vida da ordem de serviço</h1>
+<p>Esta é a regra de negócio central do ServiceHub. O <code>CHECK</code> do banco só garante que o status é um dos cinco valores; <strong>quem pode ir de qual estado para qual</strong> é responsabilidade da camada de serviço (<code>@Service</code>), e cada transição precisa de teste.</p>
+
+<figure class="figure">
+<svg viewBox="0 0 680 230" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#374151"/></marker>
+    <style>.st{fill:#e8eefc;stroke:#1d4ed8;stroke-width:1.4}.end{fill:#f3f4f6;stroke:#374151;stroke-width:1.4}.lb{font-weight:700;font-size:12px}.ar{stroke:#374151;stroke-width:1.3;fill:none;marker-end:url(#a)}.who{fill:#4b5563;font-size:10px}</style>
+  </defs>
+  <circle cx="22" cy="60" r="7" fill="#374151"/>
+  <path class="ar" d="M29 60 H58"/>
+  <rect class="st" x="60" y="40" width="110" height="40" rx="20"/><text class="lb" x="115" y="64" text-anchor="middle">PENDING</text>
+  <rect class="st" x="250" y="40" width="110" height="40" rx="20"/><text class="lb" x="305" y="64" text-anchor="middle">ACCEPTED</text>
+  <rect class="st" x="440" y="40" width="120" height="40" rx="20"/><text class="lb" x="500" y="64" text-anchor="middle">IN_PROGRESS</text>
+  <rect class="end" x="440" y="160" width="120" height="40" rx="20"/><text class="lb" x="500" y="184" text-anchor="middle">COMPLETED</text>
+  <rect class="end" x="150" y="160" width="120" height="40" rx="20"/><text class="lb" x="210" y="184" text-anchor="middle">CANCELLED</text>
+  <path class="ar" d="M170 60 H248"/><text class="who" x="209" y="52" text-anchor="middle">prestador aceita</text>
+  <path class="ar" d="M360 60 H438"/><text class="who" x="399" y="52" text-anchor="middle">prestador inicia</text>
+  <path class="ar" d="M500 80 V158"/><text class="who" x="506" y="124">prestador conclui</text>
+  <path class="ar" d="M115 80 V180 H148"/><text class="who" x="108" y="130" text-anchor="end">cliente ou</text><text class="who" x="108" y="142" text-anchor="end">prestador cancela</text>
+  <path class="ar" d="M305 80 V140 H230 V158"/><text class="who" x="312" y="122">cliente ou prestador cancela</text>
+  <text class="who" x="580" y="184">fim (avaliável)</text>
+</svg>
+<figcaption>Figura 2 — Máquina de estados da ordem de serviço. COMPLETED e CANCELLED são terminais.</figcaption>
+</figure>
+
+<table>
+  <thead><tr><th style="width:26mm">De</th><th style="width:26mm">Para</th><th>Quem pode</th></tr></thead>
+  <tbody>
+    <tr><td><code>PENDING</code></td><td><code>ACCEPTED</code></td><td>Prestador dono do serviço</td></tr>
+    <tr><td><code>PENDING</code></td><td><code>CANCELLED</code></td><td>Quem abriu a ordem, ou o prestador dono</td></tr>
+    <tr><td><code>ACCEPTED</code></td><td><code>IN_PROGRESS</code></td><td>Prestador dono</td></tr>
+    <tr><td><code>ACCEPTED</code></td><td><code>CANCELLED</code></td><td>Quem abriu a ordem, ou o prestador dono</td></tr>
+    <tr><td><code>IN_PROGRESS</code></td><td><code>COMPLETED</code></td><td>Prestador dono</td></tr>
+    <tr><td colspan="2">Qualquer outra combinação</td><td><strong>409 Conflict</strong>, com <code>detail</code> explicando a transição recusada (ex.: <em>"Não é possível mudar de COMPLETED para PENDING."</em>)</td></tr>
+  </tbody>
+</table>
+<p>O ADMIN pode executar qualquer transição <strong>válida</strong> da tabela. Uma pessoa sem relação com a ordem recebe <strong>403</strong> antes mesmo de a transição ser avaliada.</p>
+</section>
+
+<!-- ============================== 5 ============================== -->
+<section>
+<h1 class="page">5. Convenções do contrato</h1>
+<table>
+  <thead><tr><th style="width:38mm">Aspecto</th><th>Regra</th></tr></thead>
+  <tbody>
+    <tr><td>Prefixo e versão</td><td>Todas as rotas começam com <code>/api/v1</code> (versionamento por path, Aula 5).</td></tr>
+    <tr><td>Formato</td><td>JSON em UTF-8, nomes de campo em <code>camelCase</code>. Datas em ISO-8601 sem fuso: <code>2026-11-05T14:30:00</code> (horário de Brasília).</td></tr>
+    <tr><td>Autenticação</td><td>Header <code>Authorization: Bearer &lt;token&gt;</code> em toda rota que não for marcada como pública.</td></tr>
+    <tr><td>Criação</td><td><code>201 Created</code>, corpo com o recurso e header <code>Location: /api/v1/&lt;recurso&gt;/{id}</code>.</td></tr>
+    <tr><td>Exclusão</td><td><code>204 No Content</code>, sem corpo.</td></tr>
+    <tr><td>Listagens</td><td>Sempre paginadas: <code>?page=0&amp;size=20&amp;sort=createdAt,desc</code>. Padrão 20 itens, <strong>máximo 100</strong> (um <code>size=500</code> devolve 100, nunca erro).</td></tr>
+    <tr><td>Erros</td><td>Sempre <code>application/problem+json</code> no formato <strong>ProblemDetail</strong> (RFC 9457), com <code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code>, <code>instance</code> e <code>timestamp</code>. Nunca stack trace.</td></tr>
+    <tr><td>Rastreio</td><td>Toda resposta tem o header <code>X-Request-Id</code>. Se o cliente enviar um válido, a API o devolve; se não, gera um UUID.</td></tr>
+    <tr><td>Campos desconhecidos</td><td>São ignorados. Campos que o cliente não pode definir (<code>id</code>, <code>role</code>, <code>providerId</code>, <code>status</code> na criação…) simplesmente não existem no DTO de entrada.</td></tr>
+  </tbody>
+</table>
+
+<div class="grid2">
+<div>
+<h3>Página</h3>
+<pre>{
+  "content": [ { ... }, { ... } ],
+  "page": {
+    "size": 20,
+    "number": 0,
+    "totalElements": 57,
+    "totalPages": 3
+  }
+}</pre>
+</div>
+<div>
+<h3>Erro de validação (400)</h3>
+<pre>{
+  "type": "urn:servicehub:problem:validation-error",
+  "title": "Dados inválidos",
+  "status": 400,
+  "detail": "Um ou mais campos estão inválidos.",
+  "instance": "/api/v1/services",
+  "timestamp": "2026-11-05T17:30:12Z",
+  "errors": [
+    { "field": "price",
+      "message": "deve ser maior que 0" }
+  ]
+}</pre>
+</div>
+</div>
+
+<div style="break-inside: avoid">
+<h3>Status codes usados pela API</h3>
+<table>
+  <thead><tr><th style="width:22mm">Código</th><th style="width:60mm"><code>type</code></th><th>Quando</th></tr></thead>
+  <tbody>
+    <tr><td>400</td><td><code>…:validation-error</code></td><td>Campo inválido, JSON malformado, enum com valor desconhecido (o <code>detail</code> lista os valores aceitos).</td></tr>
+    <tr><td>401</td><td><code>…:unauthorized</code></td><td>Sem token, token inválido/expirado, credenciais erradas no login, usuário desativado.</td></tr>
+    <tr><td>403</td><td><code>…:forbidden</code></td><td>Autenticado, mas sem permissão: papel errado ou recurso de outra pessoa.</td></tr>
+    <tr><td>404</td><td><code>…:not-found</code></td><td>Recurso inexistente (ou serviço inativo, para quem não é o dono nem ADMIN).</td></tr>
+    <tr><td>409</td><td><code>…:email-already-exists</code>, <code>…:business-rule</code>, <code>…:invalid-transition</code></td><td>Requisição bem formada que viola uma regra: e-mail repetido, transição de status proibida, avaliação duplicada, exclusão com ordens ativas.</td></tr>
+    <tr><td>500</td><td><code>…:internal-error</code></td><td>Erro inesperado. <code>detail</code> genérico pedindo o <code>X-Request-Id</code>; o erro real fica só no log.</td></tr>
+  </tbody>
+</table>
+<p class="mono" style="color:var(--muted)">Prefixo de todos os <code>type</code>: urn:servicehub:problem:</p>
+</div>
+</section>
+
+<!-- ============================== 6 ============================== -->
+<section>
+<h1 class="page">6. Mapa de endpoints</h1>
+<p>Rotas relativas a <code>/api/v1</code>. "Dono" significa o usuário dono daquele recurso específico (verificado no service, com o usuário do token; nunca com um id vindo do corpo).</p>
+
+<h3>6.1 Autenticação</h3>
+<table>
+  <thead><tr><th>Método</th><th>Rota</th><th>Acesso</th><th>Sucesso</th><th>Erros</th></tr></thead>
+  <tbody>
+    <tr><td class="m POST">POST</td><td><code>/auth/register</code></td><td>público</td><td>201 Usuário</td><td>400 · 409 e-mail já cadastrado</td></tr>
+    <tr><td class="m POST">POST</td><td><code>/auth/login</code></td><td>público</td><td>200 Token</td><td>400 · 401 credenciais inválidas ou conta inativa</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/auth/me</code></td><td>autenticado</td><td>200 Usuário</td><td>401</td></tr>
+  </tbody>
+</table>
+
+<h3>6.2 Usuários</h3>
+<table>
+  <thead><tr><th>Método</th><th>Rota</th><th>Acesso</th><th>Sucesso</th><th>Erros</th></tr></thead>
+  <tbody>
+    <tr><td class="m GET">GET</td><td><code>/users</code></td><td>ADMIN</td><td>200 Página de Usuário</td><td>401 · 403</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/users/{id}</code></td><td>o próprio ou ADMIN</td><td>200 Usuário</td><td>401 · 403 · 404</td></tr>
+    <tr><td class="m PUT">PUT</td><td><code>/users/{id}</code></td><td>o próprio ou ADMIN</td><td>200 Usuário</td><td>400 · 401 · 403 · 404 — altera só nome, telefone, bio e avatar</td></tr>
+    <tr><td class="m DELETE">DELETE</td><td><code>/users/{id}</code></td><td>ADMIN</td><td>204</td><td>401 · 403 · 404 · 409 ordens ativas — exclusão lógica; desativa também os serviços do usuário</td></tr>
+    <tr><td class="m PATCH">PATCH</td><td><code>/users/{id}/role</code></td><td>ADMIN</td><td>200 Usuário</td><td>400 · 401 · 403 · 404</td></tr>
+    <tr><td class="m PATCH">PATCH</td><td><code>/users/{id}/active</code></td><td>ADMIN</td><td>200 Usuário</td><td>400 · 401 · 403 · 404 — reativar não reativa os serviços</td></tr>
+  </tbody>
+</table>
+
+<h3>6.3 Serviços</h3>
+<table>
+  <thead><tr><th>Método</th><th>Rota</th><th>Acesso</th><th>Sucesso</th><th>Erros</th></tr></thead>
+  <tbody>
+    <tr><td class="m GET">GET</td><td><code>/services</code></td><td>público</td><td>200 Página de Serviço</td><td>— só ativos. Filtros: <code>category</code>, <code>providerId</code>, <code>minPrice</code>, <code>maxPrice</code>, <code>q</code> (busca no título, sem diferenciar maiúsculas)</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/services/{id}</code></td><td>público</td><td>200 Serviço</td><td>404 (inativo: 404 para o público, visível ao dono e ao ADMIN)</td></tr>
+    <tr><td class="m POST">POST</td><td><code>/services</code></td><td>PROVIDER</td><td>201 Serviço</td><td>400 · 401 · 403 — o prestador é o usuário do token</td></tr>
+    <tr><td class="m PUT">PUT</td><td><code>/services/{id}</code></td><td>dono ou ADMIN</td><td>200 Serviço</td><td>400 · 401 · 403 · 404 — aceita <code>active</code> para reativar/desativar</td></tr>
+    <tr><td class="m DELETE">DELETE</td><td><code>/services/{id}</code></td><td>dono ou ADMIN</td><td>204</td><td>401 · 403 · 404 · 409 ordens ativas — exclusão lógica</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/services/{id}/reviews</code></td><td>público</td><td>200 Página de Avaliação</td><td>404</td></tr>
+  </tbody>
+</table>
+
+<h3>6.4 Ordens de serviço</h3>
+<table>
+  <thead><tr><th>Método</th><th>Rota</th><th>Acesso</th><th>Sucesso</th><th>Erros</th></tr></thead>
+  <tbody>
+    <tr><td class="m POST">POST</td><td><code>/service-requests</code></td><td>CLIENT ou PROVIDER</td><td>201 Ordem (<code>PENDING</code>)</td><td>400 · 401 · 403 (ADMIN) · 404 serviço · 409 serviço inativo ou do próprio usuário</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/service-requests</code></td><td>autenticado</td><td>200 Página de Ordem</td><td>401 — só as ordens em que o usuário é cliente ou prestador (ADMIN vê todas). Filtros: <code>status</code>, <code>role=client|provider</code></td></tr>
+    <tr><td class="m GET">GET</td><td><code>/service-requests/{id}</code></td><td>cliente da ordem, prestador do serviço ou ADMIN</td><td>200 Ordem</td><td>401 · 403 · 404</td></tr>
+    <tr><td class="m PATCH">PATCH</td><td><code>/service-requests/{id}/status</code></td><td>conforme seção 4</td><td>200 Ordem</td><td>400 · 401 · 403 · 404 · 409 transição inválida</td></tr>
+    <tr><td class="m POST">POST</td><td><code>/service-requests/{id}/reviews</code></td><td>cliente da ordem</td><td>201 Avaliação</td><td>400 · 401 · 403 · 404 · 409 ordem não concluída ou já avaliada</td></tr>
+  </tbody>
+</table>
+
+<h3>6.5 Avaliações, status e operação</h3>
+<table>
+  <thead><tr><th>Método</th><th>Rota</th><th>Acesso</th><th>Sucesso</th><th>Erros</th></tr></thead>
+  <tbody>
+    <tr><td class="m GET">GET</td><td><code>/reviews/{id}</code></td><td>público</td><td>200 Avaliação</td><td>404</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/info</code></td><td>público</td><td>200 <code>{status, version, message}</code></td><td>—</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/actuator/health</code> (fora de <code>/api/v1</code>)</td><td>público</td><td>200 <code>{"status":"UP"}</code></td><td>— usado pelo healthcheck do Docker</td></tr>
+    <tr><td class="m GET">GET</td><td><code>/actuator/metrics</code>, <code>/actuator/prometheus</code></td><td>ADMIN</td><td>200</td><td>401 · 403</td></tr>
+  </tbody>
+</table>
+<p>Documentação interativa: Swagger UI em <code>/docs</code> e especificação OpenAPI em <code>/api-docs</code>, ambos públicos em desenvolvimento.</p>
+</section>
+
+<!-- ============================== 7 ============================== -->
+<section>
+<h1 class="page">7. Payloads de referência</h1>
+<p>Exemplos completos. Os nomes de campo são parte do contrato.</p>
+
+<div class="grid2">
+<div>
+<h3>POST /auth/register</h3>
+<pre>{
+  "fullName": "Maria Silva",
+  "email": "maria.silva@email.com",
+  "password": "Senha123",
+  "role": "PROVIDER"
+}</pre>
+<h3>POST /auth/login → 200</h3>
+<pre>// requisição
+{ "email": "maria.silva@email.com",
+  "password": "Senha123" }
+
+// resposta
+{ "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+  "tokenType": "Bearer",
+  "expiresIn": 86400 }</pre>
+</div>
+<div>
+<h3>Usuário (resposta)</h3>
+<pre>{
+  "id": 7,
+  "fullName": "Maria Silva",
+  "email": "maria.silva@email.com",
+  "role": "PROVIDER",
+  "phone": "62999990000",
+  "bio": "Eletricista há 12 anos",
+  "avatarUrl": null,
+  "active": true,
+  "createdAt": "2026-11-05T14:30:00",
+  "updatedAt": "2026-11-05T14:30:00"
+}</pre>
+<p style="font-size:8.6pt">Nunca: <code>password</code>, <code>passwordHash</code> ou qualquer campo interno do Hibernate.</p>
+</div>
+</div>
+
+<div class="grid2">
+<div>
+<h3>POST /services</h3>
+<pre>{
+  "title": "Instalação elétrica residencial",
+  "description": "Tomadas, disjuntores e fiação",
+  "price": 150.00,
+  "category": "ELETRICA"
+}</pre>
+<p style="font-size:8.6pt">Sem <code>providerId</code>: o prestador vem do token. <code>PUT</code> aceita os mesmos campos mais <code>active</code>.</p>
+</div>
+<div>
+<h3>Serviço (resposta)</h3>
+<pre>{
+  "id": 12,
+  "title": "Instalação elétrica residencial",
+  "description": "Tomadas, disjuntores e fiação",
+  "price": 150.00,
+  "category": "ELETRICA",
+  "active": true,
+  "providerId": 7,
+  "providerName": "Maria Silva",
+  "createdAt": "2026-11-05T14:35:00",
+  "updatedAt": "2026-11-05T14:35:00"
+}</pre>
+</div>
+</div>
+
+<div class="grid2">
+<div>
+<h3>POST /service-requests</h3>
+<pre>{
+  "serviceId": 12,
+  "scheduledAt": "2026-11-10T09:00:00",
+  "notes": "Apartamento 302, interfone 3021"
+}</pre>
+<h3>PATCH /service-requests/{id}/status</h3>
+<pre>{ "status": "ACCEPTED" }</pre>
+<h3>POST /service-requests/{id}/reviews</h3>
+<pre>{ "rating": 5,
+  "comment": "Pontual e caprichosa." }</pre>
+</div>
+<div>
+<h3>Ordem (resposta)</h3>
+<pre>{
+  "id": 31,
+  "serviceId": 12,
+  "serviceTitle": "Instalação elétrica residencial",
+  "clientId": 9,
+  "clientName": "João Pereira",
+  "providerId": 7,
+  "status": "PENDING",
+  "totalPrice": 150.00,
+  "scheduledAt": "2026-11-10T09:00:00",
+  "notes": "Apartamento 302, interfone 3021",
+  "createdAt": "2026-11-05T15:00:00",
+  "updatedAt": "2026-11-05T15:00:00"
+}</pre>
+<h3>Avaliação (resposta)</h3>
+<pre>{ "id": 4, "requestId": 31, "serviceId": 12,
+  "reviewerId": 9, "reviewerName": "João Pereira",
+  "rating": 5, "comment": "Pontual e caprichosa.",
+  "createdAt": "2026-11-10T12:10:00" }</pre>
+</div>
+</div>
+
+<h3>Exemplo de regra violada (409)</h3>
+<pre>{
+  "type": "urn:servicehub:problem:invalid-transition",
+  "title": "Transição de status inválida",
+  "status": 409,
+  "detail": "Não é possível mudar de COMPLETED para PENDING.",
+  "instance": "/api/v1/service-requests/31/status",
+  "timestamp": "2026-11-10T12:15:40Z"
+}</pre>
+</section>
+
+<!-- ============================== 8 ============================== -->
+<section>
+<h1 class="page">8. Regras de validação</h1>
+<p>Validação declarativa com Bean Validation (<code>@Valid</code> no controller, anotações no DTO). Mensagens em português. Violações respondem 400 com a lista <code>errors</code>.</p>
+<table>
+  <thead><tr><th style="width:34mm">DTO</th><th style="width:30mm">Campo</th><th>Regra</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="4">Cadastro de usuário</td><td><code>fullName</code></td><td>obrigatório, 2 a 100 caracteres</td></tr>
+    <tr><td><code>email</code></td><td>obrigatório, e-mail válido, até 255; normalizado (<code>trim</code> + minúsculas)</td></tr>
+    <tr><td><code>password</code></td><td>obrigatório, 8 a 72 caracteres, ao menos uma letra maiúscula e um número (<code>^(?=.*[A-Z])(?=.*\d).+$</code>)</td></tr>
+    <tr><td><code>role</code></td><td>obrigatório, <code>CLIENT</code> ou <code>PROVIDER</code> (<code>ADMIN</code> → 400)</td></tr>
+    <tr><td rowspan="2">Atualização de usuário</td><td><code>fullName</code></td><td>obrigatório, 2 a 100</td></tr>
+    <tr><td><code>phone</code> · <code>bio</code> · <code>avatarUrl</code></td><td>opcionais; até 20 · 2000 · 500</td></tr>
+    <tr><td rowspan="4">Serviço</td><td><code>title</code></td><td>obrigatório, 3 a 150</td></tr>
+    <tr><td><code>description</code></td><td>opcional, até 2000</td></tr>
+    <tr><td><code>price</code></td><td>obrigatório, de 0,01 a 99.999.999,99</td></tr>
+    <tr><td><code>category</code></td><td>obrigatório, valor do enum</td></tr>
+    <tr><td rowspan="3">Ordem de serviço</td><td><code>serviceId</code></td><td>obrigatório, positivo</td></tr>
+    <tr><td><code>scheduledAt</code></td><td>opcional, no futuro</td></tr>
+    <tr><td><code>notes</code></td><td>opcional, até 1000</td></tr>
+    <tr><td>Mudança de status</td><td><code>status</code></td><td>obrigatório, valor do enum</td></tr>
+    <tr><td rowspan="2">Avaliação</td><td><code>rating</code></td><td>obrigatório, inteiro de 1 a 5</td></tr>
+    <tr><td><code>comment</code></td><td>opcional, até 1000</td></tr>
+    <tr><td>Papel / ativação</td><td><code>role</code> · <code>active</code></td><td>obrigatórios; <code>CLIENT|PROVIDER|ADMIN</code> · <code>true|false</code></td></tr>
+  </tbody>
+</table>
+<div class="note"><strong>Sanitização (Aula 8):</strong> campos de texto livre (<code>description</code>, <code>notes</code>, <code>comment</code>, <code>bio</code>) passam por escape de HTML na camada de serviço antes de gravar. Toda consulta usa parâmetros (JPA, <code>@Query</code> com <code>:param</code>); nunca concatenação de strings em SQL.</div>
+</section>
+
+<!-- ============================== 9 ============================== -->
+<section>
+<h1 class="page">9. Regras de negócio</h1>
+<p>Cada regra abaixo deve ter <strong>pelo menos um teste</strong> que falha quando ela é quebrada. Citem o código da regra no nome ou no <code>@DisplayName</code> do teste.</p>
+<table>
+  <thead><tr><th style="width:14mm">Código</th><th>Regra</th><th style="width:30mm">Resposta</th></tr></thead>
+  <tbody>
+    <tr><td>RN01</td><td>E-mail é único na plataforma, comparado sem diferenciar maiúsculas.</td><td>409</td></tr>
+    <tr><td>RN02</td><td>Senha é gravada só como hash BCrypt e nunca sai em resposta nenhuma.</td><td>—</td></tr>
+    <tr><td>RN03</td><td>No cadastro, o papel só pode ser <code>CLIENT</code> ou <code>PROVIDER</code>. Só um ADMIN altera papéis.</td><td>400 / 403</td></tr>
+    <tr><td>RN04</td><td>O prestador de um serviço é sempre o usuário autenticado que o criou.</td><td>—</td></tr>
+    <tr><td>RN05</td><td>Só o dono ou um ADMIN altera ou desativa um serviço.</td><td>403</td></tr>
+    <tr><td>RN06</td><td>CLIENT e PROVIDER podem abrir ordens; ninguém contrata o próprio serviço; o serviço precisa estar ativo.</td><td>409</td></tr>
+    <tr><td>RN07</td><td><code>totalPrice</code> da ordem é o preço do serviço no momento da criação e não muda depois.</td><td>—</td></tr>
+    <tr><td>RN08</td><td>Mudanças de status seguem a tabela da seção 4.</td><td>403 / 409</td></tr>
+    <tr><td>RN09</td><td>Só quem abriu a ordem avalia, só depois de <code>COMPLETED</code>, uma única vez.</td><td>403 / 409</td></tr>
+    <tr><td>RN10</td><td>Usuário ou serviço com ordens <code>PENDING</code>, <code>ACCEPTED</code> ou <code>IN_PROGRESS</code> não pode ser excluído.</td><td>409</td></tr>
+    <tr><td>RN11</td><td>Desativar um usuário desativa os serviços dele. Usuário inativo não faz login e o token que ele já tinha deixa de valer.</td><td>401</td></tr>
+    <tr><td>RN12</td><td>Serviço inativo não aparece nas listagens e responde 404 ao público; dono e ADMIN continuam vendo.</td><td>404</td></tr>
+    <tr><td>RN13</td><td>Uma pessoa só vê o próprio perfil e as ordens em que participa (ADMIN vê tudo).</td><td>403</td></tr>
+  </tbody>
+</table>
+</section>
+
+<!-- ============================== 10 ============================== -->
+<section>
+<h1 class="page">10. Segurança</h1>
+<div class="grid2">
+<div class="card">
+<h4>Autenticação (Aulas 8 e 9)</h4>
+<ul>
+  <li>Spring Security com <code>SecurityFilterChain</code>, sessão <code>STATELESS</code>, CSRF desabilitado.</li>
+  <li>JWT assinado (HS256), expiração de 24 h. Claims: <code>sub</code> (e-mail), <code>uid</code> (id), <code>roles</code>, <code>iat</code>, <code>exp</code>.</li>
+  <li>Segredo do JWT vem de variável de ambiente, com pelo menos 32 bytes. Sem segredo, a aplicação não sobe.</li>
+  <li>A cada requisição, o usuário do token é conferido no banco: se estiver inativo, 401 (RN11).</li>
+</ul>
+</div>
+<div class="card">
+<h4>Autorização</h4>
+<ul>
+  <li><code>@EnableMethodSecurity</code> e <code>@PreAuthorize</code> para regras por papel.</li>
+  <li>Regras de dono (BOLA, OWASP API1) verificadas no service com o usuário autenticado.</li>
+  <li>Mass assignment (OWASP API3): DTOs de entrada não têm <code>id</code>, <code>role</code>, <code>providerId</code>, <code>clientId</code>.</li>
+  <li>Excessive data exposure: só DTOs de resposta; nunca entidades JPA.</li>
+</ul>
+</div>
+<div class="card">
+<h4>Configuração</h4>
+<ul>
+  <li>CORS com origens explícitas vindas de variável de ambiente; nunca <code>*</code> com credenciais.</li>
+  <li><code>server.error.include-stacktrace=never</code>.</li>
+  <li>Swagger UI com botão <em>Authorize</em> (esquema bearer JWT).</li>
+  <li>Nenhum segredo no Git: <code>.env</code> no <code>.gitignore</code>, <code>.env.example</code> versionado.</li>
+</ul>
+</div>
+<div class="card">
+<h4>Rotas públicas</h4>
+<p><code>POST /auth/register</code>, <code>POST /auth/login</code>, <code>GET /services</code>, <code>GET /services/{id}</code>, <code>GET /services/{id}/reviews</code>, <code>GET /reviews/{id}</code>, <code>GET /info</code>, <code>/actuator/health</code>, <code>/docs</code>, <code>/api-docs</code>.</p>
+<p>Todo o resto exige token. Escrevam um teste que percorre as rotas protegidas e confirma 401 sem token.</p>
+</div>
+</div>
+</section>
+
+<!-- ============================== 11 ============================== -->
+<section>
+<h1 class="page">11. Roteiro de refatoração</h1>
+<p>Ordem sugerida. Cada etapa termina com testes passando, commit e, de preferência, uma tag (<code>git tag etapa-1</code>…). Assim vocês conseguem mostrar na banca a evolução com <code>git diff</code>.</p>
+<table>
+  <thead><tr><th style="width:12mm">Etapa</th><th style="width:44mm">Foco</th><th>O que fazer</th><th style="width:18mm">Aulas</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Diagnóstico</td><td>Compare seu projeto com este mapa e escreva um <code>docs/diagnostico.md</code>: o que já atende, o que falta, o que contraria. É a sua lista de tarefas.</td><td>—</td></tr>
+    <tr><td>2</td><td>Banco</td><td>Migrações novas até o schema da seção 3 (papel, <code>is_active</code>, <code>updated_at</code>, <code>RESTRICT</code>, <code>CHECK</code>s). Entidades JPA validando com <code>ddl-auto=validate</code>.</td><td>4</td></tr>
+    <tr><td>3</td><td>Contrato</td><td><code>/api/v1</code>, DTOs de entrada e saída, <code>ResponseEntity</code> com <code>Location</code>, paginação, <code>@RestControllerAdvice</code> com ProblemDetail, Bean Validation.</td><td>2, 5, 6, 8</td></tr>
+    <tr><td>4</td><td>Segurança</td><td>BCrypt, cadastro e login com JWT, <code>/auth/me</code>, papéis, regras de dono, CORS, admin inicial por variável de ambiente.</td><td>8, 9</td></tr>
+    <tr><td>5</td><td>Domínio</td><td>Ordens de serviço com a máquina de estados, avaliações, exclusão lógica com as regras RN10–RN12.</td><td>4, 9</td></tr>
+    <tr><td>6</td><td>Testes</td><td>Unitários das regras (Mockito), fatia web (<code>@WebMvcTest</code>), integração com PostgreSQL real (Testcontainers). Um teste por regra RN.</td><td>10</td></tr>
+    <tr><td>7</td><td>Documentação</td><td>OpenAPI com todos os status codes da seção 6, exemplos reais e erros documentados com o schema ProblemDetail. README atualizado.</td><td>5</td></tr>
+    <tr><td>8</td><td>Ambiente</td><td>Dockerfile multi-stage, Compose com healthcheck, <code>depends_on: service_healthy</code>, volume e <code>.env</code>; pipeline no GitHub Actions rodando <code>mvn verify</code>.</td><td>11, 12, 14</td></tr>
+  </tbody>
+</table>
+<div class="warn"><strong>Armadilha comum:</strong> mudar a entidade JPA e esquecer a migração. Com <code>ddl-auto=validate</code> a aplicação não sobe e o erro diz exatamente qual coluna falta. Leiam a mensagem antes de pedir ajuda (à IA ou ao professor).</div>
+</section>
+
+<!-- ============================== 12 ============================== -->
+<section>
+<h1 class="page">12. Critérios de aceite da entrega</h1>
+<p>A banca vai conferir item a item. Usem como checklist antes de entregar.</p>
+<div class="grid2">
+<div>
+<h3>Funcionamento</h3>
+<ul class="checklist">
+  <li><code>docker compose up -d --build</code> sobe API e PostgreSQL sem passo manual.</li>
+  <li>Dados persistem após <code>docker compose down</code> e <code>up</code>.</li>
+  <li>Fluxo completo funciona: cadastro de prestador e cliente → login → serviço → ordem → aceitar → iniciar → concluir → avaliar.</li>
+  <li>Todas as rotas da seção 6 com os status codes indicados.</li>
+  <li>Erros sempre em ProblemDetail; nenhum 500 para erro do cliente.</li>
+</ul>
+<h3>Banco</h3>
+<ul class="checklist">
+  <li>Schema igual ao da seção 3, alcançado por migrações Flyway.</li>
+  <li>Nenhuma migração antiga editada.</li>
+</ul>
+</div>
+<div>
+<h3>Qualidade</h3>
+<ul class="checklist">
+  <li>Ao menos um teste por regra RN01–RN13.</li>
+  <li>Teste de integração com PostgreSQL real.</li>
+  <li>Teste que confirma 401 nas rotas protegidas sem token.</li>
+  <li>Pipeline do GitHub Actions verde no último commit.</li>
+  <li>Swagger em <code>/docs</code> coerente com o que a API faz.</li>
+</ul>
+<h3>Processo</h3>
+<ul class="checklist">
+  <li><code>docs/diagnostico.md</code> da etapa 1.</li>
+  <li>Histórico com commits pequenos e mensagens claras.</li>
+  <li>README com como rodar, como testar e variáveis de ambiente.</li>
+  <li><code>.env.example</code> versionado; nenhum segredo no repositório.</li>
+  <li>Ao menos três decisões técnicas registradas (problema → decisão → consequência).</li>
+</ul>
+</div>
+</div>
+<div class="note"><strong>Na banca:</strong> escolham uma regra de negócio, mostrem o teste que a protege, quebrem a regra no código ao vivo e mostrem o teste falhando. Isso prova que vocês entendem o que a IA escreveu.</div>
+</section>
+
+</body>
+</html>

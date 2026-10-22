@@ -100,7 +100,8 @@ users ──1:N── services ──1:N── service_requests ──1:1── 
 Alterações de schema (novas migrações, nunca editar as antigas):
 
 - **V8** `Add_role_to_users`: `role VARCHAR(20) NOT NULL DEFAULT 'CLIENT'` + `CHECK (role IN ('ADMIN','PROVIDER','CLIENT'))`. Perfis exatamente como na Aula 9.
-- Nada mais no schema. `service_requests.status` já tem `CHECK` com os cinco estados da Aula 4.
+- **V9** `Align_with_student_schema` (Fase 3): leva o banco ao schema-alvo entregue aos alunos em `docs/alunos/servicehub_schema.sql` — `services.updated_at`; `NOT NULL` em `is_active`/`created_at`/`updated_at`; `CHECK (email = LOWER(email))`; `CHECK` de `category`, `price > 0`, `total_price > 0`; todas as FKs `ON DELETE RESTRICT` (substitui o `CASCADE` da V4, coerente com o soft delete). O schema-alvo e o "Mapa de Construção" (PDF dos alunos) são a referência de contrato; a implementação de referência deve terminar idêntica a eles.
+- `service_requests.status` já tem `CHECK` com os cinco estados da Aula 4.
 
 Entidades a criar: `ServiceRequest`, `Review`; enums `Role`, `RequestStatus`. `User` ganha `role`, `phone`, `bio`, `avatarUrl`, `active`, `updatedAt` (as colunas já existem desde V3) e `@PreUpdate`.
 
