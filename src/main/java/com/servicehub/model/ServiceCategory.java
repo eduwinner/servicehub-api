@@ -1,0 +1,30 @@
+package com.servicehub.model;
+
+public enum ServiceCategory {
+
+    // Serviços domésticos
+    LIMPEZA,
+    DIARISTA,
+    ENCANAMENTO,
+    ELETRICA,
+    JARDINAGEM,
+    PINTURA,
+    MARCENARIA,
+    PEDREIRO,
+    DEDETIZACAO,
+    AR_CONDICIONADO,
+    CHAVEIRO,
+    MONTAGEM_MOVEIS,
+    MUDANCA,
+
+    // TI
+    SUPORTE_TECNICO,
+    MANUTENCAO_COMPUTADORES,
+    DESENVOLVIMENTO_SOFTWARE,
+    REDES_E_INFRAESTRUTURA,
+    SEGURANCA_DIGITAL,
+    RECUPERACAO_DE_DADOS,
+    CONSULTORIA_TI,
+
+    OUTROS
+}

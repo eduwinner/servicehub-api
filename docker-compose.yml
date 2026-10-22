@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: servicehub-db
+    environment:
+      POSTGRES_USER: servicehub
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: servicehub
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - servicehub-net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8091:80"
+    depends_on:
+      - postgres
+    networks:
+      - servicehub-net
+
+  api:
+    container_name: servicehub-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/servicehub
+      SPRING_DATASOURCE_USERNAME: servicehub
+      SPRING_DATASOURCE_PASSWORD: secret
+
+      # Flyway
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/servicehub
+      SPRING_FLYWAY_USER: servicehub
+      SPRING_FLYWAY_PASSWORD: secret
+
+    ports:
+      - "8090:8080"
+    depends_on:
+      - postgres
+    networks:
+      - servicehub-net
+
+networks:
+  servicehub-net:
+
+volumes:
+  postgres_data:
