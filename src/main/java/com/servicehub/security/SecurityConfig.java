@@ -53,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/services", "/api/v1/services/**",
                                 "/api/v1/reviews/**", "/api/v1/info").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers(PUBLIC_DOCS).permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())

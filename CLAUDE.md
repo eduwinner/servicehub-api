@@ -27,17 +27,17 @@ mvnw.cmd test -Dtest=ServicehubApiApplicationTests#contextLoads   # single test
 mvnw.cmd clean package        # produce target/*.jar (required before docker build)
 ```
 
-Docker (Postgres + pgAdmin + API):
+Docker (Phase 5):
 
 ```
-docker compose up -d
+docker compose up -d --build                       # API 8090 + Postgres 16 (5433), healthchecks, volume pg_data
+docker compose --profile tools up -d               # + pgAdmin 8091
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d   # dev profile + debug 5005
 ```
 
-- API container: host `8090` → container `8080`
-- Postgres: host `5433` → container `5432` (user/pass/db: `servicehub`/`secret`/`servicehub`)
-- pgAdmin: host `8091` (admin@admin.com / admin)
-
-The Dockerfile just copies a pre-built `target/*.jar` — run `mvnw.cmd clean package` before `docker compose up --build` (multi-stage build comes in Phase 5).
+- Multi-stage Dockerfile (maven:3.9-temurin-21 → temurin:21-jre-alpine), non-root user, TZ America/Sao_Paulo, HEALTHCHECK on /actuator/health. No `mvnw package` needed before building.
+- Compose reads optional `.env`; every variable has a dev default (`JWT_SECRET`, admin `admin@servicehub.com`/`Admin123`, `API_PORT`, `DB_PORT`). `SPRING_PROFILES_ACTIVE=prod` → JSON (ECS) logs via `application-prod.properties`.
+- On the professor's machine port 8090 is used by another project and stale containers `servicehub-db`/`servicehub-api` (Postgres 15, old volume `servicehub-api_postgres_data`) exist: do not delete them without asking; verify with `API_PORT`/`DB_PORT` overrides, a `-p` project name and a container_name override file.
 
 ## Tests
 

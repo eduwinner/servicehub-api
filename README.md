@@ -1,5 +1,7 @@
 # ServiceHub API
 
+[![CI](https://github.com/eduwinner/servicehub-api/actions/workflows/ci.yml/badge.svg)](https://github.com/eduwinner/servicehub-api/actions/workflows/ci.yml)
+
 API REST de gestão de prestadores de serviço, serviços, ordens de serviço e avaliações. É a **implementação de referência** do projeto PBL da disciplina *Desenvolvimento de API Back-End* (Engenharia de Software, 6º período, UniEVANGÉLICA).
 
 O projeto evolui em fases, uma por bloco de aulas, e cada fase tem uma tag git. Assim dá para comparar, em sala, o que cada etapa acrescentou: `git diff fase-0-baseline fase-1-contrato-qualidade`.
@@ -92,6 +94,16 @@ Regras da máquina de estados em [ADR-0006](docs/adr/0006-maquina-de-estados-da-
 
 - **Swagger UI** em `/docs`: faça login em `POST /api/v1/auth/login` e use o botão **Authorize**.
 - **Postman**: importe [docs/postman/servicehub.postman_collection.json](docs/postman/servicehub.postman_collection.json) e rode a coleção inteira (Collection Runner). Ela executa o ciclo completo e confere status codes; ajuste `baseUrl` se não estiver no Compose (8090).
+
+## Observabilidade
+
+- `GET /actuator/health` (público) e `GET /actuator/info`.
+- `GET /actuator/metrics` e `GET /actuator/prometheus` (só ADMIN): métricas da JVM, HTTP e a métrica de negócio `servicehub_service_requests_transitions_total{to="..."}`, que conta quantas ordens chegaram a cada status.
+- Logs com `X-Request-Id` em cada linha; no perfil `prod`, em JSON (ECS).
+
+## Integração contínua
+
+O workflow `.github/workflows/ci.yml` roda `./mvnw verify` (testes com PostgreSQL real e cobertura) a cada push e pull request no `main`, publica o relatório JaCoCo como artefato, constrói a imagem e sobe o Compose para conferir o healthcheck.
 
 ## Contrato de erro
 
