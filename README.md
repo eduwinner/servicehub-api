@@ -65,7 +65,7 @@ Toda resposta traz o header `X-Request-Id`, também gravado nos logs, para rastr
 
 ## Material dos alunos
 
-- [Mapa de Construção (PDF)](docs/alunos/ServiceHub-Mapa-de-Construcao.pdf): schema, endpoints e regras de negócio que a API deve atingir.
+- [Mapa de Construção (PDF)](docs/alunos/Mapa.pdf): schema, endpoints e regras de negócio que a API deve atingir.
 - [Schema-alvo PostgreSQL](docs/alunos/servicehub_schema.sql).
 
 ## Fases e tags
