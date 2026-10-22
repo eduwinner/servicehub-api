@@ -1,0 +1,13 @@
+target/
+.git/
+.github/
+.idea/
+.vscode/
+.mvn/
+.superpowers/
+docs/
+frontend/
+node_modules/
+*.md
+.env
+.env.*

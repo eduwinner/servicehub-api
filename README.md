@@ -10,6 +10,22 @@ O projeto evolui em fases, uma por bloco de aulas, e cada fase tem uma tag git. 
 - Docker Desktop (rodando)
 - Git
 
+## Rodar com Docker (recomendado)
+
+```bash
+docker compose up -d --build
+```
+
+- API em `http://localhost:8090` (Swagger em `/docs`), PostgreSQL 16 em `localhost:5433`.
+- A API só sobe depois que o Postgres passa no healthcheck; a própria API tem healthcheck em `/actuator/health`.
+- Dados persistem no volume `pg_data` (`docker compose down` mantém; `down -v` apaga).
+- Variáveis: crie um `.env` (opcional) para trocar `JWT_SECRET`, senha do admin, portas (`API_PORT`, `DB_PORT`) etc. Os padrões do Compose são só para desenvolvimento.
+- pgAdmin: `docker compose --profile tools up -d` (porta 8091).
+- Depuração remota (perfil dev, porta 5005): `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build`.
+- Admin inicial padrão do Compose: `admin@servicehub.com` / `Admin123`.
+
+A imagem é multi-stage (Maven + JDK no build, só JRE Alpine no runtime), roda com usuário não-root e no fuso `America/Sao_Paulo`. No perfil `prod` (padrão do Compose) os logs saem em JSON (formato ECS).
+
 ## Como rodar localmente
 
 ```bash

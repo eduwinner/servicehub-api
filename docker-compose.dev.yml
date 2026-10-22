@@ -1,0 +1,10 @@
+# Override de desenvolvimento (Aula 12, slide 16):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+# Perfil dev (SQL no log, DEBUG) e depuração remota na porta 5005 (attach pela IDE).
+services:
+  api:
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - "5005:5005"
