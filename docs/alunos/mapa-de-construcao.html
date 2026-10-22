@@ -147,7 +147,7 @@
       <dt>Disciplina</dt><dd>Desenvolvimento de API Back-End (11296)</dd>
       <dt>Instituição</dt><dd>UniEVANGÉLICA — Universidade Evangélica de Goiás</dd>
       <dt>Professor</dt><dd>Prof. Esp. Eduardo Dias Pereira</dd>
-      <dt>Versão</dt><dd>1.0 — outubro de 2026</dd>
+      <dt>Versão</dt><dd>1.1 — outubro de 2026 (inclui o requisito de CORS para a bancada de testes)</dd>
     </dl>
   </div>
 </section>
@@ -444,6 +444,7 @@
     <tr><td>Listagens</td><td>Sempre paginadas: <code>?page=0&amp;size=20&amp;sort=createdAt,desc</code>. Padrão 20 itens, <strong>máximo 100</strong> (um <code>size=500</code> devolve 100, nunca erro).</td></tr>
     <tr><td>Erros</td><td>Sempre <code>application/problem+json</code> no formato <strong>ProblemDetail</strong> (RFC 9457), com <code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code>, <code>instance</code> e <code>timestamp</code>. Nunca stack trace.</td></tr>
     <tr><td>Rastreio</td><td>Toda resposta tem o header <code>X-Request-Id</code>. Se o cliente enviar um válido, a API o devolve; se não, gera um UUID.</td></tr>
+    <tr><td>CORS</td><td>A API deve aceitar chamadas do navegador vindas de <code>http://localhost:5173</code>, a origem da <strong>bancada de testes</strong> usada pelo professor em sala. Libere os métodos <code>GET, POST, PUT, PATCH, DELETE, OPTIONS</code>, os headers <code>Authorization</code> e <code>Content-Type</code>, e exponha <code>Location</code> e <code>X-Request-Id</code>.</td></tr>
     <tr><td>Campos desconhecidos</td><td>São ignorados. Campos que o cliente não pode definir (<code>id</code>, <code>role</code>, <code>providerId</code>, <code>status</code> na criação…) simplesmente não existem no DTO de entrada.</td></tr>
   </tbody>
 </table>
@@ -756,7 +757,7 @@
 <div class="card">
 <h4>Configuração</h4>
 <ul>
-  <li>CORS com origens explícitas vindas de variável de ambiente; nunca <code>*</code> com credenciais.</li>
+  <li>CORS com origens explícitas vindas de variável de ambiente (ex.: <code>CORS_ALLOWED_ORIGINS</code>), incluindo <strong><code>http://localhost:5173</code></strong>; nunca <code>*</code> com credenciais. Sem isso, o navegador bloqueia a bancada de testes antes de a requisição chegar à API.</li>
   <li><code>server.error.include-stacktrace=never</code>.</li>
   <li>Swagger UI com botão <em>Authorize</em> (esquema bearer JWT).</li>
   <li>Nenhum segredo no Git: <code>.env</code> no <code>.gitignore</code>, <code>.env.example</code> versionado.</li>
@@ -780,7 +781,7 @@
     <tr><td>1</td><td>Diagnóstico</td><td>Compare seu projeto com este mapa e escreva um <code>docs/diagnostico.md</code>: o que já atende, o que falta, o que contraria. É a sua lista de tarefas.</td><td>—</td></tr>
     <tr><td>2</td><td>Banco</td><td>Migrações novas até o schema da seção 3 (papel, <code>is_active</code>, <code>updated_at</code>, <code>RESTRICT</code>, <code>CHECK</code>s). Entidades JPA validando com <code>ddl-auto=validate</code>.</td><td>4</td></tr>
     <tr><td>3</td><td>Contrato</td><td><code>/api/v1</code>, DTOs de entrada e saída, <code>ResponseEntity</code> com <code>Location</code>, paginação, <code>@RestControllerAdvice</code> com ProblemDetail, Bean Validation.</td><td>2, 5, 6, 8</td></tr>
-    <tr><td>4</td><td>Segurança</td><td>BCrypt, cadastro e login com JWT, <code>/auth/me</code>, papéis, regras de dono, CORS, admin inicial por variável de ambiente.</td><td>8, 9</td></tr>
+    <tr><td>4</td><td>Segurança</td><td>BCrypt, cadastro e login com JWT, <code>/auth/me</code>, papéis, regras de dono, CORS (origem <code>http://localhost:5173</code>), admin inicial por variável de ambiente.</td><td>8, 9</td></tr>
     <tr><td>5</td><td>Domínio</td><td>Ordens de serviço com a máquina de estados, avaliações, exclusão lógica com as regras RN10–RN12.</td><td>4, 9</td></tr>
     <tr><td>6</td><td>Testes</td><td>Unitários das regras (Mockito), fatia web (<code>@WebMvcTest</code>), integração com PostgreSQL real (Testcontainers). Um teste por regra RN.</td><td>10</td></tr>
     <tr><td>7</td><td>Documentação</td><td>OpenAPI com todos os status codes da seção 6, exemplos reais e erros documentados com o schema ProblemDetail. README atualizado.</td><td>5</td></tr>
@@ -799,6 +800,8 @@
 <h3>Funcionamento</h3>
 <ul class="checklist">
   <li><code>docker compose up -d --build</code> sobe API e PostgreSQL sem passo manual.</li>
+  <li>API acessível no host em <code>http://localhost:8090</code> (porta padrão da bancada de testes; outra porta só se informada ao professor).</li>
+  <li>CORS liberado para <code>http://localhost:5173</code> (seção 5).</li>
   <li>Dados persistem após <code>docker compose down</code> e <code>up</code>.</li>
   <li>Fluxo completo funciona: cadastro de prestador e cliente → login → serviço → ordem → aceitar → iniciar → concluir → avaliar.</li>
   <li>Todas as rotas da seção 6 com os status codes indicados.</li>
