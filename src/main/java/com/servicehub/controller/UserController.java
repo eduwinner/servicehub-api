@@ -2,6 +2,7 @@ package com.servicehub.controller;
 
 import com.servicehub.model.dto.UserDTO;
 import com.servicehub.model.dto.UserResponseDTO;
+import com.servicehub.model.dto.UserUpdateDTO;
 import com.servicehub.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,9 +10,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -34,9 +38,9 @@ public class UserController {
         @ApiResponse(responseCode = "500", description = "E-mail já cadastrado (exceção não tratada, sem handler dedicado ainda)")
     })
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO create(@RequestBody UserDTO dto) {
-        return userService.createUser(dto);
+    public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody UserDTO dto) {
+        UserResponseDTO body = userService.createUser(dto);
+        return ResponseEntity.created(URI.create("/api/v1/users/" + body.getId())).body(body);
     }
 
     @Operation(summary = "Buscar usuário por ID", description = "Retorna os dados de um usuário específico")
@@ -62,7 +66,7 @@ public class UserController {
         @ApiResponse(responseCode = "500", description = "Usuário não encontrado (exceção não tratada, sem handler dedicado ainda)")
     })
     @PutMapping("/{id}")
-    public UserResponseDTO update(@PathVariable Long id, @RequestBody UserDTO dto) {
+    public UserResponseDTO update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
         return userService.updateUser(id, dto);
     }
 

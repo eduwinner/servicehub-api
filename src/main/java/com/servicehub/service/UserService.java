@@ -5,6 +5,7 @@ import com.servicehub.exception.ResourceNotFoundException;
 import com.servicehub.model.User;
 import com.servicehub.model.dto.UserDTO;
 import com.servicehub.model.dto.UserResponseDTO;
+import com.servicehub.model.dto.UserUpdateDTO;
 import com.servicehub.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,10 +41,13 @@ public class UserService {
         return toResponseDTO(findEntityById(id));
     }
 
-    public UserResponseDTO updateUser(Long id, UserDTO dto) {
+    public UserResponseDTO updateUser(Long id, UserUpdateDTO dto) {
         User user = findEntityById(id);
-        user.setFullName(dto.getFullName());
-        return toResponseDTO(userRepository.save(user));
+        user.setFullName(dto.fullName());
+        user.setPhone(dto.phone());
+        user.setBio(dto.bio());
+        user.setAvatarUrl(dto.avatarUrl());
+        return toResponseDTO(userRepository.saveAndFlush(user));
     }
 
     public void deleteUser(Long id) {
@@ -68,7 +72,8 @@ public class UserService {
     }
 
     private UserResponseDTO toResponseDTO(User user) {
-        return new UserResponseDTO(user.getId(), user.getFullName(), user.getEmail(), user.getCreatedAt());
+        return new UserResponseDTO(user.getId(), user.getFullName(), user.getEmail(), user.getPhone(),
+                user.getBio(), user.getAvatarUrl(), user.getCreatedAt(), user.getUpdatedAt());
     }
 
 }

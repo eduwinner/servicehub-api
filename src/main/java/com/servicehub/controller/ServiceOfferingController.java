@@ -9,9 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -34,9 +37,9 @@ public class ServiceOfferingController {
         @ApiResponse(responseCode = "500", description = "Usuário (provedor) não encontrado (exceção não tratada, sem handler dedicado ainda)")
     })
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ServiceOfferingResponseDTO create(@RequestBody ServiceOfferingDTO dto) {
-        return serviceOfferingService.createService(dto);
+    public ResponseEntity<ServiceOfferingResponseDTO> create(@Valid @RequestBody ServiceOfferingDTO dto) {
+        ServiceOfferingResponseDTO body = serviceOfferingService.createService(dto);
+        return ResponseEntity.created(URI.create("/api/v1/services/" + body.getId())).body(body);
     }
 
     @Operation(summary = "Buscar serviço por ID", description = "Retorna os dados de um serviço específico")
@@ -62,7 +65,7 @@ public class ServiceOfferingController {
         @ApiResponse(responseCode = "500", description = "Serviço não encontrado (exceção não tratada, sem handler dedicado ainda)")
     })
     @PutMapping("/{id}")
-    public ServiceOfferingResponseDTO update(@PathVariable Long id, @RequestBody ServiceOfferingDTO dto) {
+    public ServiceOfferingResponseDTO update(@PathVariable Long id, @Valid @RequestBody ServiceOfferingDTO dto) {
         return serviceOfferingService.updateService(id, dto);
     }
 
