@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 01 — APIs, ecossistema Java e o método com IA</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 01 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card h4 { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad h4 { color: var(--bad); } .good h4 { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc h3 { margin-top: 0; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 01<br>APIs, ecossistema Java e o método com IA</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Esta apostila acompanha a primeira aula. Ela apresenta os conceitos que sustentam todo o semestre: o que é uma API, como chegamos ao estilo REST, quais peças do ecossistema Java vamos usar e como trabalhar com um assistente de IA sem terceirizar o raciocínio. Leia antes ou depois da aula; os exercícios do fim ajudam a conferir o que ficou.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h3>Conteúdo</h3>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">O que é uma API</a></li>
+      <li><a href="#s3">Por que as APIs importam</a></li>
+      <li><a href="#s4">Como chegamos aqui: de RPC a REST</a></li>
+      <li><a href="#s5">O estilo REST</a></li>
+      <li><a href="#s6">Quem pode usar a API: visibilidade</a></li>
+      <li><a href="#s7">O ecossistema Java</a></li>
+      <li><a href="#s8">Spring e Spring Boot</a></li>
+      <li><a href="#s9">O caminho de uma requisição</a></li>
+      <li><a href="#s10">Nomeando recursos</a></li>
+      <li><a href="#s11">O projeto do semestre</a></li>
+      <li><a href="#s12">Construindo com IA</a></li>
+      <li><a href="#s13">Glossário</a></li>
+      <li><a href="#s14">Exercícios</a></li>
+      <li><a href="#s15">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>explicar o que é uma API e diferenciar a interface (o contrato) da implementação;</li>
+  <li>situar SOAP, REST, GraphQL e gRPC na história das integrações e dizer quando cada um faz sentido;</li>
+  <li>descrever as restrições do estilo REST e reconhecer uma URI bem formada;</li>
+  <li>identificar o papel da JVM, do Maven, do Spring e do Spring Boot numa API Java;</li>
+  <li>usar os quatro movimentos do método com IA (Especificar, Gerar, Revisar, Provar) num pedido simples.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. O que é uma API <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>API</strong> (<em>Application Programming Interface</em>, interface de programação de aplicações) é o conjunto de regras que um software publica para que outro software possa usá-lo. A API diz <em>o que</em> pode ser pedido, <em>como</em> pedir e <em>o que</em> volta como resposta. Ela não diz como o pedido é atendido por dentro.</p>
+<p>Essa separação é a ideia central da disciplina. De um lado fica a <strong>interface</strong>, que é um contrato público e estável. Do outro fica a <strong>implementação</strong>, que é privada e pode mudar. Enquanto o contrato é respeitado, quem usa a API não percebe a troca de banco de dados, de linguagem ou de servidor.</p>
+
+<div class="note"><div class="label">Analogia</div>
+<p>Num restaurante, o cardápio é a interface: lista o que pode ser pedido e o formato do pedido. A cozinha é a implementação. O garçom leva o pedido e traz o prato; o cliente nunca entra na cozinha. Se o restaurante troca o fogão, o cardápio continua o mesmo.</p></div>
+
+<h3>Três tipos de API que você já usa</h3>
+<table>
+<thead><tr><th style="width:22%">Tipo</th><th style="width:40%">Como é chamada</th><th>Exemplo</th></tr></thead>
+<tr><td>API de biblioteca</td><td>Chamada de método dentro do mesmo programa</td><td><code>List.of(1, 2, 3)</code> na biblioteca padrão do Java</td></tr>
+<tr><td>API do sistema operacional</td><td>Chamada de sistema feita pelo programa ao SO</td><td>Abrir um arquivo, criar uma thread</td></tr>
+<tr><td>API web</td><td>Mensagem pela rede, em geral HTTP</td><td><code>GET /api/v1/services</code> no ServiceHub</td></tr>
+</table>
+<p>Nesta disciplina tratamos de <strong>APIs web</strong>: um programa cliente envia uma requisição HTTP pela rede, e o servidor devolve uma resposta, normalmente em JSON. O cliente pode ser um site, um aplicativo de celular, outro sistema ou um teste automatizado.</p>
+
+<!-- 3 -->
+<h2 id="s3">3. Por que as APIs importam <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<div class="grid2">
+  <div class="card"><h4>Integração</h4><p>Sistemas escritos em linguagens e épocas diferentes conversam por um formato comum, sem que um precise conhecer o código do outro.</p></div>
+  <div class="card"><h4>Reuso</h4><p>A mesma regra de negócio, implementada uma vez, atende ao site, ao aplicativo e aos parceiros.</p></div>
+  <div class="card"><h4>Encapsulamento e segurança</h4><p>A API expõe só o necessário. Tabelas, senhas e regras internas ficam atrás dela, o que reduz a superfície de ataque.</p></div>
+  <div class="card"><h4>Evolução independente</h4><p>Times diferentes mudam o front-end e o back-end em ritmos diferentes, desde que o contrato seja mantido.</p></div>
+</div>
+<p>Há também o lado de negócio: muitas empresas vendem capacidades técnicas como produto, por meio de APIs públicas de pagamento, mapas ou mensagens. Para quem desenvolve, isso significa que o contrato da API é tão importante quanto o código que a implementa.</p>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. Como chegamos aqui: de RPC a REST <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Cada geração de tecnologia de integração resolveu um limite da anterior. Conhecer essa história ajuda a entender por que o REST é o padrão das APIs web e por que ele não é a única opção.</p>
+
+<h3>RPC: chamar uma função em outra máquina</h3>
+<p><strong>RPC</strong> (<em>Remote Procedure Call</em>, chamada de procedimento remoto) faz uma chamada pela rede parecer uma chamada de função local. As primeiras soluções eram proprietárias: cada fabricante tinha seu protocolo, e cliente e servidor ficavam fortemente acoplados.</p>
+
+<h3>XML-RPC e SOAP: padronizar a mensagem</h3>
+<p>O <strong>XML-RPC</strong>, do fim dos anos 1990, padronizou a chamada remota usando XML como formato e HTTP como transporte. O <strong>SOAP</strong> evoluiu essa ideia com tipos complexos, um envelope obrigatório e uma descrição formal do serviço em <strong>WSDL</strong> (<em>Web Services Description Language</em>). Ele ainda é comum em bancos, governo e sistemas legados, mas é verboso. Um pedido simples ocupa várias linhas:</p>
+<pre>&lt;soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"&gt;
+  &lt;soap:Header/&gt;
+  &lt;soap:Body&gt;
+    &lt;GetUser&gt;
+      &lt;userId&gt;42&lt;/userId&gt;
+    &lt;/GetUser&gt;
+  &lt;/soap:Body&gt;
+&lt;/soap:Envelope&gt;</pre>
+<p>Em REST, o mesmo pedido é <code>GET /users/42</code>, e a resposta é um JSON curto.</p>
+
+<h3>REST: usar a própria Web</h3>
+<p>Em 2000, Roy Fielding descreveu em sua tese de doutorado o estilo arquitetural <strong>REST</strong> (<em>Representational State Transfer</em>). REST não é um protocolo nem um formato: é um conjunto de restrições que aproveita o que o HTTP já oferece, como métodos, status codes, cache e URIs. A seção 5 detalha essas restrições.</p>
+
+<h3>GraphQL e gRPC: casos específicos</h3>
+<p>Em meados da década de 2010 surgiram duas alternativas que atacam limites do REST em cenários específicos. O <strong>GraphQL</strong>, publicado pelo Facebook, deixa o cliente escolher exatamente os campos que quer numa única consulta, o que evita trazer dados demais ou fazer várias chamadas. O <strong>gRPC</strong>, publicado pelo Google, volta à ideia de RPC com mensagens binárias e HTTP/2, e é muito usado entre microsserviços que precisam de alto desempenho.</p>
+
+<table>
+<thead><tr><th style="width:16%">Critério</th><th>SOAP</th><th>REST</th><th>GraphQL</th><th>gRPC</th></tr></thead>
+<tr><td>Natureza</td><td>Protocolo com especificação formal</td><td>Estilo arquitetural sobre HTTP</td><td>Linguagem de consulta</td><td>Framework de RPC</td></tr>
+<tr><td>Formato</td><td>XML com envelope</td><td>JSON, em geral</td><td>JSON</td><td>Binário (Protocol Buffers)</td></tr>
+<tr><td>Contrato</td><td>WSDL</td><td>OpenAPI (opcional, recomendado)</td><td>Schema GraphQL</td><td>Arquivo <code>.proto</code></td></tr>
+<tr><td>Uso típico</td><td>Integrações corporativas e legadas</td><td>APIs web públicas e privadas</td><td>Front-ends com telas variadas</td><td>Comunicação entre serviços</td></tr>
+</table>
+<div class="note"><div class="label">Para lembrar</div><p>Nenhuma tecnologia substituiu as outras. A escolha depende de quem consome a API, do volume de dados e das exigências de contrato. Neste semestre usamos REST porque ele é o padrão das APIs web e porque aproveita o HTTP que você vai estudar na Semana 02.</p></div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. O estilo REST <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Em REST, tudo gira em torno de <strong>recursos</strong>: coisas do domínio que têm identidade, como um usuário, um serviço ou uma ordem. Cada recurso tem um endereço, a <strong>URI</strong>. O cliente nunca recebe o recurso em si, e sim uma <strong>representação</strong> dele, por exemplo um documento JSON com seus dados naquele momento. Daí o nome: transferência de estado representacional.</p>
+
+<h3>As seis restrições de Fielding</h3>
+<table>
+<thead><tr><th style="width:24%">Restrição</th><th>O que exige</th><th style="width:32%">O que ganhamos</th></tr></thead>
+<tr><td>Cliente-servidor</td><td>Interface e armazenamento de dados ficam separados em cliente e servidor.</td><td>Cada lado evolui sozinho.</td></tr>
+<tr><td>Sem estado (<em>stateless</em>)</td><td>Cada requisição carrega tudo o que o servidor precisa para atendê-la. O servidor não guarda sessão do cliente entre requisições.</td><td>Escalar é fácil: qualquer instância atende qualquer requisição.</td></tr>
+<tr><td>Cache</td><td>Respostas indicam se podem ser guardadas e por quanto tempo.</td><td>Menos tráfego e respostas mais rápidas.</td></tr>
+<tr><td>Interface uniforme</td><td>Recursos identificados por URI, manipulados por representações, com mensagens autodescritivas (métodos e status padronizados).</td><td>Qualquer cliente HTTP sabe conversar com a API.</td></tr>
+<tr><td>Sistema em camadas</td><td>O cliente não sabe se fala com o servidor final ou com um intermediário (proxy, balanceador, gateway).</td><td>Segurança e escala sem mudar o cliente.</td></tr>
+<tr><td>Código sob demanda (opcional)</td><td>O servidor pode enviar código executável ao cliente.</td><td>Raro em APIs; citado por completude.</td></tr>
+</table>
+
+<h3>JSON, o formato das representações</h3>
+<p>O <strong>JSON</strong> (<em>JavaScript Object Notation</em>) é um formato de texto com objetos (<code>{ }</code>), listas (<code>[ ]</code>), textos, números, booleanos e <code>null</code>. É leve, legível e suportado por todas as linguagens. Uma representação de serviço no ServiceHub se parece com isto:</p>
+<pre>{
+  "id": 12,
+  "title": "Instalação elétrica residencial",
+  "category": "ELETRICA",
+  "price": 180.00,
+  "active": true
+}</pre>
+<div class="warn"><div class="label">Confusão comum</div><p>"Usa JSON e HTTP" não torna uma API REST. Uma API com rotas como <code>POST /getUser</code> ou <code>GET /deleteService?id=3</code> usa HTTP como simples transporte, mas quebra a interface uniforme: o verbo está na URI e o método HTTP perdeu o significado.</p></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. Quem pode usar a API: visibilidade <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma das primeiras decisões de arquitetura é definir quem pode acessar a API. Essa decisão muda autenticação, documentação, versionamento e o cuidado com mudanças.</p>
+<table>
+<thead><tr><th style="width:18%">Visibilidade</th><th>Quem acessa</th><th>Exigências típicas</th></tr></thead>
+<tr><td>Privada</td><td>Só sistemas da própria organização, por exemplo serviços internos que conversam entre si.</td><td>Mudanças combinadas entre times; documentação interna.</td></tr>
+<tr><td>De parceiros</td><td>Empresas com acordo formal.</td><td>Autenticação forte, contrato de nível de serviço, aviso prévio de mudanças.</td></tr>
+<tr><td>Pública</td><td>Qualquer desenvolvedor que se cadastre.</td><td>Documentação exemplar, limites de uso, estabilidade do contrato e versionamento cuidadoso.</td></tr>
+</table>
+<p>A visibilidade não é fixa: muitas APIs nascem privadas e se tornam públicas. Por isso vale projetar desde o início como se outras pessoas fossem ler o contrato. O ServiceHub tem rotas públicas, como a listagem de serviços, e rotas protegidas por login.</p>
+
+<!-- 7 -->
+<h2 id="s7">7. O ecossistema Java <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>A JVM</h3>
+<p>O compilador <code>javac</code> não gera instruções para um processador específico. Ele gera <strong>bytecode</strong>, um formato intermediário que roda na <strong>JVM</strong> (<em>Java Virtual Machine</em>). A JVM carrega as classes, interpreta o bytecode e, para os trechos mais executados, compila para código nativo durante a execução, com o compilador <strong>JIT</strong> (<em>just-in-time</em>). Um <strong>coletor de lixo</strong> (<em>garbage collector</em>) libera a memória de objetos que não são mais usados.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 120" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4">
+    <rect x="6" y="30" width="130" height="56" rx="8"/><rect x="186" y="30" width="130" height="56" rx="8"/>
+    <rect x="366" y="30" width="150" height="56" rx="8"/><rect x="566" y="30" width="128" height="56" rx="8"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937">
+    <text x="71" y="54" font-weight="700">Código-fonte</text><text x="71" y="72" fill="#6b7280">.java</text>
+    <text x="251" y="54" font-weight="700">Bytecode</text><text x="251" y="72" fill="#6b7280">.class / .jar</text>
+    <text x="441" y="54" font-weight="700">JVM</text><text x="441" y="72" fill="#6b7280">interpreta + JIT + GC</text>
+    <text x="630" y="54" font-weight="700">Processador</text><text x="630" y="72" fill="#6b7280">código nativo</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="2" marker-end="url(#a1)"><path d="M138 58 H182"/><path d="M318 58 H362"/><path d="M518 58 H562"/></g>
+  <g font-size="10.5" fill="#1d4ed8" text-anchor="middle"><text x="160" y="24">javac</text><text x="340" y="24">java</text></g>
+</svg>
+<figcaption>Do código-fonte à execução: compila-se uma vez para bytecode, e a JVM de cada plataforma executa.</figcaption>
+</figure>
+<p>Para APIs, a JVM importa por três motivos. A aplicação fica mais rápida depois de alguns minutos de uso, quando o JIT já otimizou os trechos quentes. O coletor de lixo pode causar pequenas pausas. E a memória disponível para a JVM precisa combinar com o limite do container, tema da Semana 11.</p>
+
+<h3>Java 21</h3>
+<p>Usamos o <strong>Java 21</strong>, uma versão LTS (<em>long-term support</em>, suporte de longo prazo). Dele vêm recursos que aparecem no projeto, como os <code>record</code> (classes imutáveis de dados, ótimas para DTOs) e o <code>switch</code> com padrões.</p>
+
+<h3>Maven</h3>
+<p>O <strong>Maven</strong> gerencia o build. O arquivo <code>pom.xml</code> declara o projeto e suas dependências por <strong>coordenadas</strong>: <code>groupId</code>, <code>artifactId</code> e <code>version</code>. O Maven baixa as bibliotecas, compila, roda os testes e empacota o <code>.jar</code>, seguindo um ciclo de vida de fases (<code>compile</code>, <code>test</code>, <code>package</code>, <code>verify</code>, <code>install</code>). O <strong>Maven Wrapper</strong> (<code>mvnw</code> e <code>mvnw.cmd</code>) garante que toda a equipe use a mesma versão do Maven sem instalá-lo.</p>
+<pre>&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-boot-starter-webmvc&lt;/artifactId&gt;
+&lt;/dependency&gt;</pre>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Spring e Spring Boot <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Inversão de controle e injeção de dependência</h3>
+<p>O <strong>Spring Framework</strong> é, antes de tudo, um <strong>contêiner de inversão de controle</strong>. Em vez de cada classe criar os objetos de que precisa, o Spring cria esses objetos, chamados <strong>beans</strong>, e os entrega a quem pede. Esse mecanismo se chama <strong>injeção de dependência</strong>.</p>
+<div class="grid2">
+<div class="card bad"><h4>Sem injeção</h4>
+<pre>class PedidoService {
+  private final Repositorio repo =
+      new RepositorioPostgres();
+}</pre>
+<p>A classe escolhe sozinha a implementação. Trocar o banco ou testar com um dublê exige mudar o código.</p></div>
+<div class="card good"><h4>Com injeção</h4>
+<pre>@Service
+class PedidoService {
+  private final Repositorio repo;
+  PedidoService(Repositorio repo) {
+    this.repo = repo;
+  }
+}</pre>
+<p>A classe declara do que precisa no construtor. O Spring entrega a implementação certa, e o teste pode entregar outra.</p></div>
+</div>
+<p>Essa ideia aparece em todo o semestre: controladores recebem serviços, serviços recebem repositórios, e os testes da Semana 10 trocam dependências reais por dublês.</p>
+
+<h3>O que o Spring Boot acrescenta</h3>
+<p>Configurar o Spring à mão exige muitas declarações. O <strong>Spring Boot</strong> segue o princípio de <em>convenção sobre configuração</em>:</p>
+<ul>
+  <li><strong>Auto-configuração:</strong> o Boot olha as bibliotecas presentes no projeto e configura os beans comuns sozinho, como o servidor web, a conexão com o banco e a conversão para JSON.</li>
+  <li><strong>Starters:</strong> dependências agrupadas por recurso. No Spring Boot 4, cada recurso tem o seu starter, como <code>spring-boot-starter-webmvc</code>, <code>-data-jpa</code>, <code>-flyway</code>, <code>-validation</code> e <code>-security</code>.</li>
+  <li><strong>Servidor embutido:</strong> o Tomcat vem dentro do <code>.jar</code>. A API sobe com <code>java -jar app.jar</code>, sem instalar servidor de aplicação.</li>
+</ul>
+<div class="warn"><div class="label">Pegadinha do Spring Boot 4</div><p>Adicionar só a biblioteca, por exemplo <code>flyway-core</code>, não ativa a auto-configuração. É preciso o starter do recurso, <code>spring-boot-starter-flyway</code>. Quando um recurso "não faz nada" e não aparece erro, confira primeiro se o starter está no <code>pom.xml</code>.</p></div>
+
+<h3>Os módulos que vamos usar</h3>
+<table>
+<thead><tr><th style="width:28%">Módulo</th><th>Para que serve</th><th style="width:14%">Semana</th></tr></thead>
+<tr><td>Spring Web MVC</td><td>Controladores REST, conversão de JSON, tratamento de requisições</td><td>3–5</td></tr>
+<tr><td>Spring Data JPA</td><td>Repositórios e acesso ao banco sem SQL repetitivo</td><td>4</td></tr>
+<tr><td>Flyway</td><td>Migrações versionadas do schema</td><td>4</td></tr>
+<tr><td>Bean Validation</td><td>Regras de validação declaradas nos dados de entrada</td><td>4 e 8</td></tr>
+<tr><td>Spring Security</td><td>Autenticação, autorização e JWT</td><td>8–9</td></tr>
+<tr><td>Actuator</td><td>Saúde e métricas da aplicação</td><td>4 e 15</td></tr>
+</table>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. O caminho de uma requisição <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Entender por onde uma requisição passa ajuda a saber onde colocar cada tipo de código e onde procurar um erro.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 170" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="4" y="20" width="92" height="50" rx="7"/><rect x="118" y="20" width="92" height="50" rx="7"/>
+    <rect x="232" y="20" width="104" height="50" rx="7"/><rect x="358" y="20" width="98" height="50" rx="7"/>
+    <rect x="478" y="20" width="92" height="50" rx="7"/><rect x="592" y="20" width="104" height="50" rx="7"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937" font-weight="700">
+    <text x="50" y="50">Cliente</text><text x="164" y="42">Tomcat</text><text x="284" y="42">Filtros</text>
+    <text x="407" y="42">Controller</text><text x="524" y="42">Service</text><text x="644" y="42">Repository</text>
+  </g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10">
+    <text x="164" y="58">recebe HTTP</text><text x="284" y="58">segurança, logs</text>
+    <text x="407" y="58">rota, DTO, @Valid</text><text x="524" y="58">regras</text><text x="644" y="58">banco (JPA)</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#a2)">
+    <path d="M97 45 H114"/><path d="M211 45 H228"/><path d="M337 45 H354"/><path d="M457 45 H474"/><path d="M571 45 H588"/>
+  </g>
+  <path d="M644 72 V120 H50 V74" fill="none" stroke="#047857" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#a2)"/>
+  <text x="350" y="138" text-anchor="middle" fill="#047857" font-size="11">resposta: objeto Java → JSON (Jackson) → HTTP com status code</text>
+  <text x="350" y="160" text-anchor="middle" fill="#6b7280" font-size="10">o DispatcherServlet do Spring escolhe qual controller atende cada rota</text>
+</svg>
+<figcaption>Ida e volta de uma requisição numa API Spring Boot em camadas.</figcaption>
+</figure>
+<table>
+<thead><tr><th style="width:20%">Camada</th><th>Responsabilidade</th><th style="width:34%">Não deve</th></tr></thead>
+<tr><td>Controller</td><td>Receber a requisição, validar o formato da entrada, chamar o serviço e montar a resposta HTTP.</td><td>Conter regra de negócio ou acessar o banco direto.</td></tr>
+<tr><td>Service</td><td>Aplicar as regras de negócio e controlar a transação.</td><td>Conhecer detalhes de HTTP, como status codes.</td></tr>
+<tr><td>Repository</td><td>Ler e gravar no banco.</td><td>Decidir regra de negócio.</td></tr>
+</table>
+<p>Essa divisão vem de um princípio antigo de arquitetura: separar responsabilidades para que cada parte mude por um único motivo. Ela será retomada na Semana 03.</p>
+
+<!-- 10 -->
+<h2 id="s10">10. Nomeando recursos <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A URI identifica o recurso; o método HTTP diz a ação. Por isso URIs usam <strong>substantivos</strong>, e não verbos.</p>
+<div class="grid2">
+<div class="card good"><h4>Bem formadas</h4>
+<pre>GET    /api/v1/services
+GET    /api/v1/services/12
+POST   /api/v1/services
+PATCH  /api/v1/service-requests/31/status
+GET    /api/v1/services/12/reviews</pre></div>
+<div class="card bad"><h4>Antipadrões</h4>
+<pre>GET  /getService?id=12
+POST /createNewService
+GET  /service/delete?id=12
+POST /services/doSearch
+PUT  /UpdateServiceData</pre></div>
+</div>
+<ul>
+  <li>Coleções no plural, em minúsculas, com hífen entre palavras: <code>/service-requests</code>.</li>
+  <li>Identificador depois da coleção: <code>/services/12</code>.</li>
+  <li>Hierarquia só quando há relação real: as avaliações de um serviço ficam em <code>/services/12/reviews</code>.</li>
+  <li>Filtros, ordenação e paginação vão na query string: <code>/services?category=ELETRICA&amp;page=0</code>.</li>
+  <li>Versão no caminho, desde o primeiro endpoint: <code>/api/v1</code>.</li>
+</ul>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. O projeto do semestre <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O <strong>ServiceHub</strong> é uma plataforma que liga clientes a prestadores de serviço. O prestador publica serviços, o cliente contrata, a ordem de serviço percorre etapas até ser concluída, e o cliente avalia. O domínio é o mesmo do primeiro ao último dia, e cada semana acrescenta uma camada à API.</p>
+<table>
+<thead><tr><th style="width:22%">Entidade</th><th>O que representa</th></tr></thead>
+<tr><td>Usuário</td><td>Quem usa a plataforma, com um papel: CLIENT, PROVIDER ou ADMIN.</td></tr>
+<tr><td>Serviço</td><td>Uma oferta publicada por um prestador, com categoria e preço.</td></tr>
+<tr><td>Ordem de serviço</td><td>A contratação de um serviço por um cliente, com estado: PENDING, ACCEPTED, IN_PROGRESS, COMPLETED ou CANCELLED.</td></tr>
+<tr><td>Avaliação</td><td>Nota e comentário do cliente depois que a ordem é concluída.</td></tr>
+</table>
+<p>O contrato completo, com schema do banco, endpoints e regras de negócio, está no <strong>Mapa de Construção</strong>, entregue pelo professor. Ele é a especificação que a API precisa cumprir.</p>
+<h3>O semestre em blocos</h3>
+<table>
+<thead><tr><th style="width:16%">Semanas</th><th style="width:34%">Bloco</th><th>O que a API ganha</th></tr></thead>
+<tr><td>1–3</td><td>Fundamentos e setup</td><td>Domínio, endpoints, projeto Spring Boot, Git</td></tr>
+<tr><td>4–6</td><td>Persistência e contrato</td><td>JPA, Flyway, erros padronizados, OpenAPI</td></tr>
+<tr><td>7</td><td>1ª VA</td><td>Prova e checkpoint do projeto</td></tr>
+<tr><td>8–10</td><td>Segurança e testes</td><td>Validação, JWT, papéis, testes com banco real</td></tr>
+<tr><td>11–12</td><td>Containers</td><td>Dockerfile e Docker Compose</td></tr>
+<tr><td>13</td><td>2ª VA</td><td>Prova</td></tr>
+<tr><td>14–18</td><td>Produção e governança</td><td>Entrega, métricas, logs, banca com a bancada de testes</td></tr>
+<tr><td>19</td><td>3ª VA</td><td>Prova</td></tr>
+</table>
+<p>Cada bloco termina com uma tag no repositório da equipe (<code>etapa-1</code>, <code>etapa-2</code>…), para que a evolução da API possa ser mostrada na banca.</p>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+<h2>12. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um assistente de IA gera código rápido, mas não sabe o que o seu sistema precisa fazer, não conhece o seu contrato e erra com a mesma confiança com que acerta. O trabalho de engenharia continua seu. Neste semestre seguimos sempre quatro movimentos:</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>O que você faz</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>Diz o objetivo, o contexto, as restrições e como saber que ficou pronto.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Pede à IA um plano primeiro e o código depois, em passos pequenos.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Lê o que veio, confere contra o contrato e rejeita o que não entender.</td></tr>
+<tr><td><strong>Provar</strong></td><td>Roda um teste ou uma chamada que mostra que funciona. Sem prova, não está pronto.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h4>Fraco</h4><pre>me explica o que é REST</pre><p>A resposta vem genérica, pode misturar conceitos e não se conecta ao que você está construindo.</p></div>
+<div class="card good"><h4>Bom</h4><pre>Estou estudando APIs REST para um projeto em Java 21 e Spring Boot 4. Explique as seis restrições de Fielding, uma por vez, com um exemplo de API de agendamento de serviços. Depois me faça 3 perguntas para eu verificar se entendi. Não use exemplos com SOAP.</pre><p>Dá contexto, delimita o assunto, pede exemplo concreto e transforma a IA em tutora, não em resposta pronta.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>A entrega da semana é o repositório com um README que explica o problema do ServiceHub com as palavras da equipe. Use a IA como revisora, não como autora:</p>
+<pre>Contexto: somos uma equipe de Engenharia de Software construindo
+a API ServiceHub (Java 21, Spring Boot 4, PostgreSQL). O domínio:
+clientes contratam serviços de prestadores; a ordem passa por
+PENDING, ACCEPTED, IN_PROGRESS e COMPLETED; o cliente avalia.
+
+Tarefa: revise o rascunho de README abaixo. NÃO reescreva o texto.
+Aponte, em lista:
+1. trechos ambíguos sobre quem faz o quê (cliente, prestador, admin);
+2. termos técnicos usados de forma errada;
+3. o que falta para alguém de fora entender o problema.
+
+Rascunho:
+&lt;cole aqui o texto da equipe&gt;</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li>Dizer que REST é um protocolo, ou que qualquer API com JSON é REST.</li>
+  <li>Inventar datas, autores ou números para "enriquecer" a explicação.</li>
+  <li>Sugerir versões antigas: Spring Boot 2 ou 3, Java 8 ou 17, pacotes <code>javax.*</code> em vez de <code>jakarta.*</code>.</li>
+  <li>Reescrever o seu texto inteiro quando você pediu revisão, apagando a voz da equipe.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Cada afirmação técnica da resposta bate com esta apostila ou com a documentação oficial?</li>
+  <li>As versões citadas são Java 21 e Spring Boot 4?</li>
+  <li>O README continua escrito com as palavras da equipe?</li>
+  <li>Os papéis CLIENT, PROVIDER e ADMIN estão descritos sem contradição?</li>
+</ul>
+<h3>Prova</h3>
+<p>Peça a um colega de outra equipe que leia o README sem ajuda e explique de volta o problema do ServiceHub. Se ele explicar certo, o README cumpre o papel.</p>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>API</dt><dd>Conjunto de regras que um software publica para ser usado por outro.</dd>
+  <dt>Contrato</dt><dd>A parte pública de uma API: o que pode ser pedido, em que formato, e o que volta.</dd>
+  <dt>Recurso</dt><dd>Algo do domínio com identidade própria, endereçado por uma URI.</dd>
+  <dt>Representação</dt><dd>Os dados de um recurso num formato, como JSON, num dado momento.</dd>
+  <dt>URI</dt><dd>Identificador de um recurso, como <code>/api/v1/services/12</code>.</dd>
+  <dt>Stateless</dt><dd>Sem estado: o servidor não guarda sessão do cliente entre requisições.</dd>
+  <dt>SOAP</dt><dd>Protocolo de troca de mensagens XML com envelope e contrato WSDL.</dd>
+  <dt>JSON</dt><dd>Formato de texto para dados estruturados, padrão das APIs REST.</dd>
+  <dt>JVM</dt><dd>Máquina virtual que executa o bytecode Java.</dd>
+  <dt>Bytecode</dt><dd>Formato intermediário gerado pelo compilador Java.</dd>
+  <dt>JIT</dt><dd>Compilador que transforma bytecode em código nativo durante a execução.</dd>
+  <dt>LTS</dt><dd>Versão com suporte de longo prazo.</dd>
+  <dt>Maven</dt><dd>Ferramenta de build e de gerenciamento de dependências.</dd>
+  <dt>Bean</dt><dd>Objeto criado e gerenciado pelo contêiner do Spring.</dd>
+  <dt>Injeção de dependência</dt><dd>Técnica em que uma classe recebe pronto o objeto de que depende.</dd>
+  <dt>Starter</dt><dd>Dependência do Spring Boot que reúne bibliotecas e configuração de um recurso.</dd>
+</dl>
+
+<!-- 14 -->
+<h2 id="s14">14. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Com suas palavras, explique a diferença entre a interface e a implementação de uma API. Dê um exemplo de mudança na implementação que não afeta quem usa a API.</li>
+  <li>Classifique cada caso como API de biblioteca, do sistema operacional ou web: (a) um app de celular consulta o saldo bancário; (b) um programa Java ordena uma lista com <code>Collections.sort</code>; (c) um programa grava um arquivo no disco.</li>
+  <li>Uma empresa precisa integrar seu sistema a um órgão público que só oferece um serviço descrito em WSDL. Que tecnologia de integração está envolvida? Que vantagem e que desvantagem ela tem em relação a REST?</li>
+  <li>Explique a restrição "sem estado" e por que ela facilita colocar várias instâncias da API atrás de um balanceador.</li>
+  <li>A API abaixo é REST? Justifique e reescreva as rotas: <code>POST /listarServicos</code>, <code>GET /servico/apagar?id=4</code>, <code>POST /servico/novo</code>.</li>
+  <li>Descreva o caminho de <code>GET /api/v1/services/12</code> pelas camadas de uma API Spring Boot, do cliente ao banco e de volta.</li>
+  <li>Um colega adicionou <code>flyway-core</code> ao <code>pom.xml</code> de um projeto Spring Boot 4, mas as migrações não rodam e não aparece erro. Qual é a causa provável e como corrigir?</li>
+  <li>Reescreva o código abaixo usando injeção de dependência por construtor: <code>class AvaliacaoService { private Repo repo = new RepoPostgres(); }</code>.</li>
+  <li>Escreva um prompt bom, seguindo o movimento Especificar, para pedir à IA uma explicação de GraphQL comparado a REST. Indique o que você conferiria na resposta.</li>
+  <li>Quando faz mais sentido usar gRPC do que REST? Dê um cenário.</li>
+</ol>
+
+<!-- 15 -->
+<h2 id="s15">15. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>RODRIGUES, T. N. et al. <em>Integração de aplicações</em>. Grupo A, 2020. Capítulos "Tecnologias de integração entre sistemas e aplicações" (API, REST e RESTful, JSON) e "SOAP".</li>
+  <li>SCHILDT, H. <em>Java para iniciantes</em>. 6. ed. Bookman. Capítulo 1, "Fundamentos da linguagem Java".</li>
+  <li>HORSTMANN, C. <em>Conceitos de computação com Java</em>. Bookman. Capítulo 1, "Introdução".</li>
+  <li>RICHARDS, M.; FORD, N. <em>Fundamentos da arquitetura de software</em>. Alta Books, 2024. Capítulo 1, "Introdução".</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>FIELDING, R. T. <em>Architectural Styles and the Design of Network-based Software Architectures</em>. Tese (Doutorado), University of California, Irvine, 2000. Capítulo 5.</li>
+  <li>Documentação oficial do Spring Boot: <code>docs.spring.io/spring-boot</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

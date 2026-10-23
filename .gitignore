@@ -37,3 +37,6 @@ docs/ensino/slides-extrato/
 .env
 .superpowers/
 .github/modernize/
+
+# gabaritos do professor (repositorio publico)
+docs/ensino/gabaritos/
