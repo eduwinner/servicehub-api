@@ -21,7 +21,7 @@ docker compose up -d --build
 - API em `http://localhost:8090` (Swagger em `/docs`), PostgreSQL 16 em `localhost:5433`.
 - A API só sobe depois que o Postgres passa no healthcheck; a própria API tem healthcheck em `/actuator/health`.
 - Dados persistem no volume `pg_data` (`docker compose down` mantém; `down -v` apaga).
-- Variáveis: crie um `.env` (opcional) para trocar `JWT_SECRET`, senha do admin, portas (`API_PORT`, `DB_PORT`) etc. Os padrões do Compose são só para desenvolvimento.
+- Variáveis: copie `.env.example` para `.env` (opcional) e troque `JWT_SECRET`, senha do admin, portas (`API_PORT`, `DB_PORT`) etc. Os padrões do Compose são só para desenvolvimento.
 - pgAdmin (porta 8091, só em localhost, sem login): `docker compose --profile tools up -d`. Já abre com dois servidores no grupo **ServiceHub**: o banco deste projeto e o "Banco do aluno" em `localhost:5433`. Para inspecionar só o banco de uma equipe (com o compose dela rodando), suba apenas o pgAdmin: `docker compose --profile tools up -d pgadmin`. Usuário/senha do banco do aluno diferentes do padrão: defina `STUDENT_DB_USER`/`STUDENT_DB_PASS` ou ajuste em Properties.
 - Depuração remota (perfil dev, porta 5005): `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build`.
 - Admin inicial padrão do Compose: `admin@servicehub.com` / `Admin123`.
@@ -42,7 +42,7 @@ A API sobe em `http://localhost:8080`.
 
 ### Variáveis de ambiente
 
-Todas têm valor padrão de desenvolvimento; defina-as (ou crie um `.env`, nunca versionado) para mudar.
+Todas têm valor padrão de desenvolvimento; defina-as ou copie `.env.example` para `.env` (nunca versionado) para mudar.
 
 | Variável | Padrão | Uso |
 |---|---|---|

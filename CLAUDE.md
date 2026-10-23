@@ -115,4 +115,4 @@ This project is on Spring Boot 4.1.1, which split autoconfiguration into per-fea
 
 ### Current known gaps (not yet implemented)
 
-- `.env.example` could not be created by the agent (permission deny rule on `.env*`); the variable list is in README.
+- `.env.example` (versioned) lists every variable; `.env` is git-ignored. The agent cannot read/write `.env*` files (user permission rule) except `.env.example` via git.
