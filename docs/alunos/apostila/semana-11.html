@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 11 — Containers e Dockerfile multi-stage</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 11 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 11<br>Containers e Dockerfile multi-stage</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Até aqui a API do ServiceHub roda no seu computador, com o seu Java, o seu Maven e as suas variáveis. Nesta semana ela ganha uma imagem própria: um pacote que leva a aplicação e o ambiente de que ela precisa, e que roda do mesmo jeito no notebook, no servidor de integração contínua e em produção. Você vai entender o que é um container por dentro, por que ele não é uma máquina virtual, como as camadas de uma imagem funcionam e o que torna uma imagem pequena e segura. No fim, escreve (com ajuda da IA, revisando tudo) o Dockerfile multi-stage da sua API e prova que ele funciona.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">"Na minha máquina funciona"</a></li>
+      <li><a href="#s3">Virtualização e containers</a></li>
+      <li><a href="#s4">Namespaces e cgroups</a></li>
+      <li><a href="#s5">Imagem, camada, registro, tag e digest</a></li>
+      <li><a href="#s6">Camadas, copy-on-write e cache</a></li>
+      <li><a href="#s7">Ciclo de vida e sinais</a></li>
+      <li><a href="#s8">Escolhendo a imagem base</a></li>
+      <li><a href="#s9">Princípios de uma imagem segura</a></li>
+      <li><a href="#s10">The Twelve-Factor App</a></li>
+      <li><a href="#s11">O Dockerfile do ServiceHub</a></li>
+      <li><a href="#s12">Comandos do dia a dia</a></li>
+      <li><a href="#s13">Construindo com IA</a></li>
+      <li><a href="#s14">Glossário</a></li>
+      <li><a href="#s15">Exercícios</a></li>
+      <li><a href="#s16">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>diferenciar máquina virtual de container, explicando o papel do hipervisor, do kernel compartilhado, dos namespaces e dos cgroups;</li>
+  <li>usar com precisão os termos imagem, camada, registro, container, tag e digest, e explicar o copy-on-write e o cache de build;</li>
+  <li>escolher uma imagem base e aplicar os princípios de imagem segura: não-root, menor superfície e nenhum segredo dentro;</li>
+  <li>ler e escrever um Dockerfile multi-stage para uma API Spring Boot com Java 21, com HEALTHCHECK, fuso horário e limite de memória da JVM;</li>
+  <li>construir, rodar e inspecionar a imagem com <code>docker build</code>, <code>run</code>, <code>ps</code>, <code>logs</code> e <code>stop</code>, e revisar criticamente um Dockerfile gerado por IA.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. "Na minha máquina funciona" <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Toda equipe de software já ouviu a frase. Ela quer dizer uma coisa precisa: o <strong>ambiente</strong> faz parte do software, e ninguém o entregou junto com o código. O programa depende de uma versão do Java, de variáveis de ambiente, do fuso horário do sistema, de bibliotecas instaladas, de uma porta livre. Cada diferença entre a máquina de quem desenvolve e o servidor é um defeito esperando para aparecer.</p>
+<p>No ServiceHub: um colega tem Java 17 e o projeto exige 21; o PostgreSQL local está em outra versão; as datas das ordens aparecem com três horas de diferença porque o servidor está em UTC. Nenhum desses erros está no código Java.</p>
+<p>A resposta da indústria foi <strong>empacotar a aplicação junto com o ambiente de que ela precisa</strong> e entregar esse pacote, sempre o mesmo, do notebook à produção. Esse pacote é a <strong>imagem</strong>, e a aplicação rodando a partir dela é o <strong>container</strong>.</p>
+<div class="note"><div class="label">Analogia</div>
+<p>Antes dos contêineres de carga, cada navio era carregado peça por peça, com sacos, caixas e barris de tamanhos diferentes, e cada porto tinha seu jeito de manusear. O contêiner padronizou a embalagem: o guindaste não precisa saber o que vai dentro. O container de software faz o mesmo: o servidor não precisa saber se dentro há Java, Python ou Node; ele só sabe rodar containers.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. Virtualização e containers <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Há duas formas principais de isolar aplicações numa mesma máquina física: <strong>virtualizar o hardware</strong> (fingir, por software, que há vários computadores) ou <strong>isolar processos</strong> (fazer cada aplicação acreditar que está sozinha num sistema operacional que, na verdade, é compartilhado).</p>
+
+<h3>Máquinas virtuais e o hipervisor</h3>
+<p>Uma <strong>máquina virtual</strong> (VM) é um computador simulado, com CPU, memória, disco e placa de rede virtuais. Dentro dela roda um <strong>sistema operacional convidado</strong> completo, com o seu próprio kernel. Quem cria e executa as VMs, dividindo os recursos físicos entre elas, é o <strong>hipervisor</strong>.</p>
+<p>Há dois tipos de hipervisor. O de <strong>tipo 1</strong> (nativo) roda direto sobre o hardware, sem sistema operacional por baixo; é o modelo dos data centers e das nuvens (exemplos: Hyper-V, KVM). O de <strong>tipo 2</strong> (hospedado) roda como um programa comum sobre um sistema operacional já instalado, como o VirtualBox num computador de desenvolvimento.</p>
+
+<h3>Containers e o kernel compartilhado</h3>
+<p>Um <strong>container</strong> não simula hardware nem traz kernel próprio. Ele é um processo comum do sistema operacional hospedeiro, isolado por recursos do próprio kernel Linux. Todos os containers de uma máquina usam <strong>o mesmo kernel</strong>, o do hospedeiro. O que cada container leva é só a aplicação e as bibliotecas e arquivos de que ela precisa.</p>
+
+<figure class="figure">
+<svg viewBox="0 0 700 230" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <g text-anchor="middle" font-weight="700" fill="#1f2937" font-size="12.5"><text x="170" y="16">Máquinas virtuais</text><text x="530" y="16">Containers</text></g>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="20" y="28" width="140" height="34" rx="6"/><rect x="180" y="28" width="140" height="34" rx="6"/>
+    <rect x="380" y="64" width="140" height="34" rx="6"/><rect x="540" y="64" width="140" height="34" rx="6"/>
+  </g>
+  <g fill="#e8eefc" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="20" y="66" width="140" height="34" rx="6"/><rect x="180" y="66" width="140" height="34" rx="6"/>
+  </g>
+  <g fill="#e7f5ef" stroke="#047857" stroke-width="1.3">
+    <rect x="20" y="108" width="300" height="34" rx="6"/><rect x="380" y="108" width="300" height="34" rx="6"/>
+    <rect x="380" y="146" width="300" height="34" rx="6"/>
+  </g>
+  <g fill="#f3f4f6" stroke="#6b7280" stroke-width="1.3">
+    <rect x="20" y="146" width="300" height="34" rx="6"/>
+    <rect x="20" y="188" width="300" height="30" rx="6"/><rect x="380" y="188" width="300" height="30" rx="6"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937">
+    <text x="90" y="49">App A + bibliotecas</text><text x="250" y="49">App B + bibliotecas</text>
+    <text x="90" y="87">SO convidado + kernel</text><text x="250" y="87">SO convidado + kernel</text>
+    <text x="170" y="129" font-weight="700">Hipervisor</text>
+    <text x="170" y="167">(SO hospedeiro, só no tipo 2)</text>
+    <text x="170" y="208">Hardware físico</text>
+    <text x="450" y="85">App A + bibliotecas</text><text x="610" y="85">App B + bibliotecas</text>
+    <text x="530" y="129" font-weight="700">Motor de containers (Docker)</text>
+    <text x="530" y="167" font-weight="700">SO hospedeiro: um kernel só, compartilhado</text>
+    <text x="530" y="208">Hardware físico</text>
+  </g>
+</svg>
+<figcaption>Cada VM traz o seu sistema operacional e o seu kernel; os containers compartilham o kernel do hospedeiro.</figcaption>
+</figure>
+
+<table>
+<thead><tr><th style="width:18%">Critério</th><th>Máquina virtual</th><th>Container</th></tr></thead>
+<tr><td>O que leva</td><td>Sistema operacional completo</td><td>Só a aplicação e suas bibliotecas</td></tr>
+<tr><td>Kernel</td><td>Próprio, sobre um hipervisor</td><td>Compartilha o do hospedeiro</td></tr>
+<tr><td>Isolamento</td><td>Forte, no nível do hardware virtual</td><td>Namespaces e cgroups do Linux</td></tr>
+<tr><td>Inicialização</td><td>Minutos (é preciso dar boot num SO)</td><td>Segundos (é preciso iniciar um processo)</td></tr>
+<tr><td>Quando usar</td><td>Rodar outro sistema operacional inteiro; isolamento forte entre clientes</td><td>Empacotar, distribuir e escalar serviços</td></tr>
+</table>
+<p>As duas tecnologias não competem: na nuvem, é comum rodar containers dentro de VMs.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>"Container é uma VM leve." Não é. Uma VM tem kernel próprio; um container é um processo do hospedeiro. Consequência prática: como o kernel é compartilhado, não dá para rodar um container de Linux diretamente num kernel Windows. Por isso o <strong>Docker Desktop</strong>, no Windows e no macOS, roda uma VM Linux leve por baixo (no Windows, via WSL 2, que usa o Hyper-V), e os seus containers vivem dentro dela.</p></div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. Namespaces e cgroups <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Se o container é só um processo, de onde vem o isolamento? De dois recursos do kernel Linux que o Docker combina de forma fácil de usar: <strong>namespaces</strong>, que controlam o que o processo <em>vê</em>, e <strong>cgroups</strong>, que controlam quanto ele <em>usa</em>.</p>
+
+<h3>Namespaces: o que o processo enxerga</h3>
+<p>Um <strong>namespace</strong> dá a um grupo de processos uma visão própria de um recurso global do sistema. Há namespaces de <strong>PID</strong> (dentro do container, a aplicação é o processo 1 e só enxerga os processos do próprio container), de <strong>rede</strong> (interfaces, IP e portas próprios: a 8080 de um container não conflita com a 8080 de outro), de <strong>mount</strong> (a árvore de diretórios vem da imagem, não do hospedeiro), <strong>UTS</strong> (nome do host próprio), de <strong>usuários</strong> e de <strong>IPC</strong> (comunicação entre processos).</p>
+
+<h3>cgroups: quanto o processo pode usar</h3>
+<p>Os <strong>control groups</strong> (cgroups) limitam e medem o consumo de CPU, memória e entrada e saída de um grupo de processos. Quando você roda <code>docker run --memory=512m</code>, o Docker cria um limite de cgroup. Se o processo tentar passar desse limite, o kernel o encerra (o famoso <em>OOM kill</em>, de <em>out of memory</em>), e o container sai com código 137.</p>
+<p>Isso importa muito para Java. A JVM reserva memória para o <strong>heap</strong> (onde ficam os objetos) com base na memória que ela enxerga. Versões modernas da JVM leem o limite do cgroup, mas, por padrão, usam só um quarto dele para o heap. A opção <code>-XX:MaxRAMPercentage=75.0</code>, usada no Dockerfile do ServiceHub, diz à JVM para usar até 75% do limite do container, deixando o resto para pilhas das threads, metaespaço e o próprio sistema.</p>
+
+<div class="note"><div class="label">Para lembrar</div><p>Um container não é uma máquina pequena: é um <strong>processo comum do Linux</strong> com namespaces, cgroups e um sistema de arquivos próprio. Com a API rodando, <code>docker top</code> mostra o processo <code>java</code> visto pelo hospedeiro, com outro número de PID. Dentro do container, o mesmo processo é o PID 1. E como o kernel é compartilhado, isolamento não é segurança total: por isso a seção 9 insiste em rodar como usuário comum.</p></div>
+
+
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. Imagem, camada, registro, tag e digest <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O vocabulário de containers é pequeno, mas precisa ser usado com precisão. Muita dúvida de depuração vem de confundir imagem com container.</p>
+<table>
+<thead><tr><th style="width:14%">Termo</th><th>Definição</th><th style="width:33%">No ServiceHub</th></tr></thead>
+<tr><td>Imagem</td><td>Pacote <strong>só de leitura</strong> com os arquivos e os metadados (comando de início, variáveis, porta documentada) da aplicação.</td><td><code>servicehub-api</code>, gerada pelo <code>docker build</code></td></tr>
+<tr><td>Camada</td><td>A diferença de arquivos gerada por uma instrução do Dockerfile. A imagem é uma pilha de camadas.</td><td>A camada do <code>app.jar</code> muda a cada build</td></tr>
+<tr><td>Container</td><td>Instância em execução de uma imagem, mais uma camada gravável só dele.</td><td>O processo <code>java</code> da API rodando</td></tr>
+<tr><td>Registro</td><td>Servidor que guarda e distribui imagens.</td><td>Docker Hub, de onde vêm <code>maven</code> e <code>eclipse-temurin</code></td></tr>
+<tr><td>Tag</td><td>Nome legível e <strong>móvel</strong> de uma versão da imagem.</td><td><code>21-jre-alpine</code>, <code>latest</code></td></tr>
+<tr><td>Digest</td><td>Hash <code>sha256</code> do conteúdo: identidade <strong>imutável</strong> da imagem.</td><td><code>eclipse-temurin@sha256:…</code></td></tr>
+</table>
+<p>A relação entre imagem e container é a mesma entre classe e objeto: uma imagem, muitos containers. O que se grava dentro de um container fica na camada gravável dele e some quando ele é removido. Para mudar a aplicação, não se "edita o container": gera-se uma imagem nova e sobe-se um container novo a partir dela.</p>
+
+<h3>Tag é apelido; digest é identidade</h3>
+<p>O nome completo de uma imagem é <code>registro/repositório:tag</code>. Quando você escreve só <code>eclipse-temurin:21-jre-alpine</code>, o Docker completa com o registro padrão, o Docker Hub (<code>docker.io/library/eclipse-temurin:21-jre-alpine</code>). Quando omite a tag, ele usa <code>latest</code>.</p>
+<p>A imagem pode ser referenciada por tag (<code>FROM eclipse-temurin:21-jre-alpine</code>) ou por digest (<code>FROM eclipse-temurin:21-jre-alpine@sha256:&lt;hash&gt;</code>); <code>docker images --digests</code> mostra os digests locais. Fixar por <strong>tag de versão</strong> é fácil de ler, e cada novo build recebe as correções publicadas sob a mesma tag; em troca, o mesmo nome pode dar imagens diferentes em dias diferentes. Fixar por <strong>digest</strong> dá build reprodutível, bit a bit; em troca, atualizar passa a ser tarefa sua.</p>
+<div class="warn"><div class="label">Confusão comum</div><p><code>latest</code> não quer dizer "a versão mais nova". É só a tag usada quando nenhuma é informada. Uma imagem antiga pode estar marcada como <code>latest</code>, e um <code>FROM algo:latest</code> pode mudar de versão principal sem aviso. O ServiceHub usa tags de versão fixa (<code>maven:3.9-…</code>, <code>21-jre-alpine</code>): estável o bastante, e ainda recebe correções.</p></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. Camadas, copy-on-write e cache <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Sistema de arquivos em camadas</h3>
+<p>Cada instrução do Dockerfile que mexe em arquivos (<code>FROM</code>, <code>COPY</code>, <code>RUN</code>) gera uma camada. O motor de containers sobrepõe as camadas e mostra ao processo um único sistema de arquivos, como folhas de transparência empilhadas. No Linux, o driver de armazenamento padrão do Docker para isso é o <strong>overlay2</strong>. Instruções como <code>ENV</code>, <code>EXPOSE</code>, <code>USER</code> e <code>HEALTHCHECK</code> não geram arquivos: viram <strong>metadados</strong> da imagem.</p>
+
+<h3>Copy-on-write</h3>
+<p>As camadas da imagem são só de leitura e compartilhadas por todos os containers criados a partir dela. Cada container ganha, por cima, uma camada gravável fina. A leitura de um arquivo vai direto à camada de baixo. Ao <em>alterar</em> um arquivo, ele é primeiro copiado para a camada gravável, e só a cópia muda. Daí o nome: copiar ao escrever.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 176" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <g fill="#e7f5ef" stroke="#047857" stroke-width="1.3"><rect x="120" y="8" width="210" height="32" rx="6"/><rect x="370" y="8" width="210" height="32" rx="6"/></g>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="120" y="54" width="460" height="32" rx="6"/><rect x="120" y="92" width="460" height="32" rx="6"/><rect x="120" y="130" width="460" height="32" rx="6"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937">
+    <text x="225" y="29">gravável: container 1</text><text x="475" y="29">gravável: container 2</text>
+    <text x="350" y="75" class="mono">COPY --from=builder … app.jar</text>
+    <text x="350" y="113">RUN addgroup … adduser …</text>
+    <text x="350" y="151">eclipse-temurin:21-jre-alpine (várias camadas)</text>
+  </g>
+  <g fill="#6b7280" font-size="10.5" text-anchor="end"><text x="110" y="29">por container</text><text x="110" y="113">imagem:</text><text x="110" y="127">só leitura</text></g>
+  <g fill="#1d4ed8" font-size="10.5"><text x="590" y="113">compartilhadas</text><text x="590" y="127">pelos dois</text></g>
+</svg>
+<figcaption>Dois containers da mesma imagem: as camadas de baixo são compartilhadas; cada um tem só a sua camada gravável.</figcaption>
+</figure>
+<p>Consequências: dez containers da mesma imagem ocupam o espaço da imagem uma vez só; subir um container é rápido porque nada é copiado; e o que o container grava some quando ele é removido, por isso o banco guarda dados num <strong>volume</strong> (Semana 12). <code>docker history servicehub-api</code> lista as camadas e o tamanho de cada uma.</p>
+
+<h3>Cache de build: a ordem importa</h3>
+<p>Ao reconstruir, o Docker reaproveita uma camada se a instrução e os arquivos que ela usa não mudaram. Mas basta uma camada mudar para <strong>todas as que vêm depois</strong> serem refeitas. A regra que decorre disso: o que muda pouco vai em cima, o que muda sempre vai embaixo. Num projeto Maven, o <code>pom.xml</code> muda raramente; o código em <code>src/</code> muda a cada commit.</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Sem cache útil</h3>
+<pre>FROM maven:3.9-eclipse-temurin-21
+WORKDIR /app
+COPY . .
+RUN mvn package
+# mudou uma linha de Java?
+# baixa todas as dependências de novo</pre></div>
+<div class="card good"><h3 class="ch">Dependências primeiro</h3>
+<pre>FROM maven:3.9-eclipse-temurin-21
+WORKDIR /app
+COPY pom.xml .
+RUN mvn -B -q dependency:go-offline
+COPY src ./src
+RUN mvn -B -q package -DskipTests
+# só refaz a partir do COPY src</pre></div>
+</div>
+<p>Enquanto o <code>pom.xml</code> não muda, a camada com todas as dependências vem pronta do cache, e o build cai de minutos para segundos. A saída do <code>docker build</code> marca como <code>CACHED</code> as etapas reaproveitadas. Para forçar um build do zero, use <code>--no-cache</code>.</p>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Ciclo de vida e sinais <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um container vive enquanto o seu <strong>processo principal</strong> vive. Se a JVM termina, por erro ou por ordem, o container para.</p>
+<p>Os estados são: <strong>created</strong> (existe, com camada gravável, mas o processo não começou), <strong>running</strong> (o processo principal executa), <strong>paused</strong> (processos congelados por <code>docker pause</code>), <strong>exited</strong> (o processo terminou; camada gravável, log e código de saída continuam lá) e, depois de <code>docker rm</code>, <strong>removido</strong>: a camada gravável é apagada para sempre.</p>
+<p><code>docker run</code> faz <code>create</code> e <code>start</code> de uma vez; <code>docker ps -a</code> lista também os parados, com o código de saída; <code>--rm</code> remove o container ao sair; <code>--restart</code> faz o Docker subi-lo de novo quando cai.</p>
+
+<h3>SIGTERM, SIGKILL e o encerramento gracioso</h3>
+<p>No Linux, um <strong>sinal</strong> é uma notificação que o sistema envia a um processo. Dois importam aqui. O <strong>SIGTERM</strong> é um pedido educado: "termine, por favor". O processo pode capturá-lo, terminar as requisições em andamento, fechar conexões com o banco e sair. O <strong>SIGKILL</strong> não pode ser capturado: o kernel mata o processo na hora.</p>
+<p><code>docker stop</code> envia SIGTERM ao processo principal e espera um prazo (10 segundos, por padrão). Se o processo não sair, envia SIGKILL. Uma API que recebe o SIGTERM encerra de forma <strong>graciosa</strong>: o Spring Boot fecha o contexto, para de aceitar requisições novas e libera o pool de conexões. Uma API que nunca recebe o SIGTERM morre por SIGKILL no meio do que estava fazendo.</p>
+<div class="note"><div class="label">Códigos de saída</div><p>Quando um processo morre por sinal, o código de saída costuma ser 128 mais o número do sinal: 143 para SIGTERM (15) e 137 para SIGKILL (9). Ver 137 no <code>docker ps -a</code> indica morte forçada: <code>docker stop</code> sem resposta ou falta de memória. Se o sinal chega à JVM depende da forma do <code>ENTRYPOINT</code> (seção 10).</p></div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Escolhendo a imagem base <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Todo Dockerfile começa com <code>FROM</code>, que escolhe a <strong>imagem base</strong>: o sistema de arquivos sobre o qual a aplicação será colocada. Não existe escolha universal; é uma troca entre tamanho, superfície de ataque e conveniência.</p>
+<table>
+<thead><tr><th style="width:14%">Tipo</th><th>O que traz</th><th style="width:25%">Ganha</th><th style="width:27%">Paga</th></tr></thead>
+<tr><td>Distro completa</td><td>Sistema inteiro (Ubuntu, Debian), com shell e gerenciador de pacotes</td><td>Tudo à mão para depurar e instalar</td><td>Maior, com mais pacotes que podem ter falhas</td></tr>
+<tr><td>Slim</td><td>A mesma distro sem documentação e utilitários extras</td><td>Menor, ainda com glibc e apt</td><td>Pode faltar ferramenta que um script usa</td></tr>
+<tr><td>Alpine</td><td>Distro mínima com <strong>musl libc</strong> e BusyBox</td><td>Muito pequena; tem shell e <code>wget</code></td><td>musl difere da glibc; biblioteca nativa compilada para glibc pode quebrar</td></tr>
+<tr><td>Distroless</td><td>Só o runtime e suas dependências; sem shell nem gerenciador</td><td>Menor superfície de ataque</td><td>Sem shell para depurar nem para um HEALTHCHECK com <code>wget</code></td></tr>
+</table>
+<p>A <strong>libc</strong> é a biblioteca padrão do C, usada por quase todo programa nativo. Uma API Java pura não percebe a diferença entre glibc e musl, porque a JVM da imagem já foi compilada para a base certa; se o projeto depender de biblioteca nativa compilada só para glibc, prefira Debian ou Ubuntu. Outra decisão é <strong>JDK</strong> (<em>Java Development Kit</em>, com compilador) ou <strong>JRE</strong> (<em>Java Runtime Environment</em>, só para executar): compila-se com o JDK; roda-se com o JRE.</p>
+<div class="note"><div class="label">No ServiceHub</div><p>O estágio de execução usa <code>eclipse-temurin:21-jre-alpine</code>: imagem oficial da distribuição Eclipse Temurin do OpenJDK, com só o JRE 21, sobre Alpine, e com o <code>wget</code> de que o HEALTHCHECK precisa.</p></div>
+<div class="warn"><div class="label">Erro comum em código gerado por IA</div><p>Usar <code>FROM openjdk:17</code> ou <code>openjdk:21</code>. A imagem <code>openjdk</code> do Docker Hub foi descontinuada, e o projeto exige Java 21. Use <code>eclipse-temurin</code> com a tag da versão 21.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Princípios de uma imagem segura <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Tudo o que está numa imagem pode ser lido por quem a tiver, e tudo o que roda nela pode ser atacado. Quatro princípios resumem o cuidado:</p>
+<table>
+<thead><tr><th style="width:22%">Princípio</th><th>O que significa</th></tr></thead>
+<tr><td>Menor privilégio</td><td>Rode como usuário comum, não como root. Se a aplicação for invadida, o atacante herda as permissões do processo; quanto menos permissão, menor o estrago.</td></tr>
+<tr><td>Menor superfície</td><td>Cada pacote a mais é uma vulnerabilidade possível. JRE em vez de JDK; nada de compilador, Maven ou código-fonte na imagem final.</td></tr>
+<tr><td>Nenhum segredo dentro</td><td>Camadas são permanentes. Um <code>.env</code> copiado ou um <code>ENV</code> com senha fica no histórico da imagem, mesmo que uma camada seguinte apague o arquivo. Segredo entra só na hora de rodar.</td></tr>
+<tr><td>Origem confiável</td><td>Imagens oficiais, versão fixada e reconstrução periódica para receber correções de segurança da base.</td></tr>
+</table>
+<p>Um <strong>scanner de vulnerabilidades</strong> compara os pacotes da imagem com bases públicas de falhas conhecidas, costuma rodar no CI e completa os princípios, sem substituí-los.</p>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. The Twelve-Factor App <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma única imagem só serve para qualquer ambiente se a aplicação foi feita para isso. O <strong>Twelve-Factor App</strong> é uma metodologia publicada por engenheiros do Heroku para aplicações que rodam como serviço: não é norma formal, mas virou referência para aplicações em nuvem. Quatro fatores pesam mais em containers.</p>
+
+<h3>Fator III: configuração no ambiente</h3>
+<p><strong>Configuração</strong> é tudo o que muda entre ambientes: URL do banco, credenciais, segredos, portas. Ela sai do código e vem de <strong>variáveis de ambiente</strong>. Um teste simples: o repositório poderia virar público agora sem expor nenhuma credencial? A imagem é construída uma vez e promovida de ambiente em ambiente; muda só a configuração. Se você precisa gerar uma imagem diferente para produção, a configuração está no lugar errado.</p>
+<pre># application.properties do ServiceHub (trecho)
+server.port=${SERVER_PORT:8080}
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5433/servicehub}
+servicehub.jwt.secret=${JWT_SECRET:}</pre>
+<p>A sintaxe <code>${VAR:padrão}</code> do Spring lê a variável de ambiente e, se ela não existir, usa o padrão depois dos dois-pontos. O padrão serve só ao desenvolvimento. <code>JWT_SECRET</code> não tem padrão de propósito: sem ele, a API se recusa a subir.</p>
+
+<h3>Fatores VI e IX: sem estado e descartável</h3>
+<p><strong>Sem estado (VI):</strong> nada que importa fica na memória ou no disco do processo; sessão e dados vão para serviços de apoio, como o banco. A API com JWT não guarda sessão (Semana 09). <strong>Descartável (IX):</strong> o processo sobe rápido e desliga de forma graciosa ao receber SIGTERM. Containers são tratados como gado, não como animais de estimação: o orquestrador mata e recria quando quiser, e isso só é seguro se o processo não guarda estado e encerra limpo.</p>
+<p>Para o SIGTERM chegar à JVM, o <code>ENTRYPOINT</code> precisa estar na <strong>forma exec</strong> (lista JSON):</p>
+<div class="grid2">
+<div class="card good"><h3 class="ch">Forma exec</h3>
+<pre>ENTRYPOINT ["java", "-jar", "app.jar"]
+# java é o PID 1 e recebe
+# o SIGTERM do docker stop</pre></div>
+<div class="card bad"><h3 class="ch">Forma shell</h3>
+<pre>ENTRYPOINT java -jar app.jar
+# /bin/sh -c é o PID 1; o sinal
+# pode não chegar ao java</pre></div>
+</div>
+<p>Na forma shell, o comando roda dentro de <code>/bin/sh -c</code>; o shell vira o processo principal e, em geral, não repassa o sinal. O container espera os 10 segundos e morre por SIGKILL.</p>
+
+<h3>Fator XI: logs como fluxo de eventos</h3>
+<p>A aplicação não cuida de arquivo de log: escreve cada evento no <strong>stdout</strong> (saída padrão), uma linha por evento. O ambiente captura o fluxo (no Docker, <code>docker logs</code>) e o encaminha a um coletor que indexa, busca e alerta, como ELK, Loki ou Datadog. Um <code>app.log</code> dentro do container some quando ele é removido, enche o disco e ninguém lê.</p>
+<pre># application-prod.properties do ServiceHub
+logging.structured.format.console=ecs   # JSON no console, com o requestId</pre>
+<p>Em desenvolvimento, o log é texto legível; no perfil <code>prod</code> (Semana 12), é JSON no formato ECS, que um coletor indexa sem parser. Nos dois casos vai para o console.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. O Dockerfile do ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Para compilar a API você precisa de Maven e JDK. Para rodá-la, só de um JRE e do JAR. Um <strong>Dockerfile multi-stage</strong> separa as duas coisas num mesmo arquivo: cada <code>FROM</code> inicia um estágio, e o último estágio é a imagem final. Os anteriores servem de oficina e são descartados; só o que for copiado explicitamente com <code>COPY --from</code> atravessa.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 132" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <rect x="6" y="14" width="270" height="104" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <rect x="424" y="14" width="270" height="104" rx="8" fill="#e7f5ef" stroke="#047857" stroke-width="1.6"/>
+  <g text-anchor="middle">
+    <text x="141" y="34" font-weight="700" fill="#1d4ed8">Estágio 1 · builder</text>
+    <text x="141" y="54" fill="#1f2937">maven:3.9-eclipse-temurin-21</text>
+    <text x="141" y="76" fill="#6b7280" font-size="10.5">JDK 21 + Maven + dependências + src</text>
+    <text x="141" y="94" fill="#6b7280" font-size="10.5">compila e gera /app/target/*.jar</text>
+    <text x="141" y="111" fill="#b45309" font-size="10.5">descartado depois do build</text>
+    <text x="559" y="34" font-weight="700" fill="#047857">Estágio 2 · runtime (imagem final)</text>
+    <text x="559" y="54" fill="#1f2937">eclipse-temurin:21-jre-alpine</text>
+    <text x="559" y="76" fill="#6b7280" font-size="10.5">JRE 21 + usuário spring + app.jar</text>
+    <text x="559" y="94" fill="#6b7280" font-size="10.5">HEALTHCHECK, TZ, ENTRYPOINT</text>
+    <text x="559" y="111" fill="#047857" font-size="10.5">vai para o servidor</text>
+    <text x="350" y="56" fill="#047857" font-size="10.5">COPY --from=builder</text>
+    <text x="350" y="92" fill="#047857" font-size="10.5">só o JAR atravessa</text>
+  </g>
+  <path d="M280 68 H420" stroke="#047857" stroke-width="2" marker-end="url(#b2)"/>
+</svg>
+<figcaption>Dois estágios num arquivo: a imagem final não leva código-fonte, Maven nem compilador.</figcaption>
+</figure>
+
+<h3>Estágio 1: compilar</h3>
+<pre># ---------- Estágio 1: build (JDK + Maven) ----------
+FROM maven:3.9-eclipse-temurin-21 AS builder
+WORKDIR /app
+
+# Dependências primeiro: esta camada fica em cache enquanto o pom.xml não mudar
+COPY pom.xml .
+RUN mvn -B -q dependency:go-offline
+
+# Código-fonte e empacotamento (os testes rodam no CI e no mvnw verify, não aqui:
+# precisariam de Docker dentro do Docker para o Testcontainers)
+COPY src ./src
+RUN mvn -B -q package -DskipTests -Djacoco.skip=true</pre>
+<p><code>AS builder</code> dá nome ao estágio, para o <code>COPY --from</code> do estágio 2. <code>-B -q</code> é o modo <em>batch</em> (sem perguntas interativas) com log reduzido. Os testes são pulados porque o Testcontainers exigiria Docker dentro do Docker; quem prova a qualidade é o pipeline de CI (<code>mvnw verify</code>), que roda antes do build da imagem.</p>
+
+<h3>Estágio 2: executar</h3>
+<pre># ---------- Estágio 2: runtime (só JRE + JAR) ----------
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Usuário sem privilégios de root
+RUN addgroup -S spring &amp;&amp; adduser -S spring -G spring
+USER spring</pre>
+<pre>COPY --from=builder /app/target/*.jar app.jar
+
+ENV TZ=America/Sao_Paulo
+EXPOSE 8080</pre>
+<pre># O Docker marca o container como unhealthy se o Actuator parar de responder
+HEALTHCHECK --interval=15s --timeout=5s --start-period=40s --retries=5 \
+  CMD wget -qO- http://localhost:8080/actuator/health | grep -q '"status":"UP"' || exit 1
+
+ENTRYPOINT ["java", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Duser.timezone=America/Sao_Paulo", \
+  "-jar", "app.jar"]</pre>
+<table>
+<thead><tr><th style="width:32%">Linha</th><th>Por quê</th></tr></thead>
+<tr><td><code>addgroup</code>, <code>adduser</code>, <code>USER</code></td><td>Cria o grupo e o usuário de sistema <code>spring</code> (sintaxe do BusyBox do Alpine); daqui em diante, inclusive no <code>ENTRYPOINT</code>, nada roda como root.</td></tr>
+<tr><td><code>COPY --from=builder</code></td><td>Traz do estágio 1 só o JAR, renomeado para <code>app.jar</code>.</td></tr>
+<tr><td><code>HEALTHCHECK</code></td><td>A cada 15 s, consulta <code>/actuator/health</code>; espera até 5 s pela resposta; nos primeiros 40 s as falhas não contam, para dar tempo ao Spring e ao Flyway; após 5 falhas seguidas, o container fica <code>unhealthy</code>. O <code>docker ps</code> mostra <code>(health: starting)</code>, <code>(healthy)</code> ou <code>(unhealthy)</code>; o Docker só informa, não reinicia. Na Semana 12, o Compose usa esse estado para ordenar a subida.</td></tr>
+<tr><td><code>wget … | grep -q</code></td><td>O <code>wget</code> existe no Alpine (o <code>curl</code> não vem por padrão). O <code>grep</code> exige o texto <code>"status":"UP"</code>, que o Actuator devolve a quem não está autenticado.</td></tr>
+<tr><td><code>TZ</code> e <code>-Duser.timezone</code></td><td>Fuso do sistema e da JVM (que tem a sua própria base de fusos): datas das ordens no horário de Brasília.</td></tr>
+<tr><td><code>ENTRYPOINT [ … ]</code></td><td>Forma exec: o <code>java</code> é o PID 1 e recebe o SIGTERM (seção 10). <code>MaxRAMPercentage=75.0</code>: heap até 75% do limite do container (seção 4). <code>EXPOSE</code> só documenta a porta (seção 12).</td></tr>
+</table>
+<h3>.dockerignore: o que nem chega ao build</h3>
+<p>Antes de executar o Dockerfile, o Docker envia ao motor o <strong>contexto de build</strong>: o diretório informado no comando (o <code>.</code> de <code>docker build .</code>). O arquivo <code>.dockerignore</code> lista o que fica de fora. O do ServiceHub (no arquivo real, um item por linha):</p>
+<pre>target/   .git/   .github/   .idea/   .vscode/   .mvn/   .superpowers/
+docs/   frontend/   node_modules/   *.md   .env   .env.*</pre>
+<ul>
+  <li><strong>Contexto menor:</strong> histórico do Git, documentação e o front-end de testes não interessam ao build; enviá-los só deixa tudo mais lento.</li>
+  <li><strong>Nenhum segredo:</strong> <code>.env</code> e variações nunca chegam a uma camada, mesmo que alguém escreva <code>COPY . .</code> no futuro.</li>
+  <li><strong>Sem lixo local:</strong> <code>target/</code> fica fora porque o JAR nasce dentro do estágio <code>builder</code>, e não no seu notebook.</li>
+</ul>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+<h2>12. Comandos do dia a dia <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<pre>docker build -t servicehub-api .            # gera a imagem a partir do Dockerfile
+docker run -d --name api-aula -p 8090:8080 \
+  -e JWT_SECRET=um-segredo-com-pelo-menos-32-bytes \
+  -e DB_URL=jdbc:postgresql://host.docker.internal:5433/servicehub \
+  servicehub-api
+docker ps                                   # STATUS mostra (healthy) ou (unhealthy)
+docker logs -f api-aula                     # segue o log do Spring
+docker exec api-aula whoami                 # roda um comando dentro: deve dizer spring
+docker stop api-aula                        # SIGTERM e encerramento gracioso
+docker rm api-aula                          # remove o container parado</pre>
+<p>Opções mais usadas: <code>-t nome:tag</code> dá nome à imagem (sem tag, vale <code>latest</code>); <code>-d</code> roda em segundo plano; <code>--name</code> nomeia o container; <code>-p host:container</code> publica uma porta; <code>-e VAR=valor</code> define uma variável de ambiente (fator III); <code>--no-cache</code> faz o build sem reaproveitar camadas.</p>
+<p>Dentro de um container, <code>localhost</code> é o próprio container. Para alcançar o PostgreSQL publicado no hospedeiro, o Docker Desktop oferece o nome <code>host.docker.internal</code>; na Semana 12, o Compose resolve o banco pelo nome do serviço.</p>
+<div class="note"><div class="label">Primeira depuração</div><p>Sem <code>JWT_SECRET</code> (ou com menos de 32 bytes), a API do ServiceHub não sobe: a classe <code>JwtProperties</code> falha logo na inicialização. O container vai para <code>exited</code>, e <code>docker logs api-aula</code> mostra o motivo. Leia o log antes de perguntar a alguém (ou à IA).</p></div>
+
+<h3>EXPOSE não publica porta</h3>
+<div class="warn"><div class="label">Erro comum</div><p><code>EXPOSE 8080</code> só <strong>documenta</strong> a porta em que a aplicação escuta. Quem publica a porta no hospedeiro é o <code>-p host:container</code> do <code>docker run</code> (ou o <code>ports:</code> do Compose). Com <code>-p 8090:8080</code>, o Tomcat escuta na 8080 dentro do container, e você acessa <code>http://localhost:8090</code> no navegador. Sem <code>-p</code>, a porta fica inacessível de fora, com ou sem <code>EXPOSE</code>. Como cada container tem o seu namespace de rede, dois deles podem escutar na 8080 por dentro e ser publicados em 8090 e 8091 por fora.</p></div>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um Dockerfile é curto e parece fácil de pedir à IA. O risco está aí: em vinte linhas cabem uma versão errada do Java, um processo como root e um segredo esquecido numa camada. Os quatro movimentos, nesta semana:</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>Nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>Dois estágios, Java 21, build com <code>maven:3.9-eclipse-temurin-21</code>, runtime <code>eclipse-temurin:21-jre-alpine</code>, usuário não-root, HEALTHCHECK em <code>/actuator/health</code>, nenhum segredo na imagem.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Pedir primeiro o plano (estágios, ordem das instruções, o que vai no <code>.dockerignore</code>) e só depois os dois arquivos.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Versão da imagem base, <code>USER</code> antes do <code>ENTRYPOINT</code>, <code>pom.xml</code> antes de <code>src</code>, <code>ENTRYPOINT</code> em lista, <code>.env</code> no <code>.dockerignore</code>.</td></tr>
+<tr><td><strong>Provar</strong></td><td><code>docker ps</code> mostra <code>(healthy)</code>, <code>GET /api/v1/info</code> responde e <code>docker exec … whoami</code> devolve <code>spring</code>.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>cria um Dockerfile pra minha
+API Spring Boot</pre><p>Tende a vir com Java antigo, estágio único, processo como root, <code>COPY . .</code> no início e sem HEALTHCHECK.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Diz a stack e as versões, exige dois estágios com imagens nomeadas, lista as restrições de segurança (não-root, sem segredo, <code>.dockerignore</code>), diz como a configuração entra (variáveis de ambiente), pede o plano antes do código e define a prova: build, run e chamada a <code>/api/v1/info</code>.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Continua o das semanas anteriores (a API já tem contrato, segurança, testes e Actuator). Troque o que estiver entre &lt;&gt;:</p>
+<pre>Contexto: somos uma equipe construindo a API ServiceHub em Java 21 e
+Spring Boot 4.1 (Maven, com mvnw), PostgreSQL 16 e Flyway. A API já tem
+Spring Security com JWT, testes de integração com Testcontainers e o
+Actuator expondo /actuator/health como rota pública. Toda a configuração
+vem de variáveis de ambiente com padrão de desenvolvimento no
+application.properties (${DB_URL:...}, ${DB_USER:...}, ${DB_PASS:...},
+${SERVER_PORT:8080}); JWT_SECRET é obrigatória (mínimo de 32 bytes) e não
+tem padrão. Seguem o pom.xml e o application.properties: &lt;cole aqui&gt;.
+
+Objetivo: criar na raiz do repositório um Dockerfile multi-stage e um
+.dockerignore para empacotar a API numa imagem pequena e segura.
+
+Restrições:
+1. Estágio 1 "builder": FROM maven:3.9-eclipse-temurin-21. Copie primeiro
+   só o pom.xml e rode mvn -B -q dependency:go-offline; depois copie src e
+   rode mvn -B -q package -DskipTests -Djacoco.skip=true (os testes rodam
+   no CI, pois o Testcontainers exigiria Docker dentro do Docker).
+2. Estágio 2: FROM eclipse-temurin:21-jre-alpine, só o JRE e o JAR
+   copiado com COPY --from=builder para /app/app.jar.
+3. Crie o usuário e o grupo de sistema "spring" com addgroup/adduser do
+   Alpine e use USER spring antes do ENTRYPOINT. Nada roda como root.
+4. ENV TZ=America/Sao_Paulo e EXPOSE 8080.
+5. HEALTHCHECK com wget (não curl) em http://localhost:8080/actuator/health
+   exigindo "status":"UP"; interval 15s, timeout 5s, start-period 40s,
+   retries 5.
+6. ENTRYPOINT na forma exec (lista JSON) com java,
+   -XX:MaxRAMPercentage=75.0, -Duser.timezone=America/Sao_Paulo, -jar app.jar.
+7. NENHUM segredo na imagem: nada de ENV com senha ou JWT_SECRET, nada de
+   COPY . . . O .dockerignore deve excluir pelo menos target/, .git/,
+   .github/, .idea/, .vscode/, docs/, *.md, .env e .env.*.
+8. NÃO use openjdk, JDK 17, imagem :latest, curl no healthcheck nem
+   -XX:+UseContainerSupport. NÃO altere código Java nem o pom.xml.
+
+Antes de escrever os arquivos, apresente um plano curto: os estágios, a
+ordem das instruções e o motivo de cada uma, e o conteúdo do
+.dockerignore. Espere minha confirmação. Depois entregue os dois
+arquivos completos, com um comentário curto em cada bloco.
+
+Critério de aceite: docker build -t servicehub-api . termina sem erro;
+com um PostgreSQL acessível, docker run com -p 8090:8080 e -e JWT_SECRET
+sobe o container; docker ps mostra (healthy); GET
+http://localhost:8090/api/v1/info responde 200 com status "OK";
+docker exec &lt;container&gt; whoami devolve spring; docker history não
+mostra nenhum segredo.</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<table>
+<thead><tr><th>O que aparece no código gerado</th><th style="width:46%">O que o ServiceHub faz</th></tr></thead>
+<tr><td>Imagem <code>openjdk:17</code> ou JDK 17</td><td>Java 21: <code>eclipse-temurin</code> 21 no build e no runtime</td></tr>
+<tr><td>Nenhum <code>USER</code>: o processo roda como root</td><td><code>addgroup</code>, <code>adduser</code> e <code>USER spring</code></td></tr>
+<tr><td><code>COPY . .</code> antes de baixar dependências</td><td><code>pom.xml</code> e <code>go-offline</code> primeiro, <code>src</code> depois</td></tr>
+<tr><td>JDK completo na imagem final</td><td>Só o JRE no segundo estágio</td></tr>
+<tr><td>HEALTHCHECK com <code>curl</code> sem conferir a imagem</td><td><code>wget</code>, presente na imagem Alpine</td></tr>
+<tr><td><code>-XX:+UseContainerSupport</code> declarado</td><td>Já é o comportamento padrão da JVM; não precisa ser declarado</td></tr>
+<tr><td><code>ENTRYPOINT java -jar app.jar</code> (forma shell)</td><td>Forma exec, em lista</td></tr>
+</table>
+
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Há dois <code>FROM</code>, e o último usa <code>eclipse-temurin:21-jre-alpine</code>?</li>
+  <li>O <code>pom.xml</code> é copiado e resolvido antes do <code>COPY src</code>?</li>
+  <li><code>USER spring</code> aparece antes do <code>ENTRYPOINT</code>?</li>
+  <li>O HEALTHCHECK usa uma ferramenta que existe na imagem e consulta <code>/actuator/health</code>?</li>
+  <li>O <code>ENTRYPOINT</code> está em forma de lista?</li>
+  <li>Não há senha, token ou <code>JWT_SECRET</code> em nenhuma linha; <code>.env</code> está no <code>.dockerignore</code>?</li>
+  </ul>
+
+<h3>Prova</h3>
+<p>Enquanto o Compose não chega (Semana 12), suba um PostgreSQL 16 provisório publicado na porta 5433, com as credenciais padrão do <code>application.properties</code>, e rode a API contra ele:</p>
+<pre>docker run -d --name pg-aula -p 5433:5432 -e POSTGRES_DB=servicehub \
+  -e POSTGRES_USER=servicehub -e POSTGRES_PASSWORD=secret postgres:16-alpine
+
+docker build -t servicehub-api .
+docker run -d --name api-aula -p 8090:8080 \
+  -e JWT_SECRET=um-segredo-de-teste-com-pelo-menos-32-bytes \
+  -e DB_URL=jdbc:postgresql://host.docker.internal:5433/servicehub \
+  servicehub-api
+
+docker ps                              # aguarde (healthy)
+curl http://localhost:8090/api/v1/info # no PowerShell, use curl.exe
+docker exec api-aula whoami            # spring</pre>
+<p>A resposta esperada é um JSON como <code>{"status":"OK","version":"…","message":"ServiceHub API operacional"}</code>. Registre a saída do <code>docker ps</code> com <code>(healthy)</code> no README e, no PR, o pedido feito à IA e o que você corrigiu.</p>
+</section>
+
+<!-- 14 -->
+<section class="page" id="s14">
+<h2>14. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Container</dt><dd>Processo isolado do hospedeiro, criado a partir de uma imagem, com uma camada gravável própria.</dd>
+  <dt>Imagem</dt><dd>Pacote só de leitura com os arquivos e metadados de uma aplicação; pilha de camadas.</dd>
+  <dt>Camada</dt><dd>Diferença de arquivos gerada por uma instrução do Dockerfile.</dd>
+  <dt>Tag</dt><dd>Nome legível e móvel de uma versão de imagem.</dd>
+  <dt>Digest</dt><dd>Hash sha256 do conteúdo; identidade imutável de uma imagem.</dd>
+  <dt>Hipervisor</dt><dd>Software que cria e executa máquinas virtuais. Tipo 1 roda no hardware; tipo 2, sobre um SO.</dd>
+  <dt>Namespace</dt><dd>Recurso do kernel que dá a um processo uma visão própria de PIDs, rede, arquivos, hostname e usuários.</dd>
+  <dt>cgroup</dt><dd>Recurso do kernel que limita e mede CPU, memória e E/S de um grupo de processos.</dd>
+  <dt>Copy-on-write</dt><dd>Técnica em que um arquivo só é copiado para a camada gravável quando é alterado.</dd>
+  <dt>Multi-stage</dt><dd>Dockerfile com vários <code>FROM</code>; só o último estágio vira a imagem final.</dd>
+  <dt>HEALTHCHECK</dt><dd>Comando periódico que o Docker roda para marcar o container como healthy ou unhealthy.</dd>
+  <dt>SIGTERM</dt><dd>Sinal que pede ao processo para encerrar; pode ser tratado para um desligamento gracioso.</dd>
+  <dt>Contexto de build</dt><dd>Arquivos enviados ao motor no <code>docker build</code>, filtrados pelo <code>.dockerignore</code>.</dd>
+</dl>
+
+<!-- 15 -->
+<h2 id="s15">15. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Explique, com suas palavras, por que a frase "na minha máquina funciona" indica um problema de ambiente e não de código. Dê dois exemplos que poderiam acontecer no ServiceHub.</li>
+  <li>Um container da API foi iniciado com <code>--memory=512m</code> e, sob carga, sai com código 137. Que recurso do kernel está envolvido, o que aconteceu e qual linha do Dockerfile do ServiceHub ajuda a evitar o problema?</li>
+  <li>Diferencie tag e digest. Por que <code>FROM eclipse-temurin:latest</code> é uma má escolha para o projeto?</li>
+  <li>Reordene as instruções abaixo para aproveitar o cache de build e explique a regra que você aplicou: <code>COPY src ./src</code>, <code>FROM maven:3.9-eclipse-temurin-21</code>, <code>RUN mvn -B -q package -DskipTests</code>, <code>COPY pom.xml .</code>, <code>RUN mvn -B -q dependency:go-offline</code>, <code>WORKDIR /app</code>.</li>
+  <li>Dois containers foram criados da mesma imagem. Um deles altera um arquivo de configuração dentro de si. O outro container vê a alteração? E se o primeiro for removido? Justifique com copy-on-write.</li>
+  <li>Encontre pelo menos quatro problemas no Dockerfile abaixo e corrija-os:
+<pre>FROM openjdk:17
+COPY . .
+ENV JWT_SECRET=segredo123
+RUN ./mvnw package
+EXPOSE 8080
+ENTRYPOINT java -jar target/app.jar</pre></li>
+  <li>Um colega diz: "coloquei <code>EXPOSE 8090</code> no Dockerfile e mesmo assim não consigo acessar a API no navegador". Explique o erro e escreva o comando <code>docker run</code> correto para acessar a API em <code>localhost:8090</code>.</li>
+  <li>Relacione os fatores III, IX e XI do Twelve-Factor App com uma linha concreta do Dockerfile ou dos arquivos de propriedades do ServiceHub.</li>
+  <li>Escreva um prompt para pedir à IA que <em>revise</em> (e não reescreva) o Dockerfile da sua equipe, usando o checklist desta apostila. Diga o que você conferiria na resposta.</li>
+</ol>
+
+<!-- 16 -->
+<h2 id="s16">16. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leitura disponível na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>MONTEIRO, E. R. et al. <em>DevOps</em>. Grupo A, 2021. Capítulo "Configuração e manutenção de contêineres usando o Docker".</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li><em>The Twelve-Factor App</em>, fatores III (Configurações), VI (Processos), IX (Descartabilidade) e XI (Logs): <code>12factor.net</code> (há versão em português).</li>
+  <li>Documentação oficial do Docker: <em>Multi-stage builds</em> (<code>docs.docker.com/build/building/multi-stage</code>) e <em>Dockerfile reference</em> (<code>docs.docker.com/reference/dockerfile</code>).</li>
+  <li>Imagens oficiais usadas no projeto, no Docker Hub: <code>maven</code> e <code>eclipse-temurin</code>, com a lista de tags.</li>
+  <li>No repositório do ServiceHub: <code>Dockerfile</code>, <code>.dockerignore</code>, <code>application.properties</code> e <code>application-prod.properties</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

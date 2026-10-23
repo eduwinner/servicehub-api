@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 10 — Testes com banco real</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 10 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 10<br>Testes com banco real</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Na semana passada a API passou a separar quem pode do que não pode. Como saber que essas regras continuam valendo depois da próxima mudança, sua ou da IA? Esta apostila apresenta os fundamentos de teste de software (níveis, técnicas de projeto de casos, dublês, TDD) e mostra como o ServiceHub prova suas regras em três camadas: unitários com JUnit 5 e Mockito, fatia web com MockMvc e integração contra o mesmo PostgreSQL da produção, com Testcontainers.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">Por que testar</a></li>
+      <li><a href="#s3">Caixa-preta, caixa-branca e níveis</a></li>
+      <li><a href="#s4">Projetando casos de teste</a></li>
+      <li><a href="#s5">Dublês de teste</a></li>
+      <li><a href="#s6">TDD e testes limpos</a></li>
+      <li><a href="#s7">A pirâmide de testes</a></li>
+      <li><a href="#s8">Ferramentas: JUnit, AssertJ, Mockito</a></li>
+      <li><a href="#s9">Banco real com Testcontainers</a></li>
+      <li><a href="#s10">Concorrência e cobertura</a></li>
+      <li><a href="#s11">Aplicação no ServiceHub</a></li>
+      <li><a href="#s12">Construindo com IA</a></li>
+      <li><a href="#s13">Glossário</a></li>
+      <li><a href="#s14">Exercícios</a></li>
+      <li><a href="#s15">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>distinguir verificação de validação, caixa-preta de caixa-branca e os níveis de teste;</li>
+  <li>projetar casos com partição de equivalência e valor-limite, e escolher o dublê certo para cada dependência;</li>
+  <li>aplicar o ciclo do TDD e escrever testes legíveis (nome <code>deveXQuandoY</code>, padrão AAA, F.I.R.S.T.);</li>
+  <li>escrever testes unitários com JUnit 5, AssertJ e Mockito, fatias web com <code>@WebMvcTest</code> e testes de integração com Testcontainers;</li>
+  <li>provar uma regra sob concorrência e ler um relatório de cobertura sem confundir cobertura com qualidade.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. Por que testar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Testar</strong> é executar o software com a intenção de encontrar defeitos antes que o usuário os encontre. A motivação é econômica: quanto mais tarde um defeito aparece, mais caro ele fica. No editor, custa uma linha; no code review, uma conversa; em produção, pode custar dados corrompidos, clientes perdidos e uma correção feita sob pressão.</p>
+<div class="note"><div class="label">Para lembrar</div><p>Teste não prova ausência de defeitos. Ele reduz o risco e mostra que, <em>nos casos escolhidos</em>, o comportamento é o esperado. Por isso escolher bem os casos (seção 4) importa tanto quanto escrevê-los.</p></div>
+
+<h3>Verificação e validação</h3>
+<div class="grid2">
+<div class="card"><h3 class="ch">Verificação</h3><p><em>Estamos construindo o produto corretamente?</em> Confere o software contra a especificação. Exemplo: a regra diz "nota de 1 a 5"; o teste envia 6 e espera 400.</p></div>
+<div class="card"><h3 class="ch">Validação</h3><p><em>Estamos construindo o produto correto?</em> Confere o software contra a necessidade real de quem usa. Exemplo: o cliente precisava avaliar também o prestador, e a especificação esqueceu.</p></div>
+</div>
+<p>Testes automatizados fazem verificação: comparam o código com o que está escrito. Validação pede gente: demonstração, teste de aceitação, conversa com o usuário. Um software pode passar em todos os testes e ainda ser o produto errado. No ServiceHub, o Mapa de Construção é a especificação que os testes verificam; a banca do fim do semestre é uma forma de validação.</p>
+
+<!-- 3 -->
+<h2 id="s3">3. Caixa-preta, caixa-branca e níveis <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<table>
+<thead><tr><th style="width:18%">Critério</th><th>Caixa-preta (funcional)</th><th>Caixa-branca (estrutural)</th></tr></thead>
+<tr><td>O que se conhece</td><td>Só entradas, saídas e a especificação</td><td>O código: caminhos, condições, laços</td></tr>
+<tr><td>Pergunta</td><td>A resposta está certa para esta entrada?</td><td>Todo caminho do código foi exercitado?</td></tr>
+<tr><td>Técnicas</td><td>Partição de equivalência, valor-limite, tabela de decisão</td><td>Cobertura de comandos, de ramos e de caminhos</td></tr>
+<tr><td>Acha</td><td>Requisito mal implementado</td><td>Código que nenhum teste tocou</td></tr>
+<tr><td>No ServiceHub</td><td>Integração via HTTP: status e corpo</td><td>Unitário do service e relatório do JaCoCo</td></tr>
+</table>
+<p>Um teste que simula o repositório com Mockito fica no meio: conhece a estrutura interna (quais dependências o service usa), mas confere o resultado de fora. Há quem chame isso de caixa-cinza. A bancada de testes que o professor usa na banca é caixa-preta pura: conhece só o contrato do Mapa, por isso serve para a API de qualquer equipe.</p>
+
+<h3>Níveis de teste</h3>
+<table>
+<thead><tr><th style="width:16%">Nível</th><th>O que testa</th><th style="width:36%">No ServiceHub</th></tr></thead>
+<tr><td>Unidade</td><td>A menor parte isolada: um método, uma classe</td><td><code>RequestStatusTest</code>, services com Mockito</td></tr>
+<tr><td>Integração</td><td>Partes trabalhando juntas: camadas, banco, segurança</td><td><code>@SpringBootTest</code> com PostgreSQL real</td></tr>
+<tr><td>Sistema</td><td>O sistema inteiro contra os requisitos, como caixa-preta</td><td>Bancada de testes e Postman contra a API no ar</td></tr>
+<tr><td>Aceitação</td><td>Se o usuário ou cliente aceita o que foi entregue</td><td>Regras RN do Mapa conferidas na banca</td></tr>
+</table>
+<p><strong>Regressão</strong> não é um nível a mais: é reexecutar os outros níveis sempre que o código muda, para ver se o que funcionava continua funcionando. A automação existe principalmente para tornar a regressão barata. Rodar duzentos testes a cada commit só é viável se ninguém precisar clicar.</p>
+<div class="warn"><div class="label">E o @WebMvcTest?</div><p>Fica entre unidade e integração. Ele sobe só a camada web (controller, validação, conversão JSON, tratamento de erros) e substitui o service por um dublê. É uma <em>fatia</em> da aplicação, não a aplicação inteira.</p></div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. Projetando casos de teste <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>As entradas possíveis de qualquer método útil são infinitas. As duas técnicas a seguir, ambas de caixa-preta, escolhem poucos casos que representam bem o todo. Elas nascem da especificação, não do código.</p>
+<h3>Partição de equivalência</h3>
+<p>Divida as entradas em <strong>classes</strong> que o sistema deve tratar do mesmo jeito. Se um valor de uma classe funciona, os outros da mesma classe devem funcionar; basta testar um representante de cada classe, válida ou inválida.</p>
+<p>Exemplo genérico: um cadastro aceita idade de 18 a 120 anos.</p>
+<table>
+<thead><tr><th>Classe</th><th>Regra</th><th style="width:22%">Representante</th></tr></thead>
+<tr><td>Inválida, abaixo</td><td>Menor que 18</td><td>10</td></tr>
+<tr><td>Válida</td><td>De 18 a 120</td><td>40</td></tr>
+<tr><td>Inválida, acima</td><td>Maior que 120</td><td>150</td></tr>
+<tr><td>Inválida, tipo</td><td>Vazio ou texto</td><td>"abc"</td></tr>
+</table>
+<p>Quatro testes cobrem infinitas entradas. Sem a técnica, ou se testa demais o mesmo caso, ou se esquece uma classe inteira. No ServiceHub, as classes do e-mail de cadastro são: válido, sem arroba, vazio e <em>já existente</em>. Esta última é a que código gerado por IA mais esquece, e no contrato ela vira 409 (RN01).</p>
+
+<h3>Análise de valor-limite</h3>
+<p>Os defeitos se concentram nas bordas das classes: um <code>&lt;</code> no lugar de <code>&lt;=</code>, um intervalo começando em 0 em vez de 1. Por isso testa-se cada limite e o vizinho imediato de cada lado. Para idade de 18 a 120: <strong>17, 18, 120 e 121</strong>.</p>
+<p>No ServiceHub, a nota da avaliação é limitada no DTO com <code>@Min(value = 1)</code> e <code>@Max(value = 5)</code>. Os valores-limite são 0, 1, 5 e 6, e quatro linhas de um teste parametrizado provam as duas bordas:</p>
+<pre>@ParameterizedTest
+@CsvSource({"0, 400", "1, 201", "5, 201", "6, 400"})
+void deveValidarLimitesDaNota(int nota, int statusEsperado) { ... }</pre>
+<p>Partição escolhe as classes; valor-limite escolhe os valores dentro delas. O teste acima é um exercício proposto: para o 201, o Arrange precisa de uma ordem COMPLETED.</p>
+
+<!-- 5 -->
+<h2 id="s5">5. Dublês de teste <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Dublê de teste</strong> é tudo que substitui uma dependência real durante o teste, como o dublê de cena substitui o ator. Serve para isolar a unidade, deixar o teste rápido e montar cenários difíceis de produzir com a dependência real ("o banco não achou o id"). A nomenclatura abaixo vem de Gerard Meszaros e é usada também por Robert C. Martin.</p>
+<table>
+<thead><tr><th style="width:12%">Tipo</th><th>O que é</th><th style="width:36%">Quando usar</th></tr></thead>
+<tr><td>Dummy</td><td>Objeto passado só para preencher um parâmetro; nunca é usado</td><td>O método exige o argumento, mas o caso não depende dele</td></tr>
+<tr><td>Stub</td><td>Devolve respostas prontas às chamadas</td><td>Montar um cenário: "o repositório não acha o id"</td></tr>
+<tr><td>Mock</td><td>Registra as chamadas para você conferir depois</td><td>A chamada é o resultado: "não deve gravar nada"</td></tr>
+<tr><td>Spy</td><td>Envolve um objeto real e registra o que passou por ele</td><td>Manter o comportamento real e espiar uma chamada</td></tr>
+<tr><td>Fake</td><td>Implementação simplificada que funciona de verdade</td><td>Repositório em memória, servidor de e-mail falso</td></tr>
+</table>
+<p>Exemplo genérico: para testar um serviço que envia o boleto por e-mail, um <em>stub</em> do gateway de pagamento devolve "pago"; um <em>mock</em> do serviço de e-mail permite conferir que exatamente um e-mail saiu; um <em>fake</em> seria um servidor SMTP em memória que guarda as mensagens.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>No dia a dia todo mundo diz "mock" para tudo. O que importa é saber se você está <em>configurando respostas</em> (stub) ou <em>conferindo chamadas</em> (mock). Conferir chamada demais acopla o teste à implementação: qualquer refatoração quebra o teste sem que o comportamento tenha mudado.</p></div>
+<p>Repare que o <strong>H2</strong>, banco em memória muito usado em tutoriais, é um <em>fake</em> do PostgreSQL. Parece, mas não é. Bom para lógica, ruim para provar SQL e migrações. A seção 9 volta a isso.</p>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. TDD e testes limpos <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>O ciclo vermelho, verde, refatorar</h3>
+<p><strong>TDD</strong> (<em>Test-Driven Development</em>, desenvolvimento guiado por testes) inverte a ordem habitual: o teste vem antes do código.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 120" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <rect x="20" y="20" width="180" height="60" rx="8" fill="#fdf3e6" stroke="#b45309" stroke-width="1.4"/>
+  <rect x="260" y="20" width="180" height="60" rx="8" fill="#e7f5ef" stroke="#047857" stroke-width="1.4"/>
+  <rect x="500" y="20" width="180" height="60" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <g text-anchor="middle" font-weight="700"><text x="110" y="45" fill="#b45309">1. Vermelho</text><text x="350" y="45" fill="#047857">2. Verde</text><text x="590" y="45" fill="#1d4ed8">3. Refatorar</text></g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10"><text x="110" y="64">teste pequeno que falha</text><text x="350" y="64">mínimo de código que passa</text><text x="590" y="64">limpa com os testes verdes</text></g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#c1)"><path d="M202 50 H256"/><path d="M442 50 H496"/></g>
+  <path d="M590 82 V104 H110 V84" fill="none" stroke="#1d4ed8" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#c1)"/>
+  <text x="350" y="117" text-anchor="middle" fill="#6b7280" font-size="10">próximo comportamento</text>
+</svg>
+<figcaption>O ciclo curto do TDD: cada volta acrescenta um comportamento pequeno.</figcaption>
+</figure>
+<p>Robert C. Martin resume a disciplina em <strong>três leis</strong>: (1) não escreva código de produção sem antes ter um teste que falha; (2) não escreva mais teste do que o suficiente para falhar, e não compilar também é falhar; (3) não escreva mais código de produção do que o suficiente para o teste passar.</p>
+<p>O maior ganho do TDD é ter certeza de que o teste <em>consegue</em> falhar. Um teste que nunca foi visto vermelho pode estar testando nada: um assert esquecido, um caminho que nunca executa. Com IA isso fica ainda mais útil: você escreve o teste vermelho, que é a especificação executável, e pede o código que o deixa verde.</p>
+
+<h3>Nomes deveXQuandoY e o padrão AAA</h3>
+<p>O nome do teste diz o resultado esperado e a condição, como em <code>deveRetornar403QuandoEditarPerfilDeOutro</code>. Quando falha, o relatório já conta o que quebrou. O corpo segue <strong>AAA</strong>: <em>Arrange</em> (prepara o cenário), <em>Act</em> (executa uma ação), <em>Assert</em> (confere). Uma ação por teste. Exemplo genérico:</p>
+<pre>@Test
+void deveAplicarDescontoDe10QuandoClienteTem60AnosOuMais() {
+    var cliente = new Cliente(60);                 // Arrange
+    int desconto = calculadora.desconto(cliente);  // Act
+    assertThat(desconto).isEqualTo(10);            // Assert
+}</pre>
+
+<h3>F.I.R.S.T.</h3>
+<table>
+<thead><tr><th style="width:22%">Letra</th><th>Significa</th><th style="width:36%">Quebra quando</th></tr></thead>
+<tr><td>Fast (rápido)</td><td>Roda em segundos, então você roda sempre</td><td>Cada teste sobe um contexto novo</td></tr>
+<tr><td>Independent</td><td>Nenhum teste depende de outro nem da ordem</td><td>Um teste usa dado criado por outro</td></tr>
+<tr><td>Repeatable</td><td>Mesmo resultado em qualquer máquina e ambiente</td><td>Depende de rede, relógio ou banco local</td></tr>
+<tr><td>Self-validating</td><td>Passa ou falha sozinho, sem ler log</td><td>Só imprime no console</td></tr>
+<tr><td>Timely (oportuno)</td><td>Escrito junto com o código, ou antes</td><td>Fica para "depois da entrega"</td></tr>
+</table>
+<p>Código de teste é código de produção: legível, sem duplicação, um conceito por teste. Teste sujo é abandonado, e com ele vai a segurança para mudar o código. Um <code>Thread.sleep</code> no teste viola o F e, muitas vezes, o R.</p>
+
+<!-- 7 -->
+<h2 id="s7">7. A pirâmide de testes <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<figure class="figure">
+<svg viewBox="0 0 700 200" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <polygon points="350,10 430,62 270,62" fill="#fdf3e6" stroke="#b45309" stroke-width="1.3"/>
+  <polygon points="270,66 430,66 520,124 180,124" fill="#e8eefc" stroke="#1d4ed8" stroke-width="1.3"/>
+  <polygon points="180,128 520,128 610,186 90,186" fill="#e7f5ef" stroke="#047857" stroke-width="1.3"/>
+  <g text-anchor="middle" font-weight="700"><text x="350" y="50" fill="#b45309">E2E</text><text x="350" y="92" fill="#1d4ed8">Integração</text><text x="350" y="152" fill="#047857">Unitários e fatia web</text></g>
+  <g text-anchor="middle" fill="#1f2937" font-size="10"><text x="350" y="110">@SpringBootTest + Testcontainers (Postgres 16)</text><text x="350" y="170">JUnit 5 + Mockito no service; @WebMvcTest no controller</text></g>
+  <g fill="#6b7280" font-size="10"><text x="450" y="40">bancada de testes, Postman</text><text x="14" y="20">mais lentos, mais caros,</text><text x="14" y="33">mais frágeis</text><text x="14" y="178">rápidos, baratos,</text><text x="14" y="191">muitos</text></g>
+</svg>
+<figcaption>Quanto mais alto na pirâmide, mais o teste cobre de uma vez e mais caro ele é de rodar e manter.</figcaption>
+</figure>
+<p>A forma da pirâmide é sobre custo e velocidade: a base tem muitos testes rápidos; o topo, poucos testes lentos que exercitam o sistema inteiro pela rede. O desenho é guia, não lei. No ServiceHub a camada de integração é grande de propósito, porque as regras de segurança e de banco (401, 403, travas, migrações) só se provam com tudo ligado.</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Ferramentas: JUnit, AssertJ, Mockito <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Tudo vem no <code>spring-boot-starter-test</code>: o <strong>JUnit 5</strong> executa os testes, o <strong>AssertJ</strong> confere os resultados e o <strong>Mockito</strong> cria os dublês.</p>
+<h3>JUnit 5</h3>
+<table>
+<thead><tr><th style="width:34%">Anotação</th><th>Para quê</th></tr></thead>
+<tr><td><code>@Test</code></td><td>Marca um caso de teste</td></tr>
+<tr><td><code>@DisplayName</code></td><td>Nome legível no relatório, por exemplo citando a regra RN do Mapa</td></tr>
+<tr><td><code>@BeforeEach</code></td><td>Prepara o cenário antes de cada teste</td></tr>
+<tr><td><code>@ParameterizedTest</code> + <code>@CsvSource</code></td><td>Um teste, várias linhas de dados</td></tr>
+<tr><td><code>@RepeatedTest(5)</code></td><td>Repete o teste, útil para pegar falha intermitente</td></tr>
+<tr><td><code>@ExtendWith(MockitoExtension.class)</code></td><td>Liga <code>@Mock</code> e <code>@InjectMocks</code> num teste sem Spring</td></tr>
+</table>
+<p><code>@Disabled</code> existe, mas teste desligado sem motivo escrito é dívida escondida. Para rodar uma classe só: <code>mvnw.cmd test -Dtest=RequestStatusTest</code>.</p>
+
+<h3>AssertJ: asserções que se leem como frase</h3>
+<div class="grid2">
+<div class="card"><h3 class="ch">JUnit nativo</h3>
+<pre>assertEquals(HttpStatus.FORBIDDEN,
+    resp.getStatusCode());
+assertThrows(NotFound.class,
+    () -&gt; service.findById(42L));</pre></div>
+<div class="card good"><h3 class="ch">AssertJ</h3>
+<pre>assertThat(resp.getStatusCode())
+    .isEqualTo(HttpStatus.FORBIDDEN);
+assertThatThrownBy(
+        () -&gt; service.findById(42L))
+    .isInstanceOf(NotFound.class)
+    .hasMessageContaining("42");</pre></div>
+</div>
+<p>A vantagem aparece quando o teste falha: a mensagem mostra o objeto inteiro, a coleção esperada e a recebida. Asserções úteis em API: <code>containsEntry("type", "urn:servicehub:problem:forbidden")</code> para o corpo de erro e <code>containsExactlyInAnyOrder(...)</code> para coleções sem ordem garantida.</p>
+
+<h3>Mockito</h3>
+<p>Num teste com <code>@ExtendWith(MockitoExtension.class)</code>, <code>@Mock</code> cria um dublê que devolve vazio até ser configurado, <code>when(...).thenReturn(...)</code> faz dele um stub e <code>verify(...)</code> faz dele um mock. <code>@InjectMocks</code> cria a classe real sob teste com os dublês injetados no construtor. A regra de ouro: mocke as dependências, nunca a classe que você está testando.</p>
+
+<h3>@WebMvcTest e @MockitoBean</h3>
+<p>Para testar o controller sem banco, <code>@WebMvcTest(MeuController.class)</code> sobe só a camada web e o <code>MockMvc</code>, que simula requisições HTTP sem servidor de verdade. O service vira um dublê registrado no contexto do Spring com <code>@MockitoBean</code>. O que se prova ali: rota, validação, status code, JSON de erro e header <code>Location</code>.</p>
+<div class="warn"><div class="label">Diferenças do Spring Boot 4</div><p>Tutoriais e IA treinados em Boot 2 e 3 trazem os nomes antigos. No Boot 4:</p>
+<ul style="margin-bottom:0">
+<li><code>@MockBean</code> foi removido; use <code>@MockitoBean</code>, de <code>org.springframework.test.context.bean.override.mockito</code>;</li>
+<li><code>@WebMvcTest</code> e <code>@AutoConfigureMockMvc</code> vêm de <code>org.springframework.boot.webmvc.test.autoconfigure</code>.</li>
+</ul></div>
+<p>No ServiceHub as fatias web usam <code>@AutoConfigureMockMvc(addFilters = false)</code>, que desliga os filtros de segurança. A decisão é consciente: a fatia prova o contrato HTTP do controller; a segurança se prova na integração, com token de verdade.</p>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Banco real com Testcontainers <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um teste de integração com outro banco prova que a API funciona <em>em outro banco</em>. Muitos tutoriais ensinam H2 em memória com <code>@AutoConfigureTestDatabase</code>, que troca o datasource por um banco embutido. O ServiceHub não faz isso (ADR-0005).</p>
+<table>
+<thead><tr><th style="width:18%">Critério</th><th>H2 em memória</th><th>Testcontainers (PostgreSQL 16)</th></tr></thead>
+<tr><td>Migrações</td><td><code>BIGSERIAL</code>, <code>CHECK</code> e <code>ALTER</code> das migrações quebram ou mudam de sentido</td><td>As mesmas da produção, aplicadas pelo Flyway</td></tr>
+<tr><td>Schema</td><td>Tentação de usar <code>ddl-auto=create-drop</code></td><td><code>ddl-auto=validate</code>, como na produção</td></tr>
+<tr><td>Travas e SQL</td><td><code>FOR UPDATE</code> e dialeto diferentes</td><td>Comportamento real do Postgres</td></tr>
+<tr><td>Custo</td><td>Nenhum pré-requisito</td><td>Docker rodando; alguns segundos por JVM</td></tr>
+</table>
+<p>O ganho é a paridade: um erro de SQL ou de migração aparece no teste, não no deploy. O custo é ter Docker rodando, o mesmo Docker das Semanas 11 e 12.</p>
+<h3>Como o Testcontainers funciona</h3>
+<p>O <strong>Testcontainers</strong> é uma biblioteca que, durante o teste, pede ao Docker um container descartável (aqui, <code>postgres:16-alpine</code>), espera ele ficar pronto e o destrói no fim. Não precisa de Compose: a biblioteca fala direto com o Docker. No Spring Boot, a anotação <code>@ServiceConnection</code> sobre o bean do container entrega URL, usuário e senha ao datasource, sem nenhuma propriedade escrita à mão.</p>
+<div class="warn"><div class="label">Testcontainers 2.x</div><p>Os módulos mudaram de nome: <code>testcontainers-postgresql</code> e <code>testcontainers-junit-jupiter</code>, e a classe agora é <code>org.testcontainers.postgresql.PostgreSQLContainer</code>. Código antigo traz <code>org.testcontainers.containers.PostgreSQLContainer</code>, que não existe mais nesse pacote.</p></div>
+<h3>Uma classe base com banco limpo</h3>
+<p>Todos os testes de integração herdam de uma classe base que sobe a aplicação inteira numa porta aleatória (<code>RANDOM_PORT</code>), importa a configuração do container e, antes de cada teste, apaga os dados com <code>TRUNCATE ... RESTART IDENTITY CASCADE</code>. É assim que se garante o I e o R do F.I.R.S.T.: nenhum teste depende da ordem nem do lixo de outro, e os ids recomeçam do 1. Como todas as classes herdam a mesma configuração, o Spring reaproveita o contexto (e o container) entre elas, o que mantém a suíte razoavelmente rápida.</p>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. Concorrência e cobertura <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Por que concorrência é difícil de testar</h3>
+<p>Uma <strong>condição de corrida</strong> (<em>race condition</em>) acontece quando o resultado depende da ordem em que as threads executam. A forma mais comum é o padrão <em>verificar e depois agir</em> (check-then-act): a verificação fica velha antes da ação.</p>
+<pre>Thread A: lê status = ACCEPTED
+Thread B: lê status = ACCEPTED
+Thread A: grava IN_PROGRESS   ✓
+Thread B: grava CANCELLED     ✓   // as duas "venceram"; a última apagou a primeira</pre>
+<p>Testar isso é difícil por dois motivos. O sistema operacional decide a intercalação das threads, então o mesmo teste passa muitas vezes seguidas e de repente falha (não determinismo). E um log ou breakpoint muda o tempo das threads e esconde a falha. A estratégia é: forçar as threads a começar juntas, repetir o teste e conferir uma <strong>invariante</strong> (exatamente uma vence), não a ordem.</p>
+<p>Em Java, a ferramenta para "começar juntas" é a <code>CyclicBarrier</code>: cada thread chama <code>await()</code> e fica parada até que todas as participantes cheguem; aí todas são liberadas ao mesmo tempo. O antídoto da condição de corrida, no banco, é a <strong>trava pessimista</strong>: <code>SELECT ... FOR UPDATE</code> trava a linha até o fim da transação, e a thread B espera e relê o estado já alterado. É mais um motivo para testar no Postgres real.</p>
+
+<h3>Cobertura: o que mede e o que não mede</h3>
+<p><strong>Cobertura</strong> é a fração do código executada pelos testes, medida em linhas, ramos (cada lado de um <code>if</code>) ou métodos. É uma técnica de caixa-branca. Exemplo genérico:</p>
+<pre>int desconto(int idade) {
+    int d = 0;
+    if (idade &gt;= 60) d = 10;
+    return d;
+}
+// um único teste: desconto(70) == 10
+// 100% das linhas executadas, mas só 50% dos ramos: idade &lt; 60 nunca rodou</pre>
+<div class="grid2">
+<div class="card good"><h3 class="ch">Mede</h3><p>Quais linhas, ramos e métodos foram executados por algum teste.</p></div>
+<div class="card bad"><h3 class="ch">Não mede</h3><p>Se o teste conferiu o resultado; se o requisito que falta no código foi testado; se as combinações de entrada foram cobertas.</p></div>
+</div>
+<p>Cobertura baixa prova que falta teste. Cobertura alta não prova que os testes são bons: um teste sem <code>assertThat</code> cobre a linha e não prova nada. E código que nunca foi escrito, como uma validação esquecida, não aparece em relatório nenhum; só a especificação revela essa falta. O número é sintoma, não meta.</p>
+<p>O <strong>JaCoCo</strong> é a ferramenta de cobertura do ecossistema Java. Ele instrumenta o bytecode durante os testes e gera um relatório HTML com as linhas em verde (executada), amarelo (só parte dos ramos) e vermelho (nunca executada). Leia o vermelho primeiro, começando pelos services: linha nunca executada é regra nunca provada.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Todos os trechos abaixo são testes reais de <code>src/test</code>, alguns resumidos.</p>
+
+<h3>Domínio puro: a máquina de estados em uma tabela</h3>
+<p><code>model/RequestStatusTest.java</code> (resumido) testa as 25 combinações de origem e destino da ordem (RN08), sem Spring e sem mock:</p>
+<pre>@ParameterizedTest(name = "{0} -&gt; {1}: transição válida={2}, prestador={3}, cliente={4}")
+@CsvSource({
+    "PENDING,     ACCEPTED,    true,  true,  false",
+    "PENDING,     CANCELLED,   true,  true,  true",
+    "COMPLETED,   CANCELLED,   false, false, false",
+    // ... 25 linhas: 5 x 5 combinações
+})</pre>
+<p>Testar todas as combinações pega também o que <em>não</em> deveria ser permitido. Só cinco transições existem; as outras vinte são proibidas, e é nelas que mora o bug.</p>
+
+<h3>Service com Mockito: stub e mock no mesmo teste</h3>
+<p>Em <code>service/UserServiceTest.java</code> (com comentários acrescentados):</p>
+<pre>@Test
+void deveLancarEmailAlreadyExistsQuandoEmailJaCadastrado() {
+    when(repository.existsByEmail("maria@x.com")).thenReturn(true);   // stub
+    assertThatThrownBy(() -&gt; service.register(dto("maria@x.com")))
+            .isInstanceOf(EmailAlreadyExistsException.class);
+    verify(repository, never()).saveAndFlush(any());                  // mock
+}</pre>
+<p>O <code>verify(..., never())</code> aqui é legítimo: não gravar é o próprio comportamento exigido pela RN01.</p>
+
+<h3>Fatia web</h3>
+<p>Cabeçalho de <code>controller/ServiceOfferingControllerTest.java</code> (resumido):</p>
+<pre>@WebMvcTest(ServiceOfferingController.class)
+@AutoConfigureMockMvc(addFilters = false)
+class ServiceOfferingControllerTest {
+    @Autowired MockMvc mockMvc;
+    @MockitoBean ServiceOfferingService service;
+    ...
+}</pre>
+<p>É nesta fatia que o <code>JwtUserConverter</code> quebraria se fosse <code>@Component</code> (Semana 09): o <code>@WebMvcTest</code> carrega todo <code>Converter</code> e não há repositório no contexto.</p>
+
+<h3>O container e a classe base</h3>
+<pre>@TestConfiguration(proxyBeanMethods = false)
+public class TestcontainersConfiguration {
+    @Bean
+    @ServiceConnection
+    PostgreSQLContainer postgresContainer() {
+        return new PostgreSQLContainer("postgres:16-alpine");
+    }
+}</pre>
+<p><code>AbstractIntegrationTest.java</code> (resumido; omite outras properties, como as do admin inicial):</p>
+<pre>@SpringBootTest(webEnvironment = RANDOM_PORT,
+        properties = "servicehub.jwt.secret=" + AbstractIntegrationTest.JWT_SECRET)
+@AutoConfigureTestRestTemplate
+@Import(TestcontainersConfiguration.class)
+public abstract class AbstractIntegrationTest {
+    @Autowired protected TestRestTemplate rest;
+    @Autowired protected JdbcTemplate jdbc;
+
+    @BeforeEach
+    void limparBanco() throws Exception {
+        jdbc.execute("TRUNCATE TABLE reviews, service_requests, services, users"
+                + " RESTART IDENTITY CASCADE");
+        // recria o ADMIN inicial apagado pelo TRUNCATE
+    }
+}</pre>
+<p>No Boot 4 o <code>TestRestTemplate</code> mudou para o módulo <code>spring-boot-resttestclient</code> e precisa de <code>@AutoConfigureTestRestTemplate</code>. A classe também oferece atalhos (<code>registrar</code>, <code>login</code>, <code>adminToken</code>, <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code>) que deixam cada teste curto.</p>
+
+<h3>A Semana 09 provada de ponta a ponta</h3>
+<p>Em <code>integration/UserSecurityIntegrationTest.java</code> (resumido), um teste prova três regras com banco, segurança e HTTP reais:</p>
+<pre>@Test
+@DisplayName("RN11: exclusão pelo ADMIN é lógica, bloqueia login e desativa"
+        + " os serviços do usuário")
+void deveDesativarUsuarioEServicosQuandoAdminExclui() {
+    long servicoId = criarServico(joao, "Instalação de tomadas", "150.00", "ELETRICA");
+
+    assertThat(delete("/api/v1/users/" + joaoId, maria).getStatusCode())
+            .isEqualTo(HttpStatus.FORBIDDEN);
+    assertThat(delete("/api/v1/users/" + joaoId, adminToken()).getStatusCode())
+            .isEqualTo(HttpStatus.NO_CONTENT);
+
+    assertThat(get("/api/v1/auth/me", joao).getStatusCode())
+            .isEqualTo(HttpStatus.UNAUTHORIZED);
+    assertThat(get("/api/v1/services/" + servicoId, null).getStatusCode())
+            .isEqualTo(HttpStatus.NOT_FOUND);
+}</pre>
+<p>O token antigo de João passa a dar 401: é o converter funcionando. Além disso, <code>ProtectedRoutesIntegrationTest</code> varre todas as rotas protegidas sem token e exige 401; rota nova entra no CSV dele.</p>
+
+<h3>Concorrência</h3>
+<p>Em <code>integration/ReviewFixesIntegrationTest.java</code> (resumido), duas mudanças de status chegam juntas numa ordem ACCEPTED:</p>
+<pre>@RepeatedTest(5)
+@DisplayName("RN08: mudanças de status simultâneas não furam a máquina de estados"
+        + " (um 200, um 409)")
+void deveSerializarMudancasDeStatusConcorrentes() throws Exception {
+    ...
+    List&lt;HttpStatusCode&gt; status = concurrently(
+        () -&gt; patch(url, joao, Map.of("status", "IN_PROGRESS")).getStatusCode(),
+        () -&gt; patch(url, maria, Map.of("status", "CANCELLED")).getStatusCode());
+    assertThat(status).containsExactlyInAnyOrder(HttpStatus.OK, HttpStatus.CONFLICT);
+}
+
+private static List&lt;HttpStatusCode&gt; concurrently(Supplier&lt;HttpStatusCode&gt; a,
+                                                Supplier&lt;HttpStatusCode&gt; b) {
+    CyclicBarrier barrier = new CyclicBarrier(2);
+    Supplier&lt;HttpStatusCode&gt; wa = () -&gt; { await(barrier); return a.get(); };
+    Supplier&lt;HttpStatusCode&gt; wb = () -&gt; { await(barrier); return b.get(); };
+    CompletableFuture&lt;HttpStatusCode&gt; fa = CompletableFuture.supplyAsync(wa);
+    CompletableFuture&lt;HttpStatusCode&gt; fb = CompletableFuture.supplyAsync(wb);
+    return List.of(fa.join(), fb.join());
+}</pre>
+<p>O que garante "um 200 e um 409" é a trava no repositório, que vira <code>SELECT ... FOR UPDATE</code>:</p>
+<pre>/** Trava a linha da ordem até o fim da transação: duas mudanças de status
+    simultâneas viram fila (RN08). */
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+@Query("SELECT r FROM ServiceRequest r WHERE r.id = :id")
+Optional&lt;ServiceRequest&gt; findByIdForUpdate(@Param("id") Long id);</pre>
+
+<h3>Cobertura no build</h3>
+<p>O <code>pom.xml</code> declara o <code>jacoco-maven-plugin</code>; <code>mvnw.cmd verify</code> roda tudo e gera <code>target/site/jacoco/index.html</code>. Um detalhe que costuma quebrar o relatório: o Surefire carrega o Mockito como agente e o <code>argLine</code> precisa começar com <code>@{argLine}</code>, senão o agente do JaCoCo some e o relatório sai vazio:</p>
+<pre>&lt;argLine&gt;@{argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off&lt;/argLine&gt;</pre>
+</section>
+
+<!-- 12 -->
+<section class="page" id="s12">
+<h2>12. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Pedir código e testes juntos gera testes que confirmam o código, não a regra: se um está errado, o outro erra junto. Por isso esta semana inverte a ordem.</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>O que você faz nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>Escolhe uma regra RN do Mapa e escreve os nomes dos testes: <code>deveRetornar409QuandoAvaliarOrdemDuasVezes</code>.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Pede primeiro só o teste, sem tocar na produção; roda e vê vermelho. Depois pede a implementação mínima.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Assert do status <em>e</em> do <code>type</code>? Postgres real, não H2? O nome bate com o que o corpo prova?</td></tr>
+<tr><td><strong>Provar</strong></td><td>Remove a regra de propósito, vê o teste falhar, restaura e vê verde.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>escreve testes pro meu ReviewService</pre><p>Vêm testes que espelham o código atual, com <code>@MockBean</code> e H2, e asserts só de status 200.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Nomeia a regra, os casos e os status, fixa as versões, proíbe mexer na produção na primeira etapa e exige ver o vermelho antes do verde.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>A entrega é a base de testes com banco real e uma regra do Mapa construída em TDD. O exemplo usa a RN09; troque pela regra que a equipe escolher. O prompt parte da API da Semana 09 (JWT, papéis e regras de dono já prontos):</p>
+<pre style="break-inside:auto">Contexto: API ServiceHub em Java 21, Spring Boot 4.1, Spring Security 7
+(JWT), PostgreSQL 16 + Flyway (ddl-auto=validate). Testes com JUnit 5,
+AssertJ, Mockito e Testcontainers 2 (org.testcontainers.postgresql).
+Docker está rodando.
+
+Objetivo: construir em TDD a regra RN09 do Mapa: "Só quem abriu a ordem
+avalia, só depois de COMPLETED, uma única vez" (403 / 409), na rota
+POST /api/v1/service-requests/{id}/reviews.
+
+Etapa 1, SÓ TESTES (não altere nada em src/main):
+- Se ainda não existirem, crie TestcontainersConfiguration (bean
+  PostgreSQLContainer("postgres:16-alpine") com @ServiceConnection) e
+  uma classe base @SpringBootTest(RANDOM_PORT) com
+  @AutoConfigureTestRestTemplate, @Import da configuração e TRUNCATE
+  ... RESTART IDENTITY CASCADE no @BeforeEach.
+- Testes de integração, um por caso, nome deveXQuandoY, padrão AAA,
+  @DisplayName começando por "RN09:":
+  deveRetornar201QuandoClienteAvaliaOrdemConcluida
+  deveRetornar403QuandoNaoForClienteDaOrdem
+  deveRetornar409QuandoOrdemNaoConcluida
+  deveRetornar409QuandoAvaliarOrdemDuasVezes
+- Cada erro confere status E o "type" do ProblemDetail.
+- Tokens obtidos por login real; nada de desligar a segurança.
+- NÃO use H2, @AutoConfigureTestDatabase nem @MockBean.
+Rode mvnw.cmd verify e me mostre quais testes falham e por quê.
+Pare e espere.
+
+Etapa 2 (só depois que eu confirmar o vermelho): implemente o mínimo
+no service para os testes passarem, sem alterar os testes.
+
+Antes de cada etapa, mostre o plano (arquivos e casos).
+
+Critério de aceite: mvnw.cmd verify verde, e cada teste falha se a
+checagem correspondente da RN09 for removida do service.</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li><code>@MockBean</code> (removido no Boot 4) em vez de <code>@MockitoBean</code>; imports de Testcontainers 1.x e de Boot 3 para <code>TestRestTemplate</code> e <code>@WebMvcTest</code>.</li>
+  <li>H2 ou <code>@AutoConfigureTestDatabase</code>, que trocam o banco e quebram as migrações Postgres.</li>
+  <li>Teste que só confere status 200, ignora o corpo, ou não tem assert nenhum.</li>
+  <li>Mockar a própria classe sob teste, ou ajustar o código (ou o teste) até ficar verde.</li>
+  <li>Testes que dependem da ordem de execução ou de dados criados por outro teste.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Os testes de integração herdam da classe base e rodam contra Postgres em container?</li>
+  <li>Cada caso de erro confere status e <code>type</code> do ProblemDetail?</li>
+  <li>Os nomes seguem <code>deveXQuandoY</code> e o <code>@DisplayName</code> cita a RN?</li>
+  <li>Você viu cada teste vermelho antes de vê-lo verde?</li>
+  <li>O relatório do JaCoCo mostra as linhas da regra em verde?</li>
+</ul>
+<h3>Prova</h3>
+<p><code>mvnw.cmd verify</code> verde com o Docker ligado. Comente no service a checagem "já avaliada": <code>deveRetornar409QuandoAvaliarOrdemDuasVezes</code> fica vermelho. Restaure e veja o verde; registre no PR os dois commits ou um print. É o ritual da banca.</p>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Verificação</dt><dd>Conferir o software contra a especificação: o produto está sendo construído corretamente?</dd>
+  <dt>Validação</dt><dd>Conferir o software contra a necessidade real: é o produto correto?</dd>
+  <dt>Caixa-preta</dt><dd>Teste que conhece só entradas, saídas e a especificação.</dd>
+  <dt>Caixa-branca</dt><dd>Teste guiado pela estrutura interna do código.</dd>
+  <dt>Regressão</dt><dd>Reexecutar os testes após uma mudança para ver se o que funcionava continua funcionando.</dd>
+  <dt>Partição de equivalência</dt><dd>Dividir as entradas em classes tratadas do mesmo jeito e testar um representante de cada.</dd>
+  <dt>Valor-limite</dt><dd>Testar as bordas de cada classe e os vizinhos imediatos.</dd>
+  <dt>Dublê de teste</dt><dd>Substituto de uma dependência real: dummy, stub, mock, spy ou fake.</dd>
+  <dt>Stub / mock</dt><dd>Dublê que devolve respostas prontas / que registra chamadas para conferência.</dd>
+  <dt>TDD</dt><dd>Desenvolvimento guiado por testes: vermelho, verde, refatorar.</dd>
+  <dt>AAA</dt><dd>Arrange, Act, Assert: estrutura de um teste.</dd>
+  <dt>F.I.R.S.T.</dt><dd>Fast, Independent, Repeatable, Self-validating, Timely.</dd>
+  <dt>Fatia (slice)</dt><dd>Teste que sobe só uma camada do Spring, como <code>@WebMvcTest</code>.</dd>
+  <dt>Testcontainers</dt><dd>Biblioteca que sobe containers descartáveis, como um Postgres, durante os testes.</dd>
+  <dt>Condição de corrida</dt><dd>Resultado que depende da ordem de execução de threads concorrentes.</dd>
+  <dt>Cobertura</dt><dd>Fração de linhas, ramos ou métodos executados pelos testes.</dd>
+</dl>
+
+<!-- 14 -->
+<h2 id="s14">14. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Dê um exemplo, no ServiceHub, de um defeito que os testes automatizados pegariam (verificação) e de outro que só uma conversa com o usuário revelaria (validação).</li>
+  <li>Classifique cada teste em unidade, integração ou sistema, e em caixa-preta ou caixa-branca: (a) <code>RequestStatusTest</code>; (b) a bancada de testes do professor rodando o ciclo completo; (c) <code>UserSecurityIntegrationTest</code>; (d) <code>UserServiceTest</code> com Mockito.</li>
+  <li>No DTO do ServiceHub, o preço de um serviço vai de 0,01 a 99.999.999,99, com no máximo duas casas decimais. Liste as classes de equivalência e os valores-limite que você testaria.</li>
+  <li>Para cada situação, diga o tipo de dublê: (a) o repositório deve responder "e-mail já existe"; (b) conferir que nada foi gravado; (c) um repositório em memória com <code>HashMap</code>; (d) um parâmetro obrigatório que o caso não usa.</li>
+  <li>Explique por que um teste que nunca foi visto falhar não prova nada. Como o TDD resolve isso?</li>
+  <li>Reescreva o nome e organize em AAA: <code>@Test void teste1() { assertEquals(404, client.get("/services/999").status()); }</code>.</li>
+  <li>Um teste cria um usuário com e-mail <code>ana@x.com</code> e outro teste, da mesma classe, faz login com <code>ana@x.com</code> sem cadastrá-lo. Que letra do F.I.R.S.T. é violada e como a classe base do ServiceHub evita o problema?</li>
+  <li>Cite três motivos concretos para o ServiceHub não usar H2 nos testes de integração.</li>
+  <li>No teste de concorrência, por que a asserção é <code>containsExactlyInAnyOrder(OK, CONFLICT)</code> e não <code>containsExactly(OK, CONFLICT)</code>? Para que serve a <code>CyclicBarrier</code> e o <code>@RepeatedTest(5)</code>?</li>
+  <li>Um colega comemora 100% de cobertura de linhas no <code>ReviewService</code>. Dê dois motivos pelos quais a RN09 ainda pode estar mal testada.</li>
+  <li>Escreva um prompt, no formato desta semana, para construir em TDD a RN10 (usuário ou serviço com ordens ativas não pode ser excluído: 409). Liste os nomes dos testes.</li>
+</ol>
+
+<!-- 15 -->
+<h2 id="s15">15. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>GONÇALVES, P. F. et al. <em>Testes de software e gerência de configuração</em>. Grupo A, 2019. Capítulos "Níveis de teste", "Testes unitários" e "Teste de software com JUnit".</li>
+  <li>MARTIN, R. C. <em>Código limpo</em>. Alta Books, 2009. Capítulo 9, testes de unidade (as três leis do TDD e F.I.R.S.T.).</li>
+  <li>PRESSMAN, R. S.; MAXIM, B. R. <em>Engenharia de software</em>. 9. ed. Grupo A, 2021. Capítulos 19 e 20.</li>
+  <li>MARTIN, R. C. <em>Arquitetura limpa</em>. Alta Books, 2019. Capítulo 28, "O Limite Teste".</li>
+  <li>MARTIN, R. C. <em>Desenvolvimento ágil limpo</em>. Alta Books, 2020. Capítulo 5, práticas técnicas e o ciclo do TDD.</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>JUnit 5 User Guide: <code>junit.org/junit5/docs/current/user-guide</code>.</li>
+  <li>Spring Boot Reference, seções <em>Testing</em> e <em>Testcontainers</em>: <code>docs.spring.io/spring-boot</code>.</li>
+  <li>Testcontainers for Java, módulo PostgreSQL: <code>java.testcontainers.org</code>.</li>
+  <li>Documentação do JaCoCo: <code>www.jacoco.org/jacoco</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

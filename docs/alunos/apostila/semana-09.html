@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 09 — Autenticação JWT e autorização por papel</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 09 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 09<br>Autenticação JWT e autorização por papel</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Na semana passada a senha passou a ser guardada como hash BCrypt e o cadastro ganhou validação. Falta responder a três perguntas que toda API protegida precisa resolver a cada requisição: quem está chamando, o que essa pessoa pode fazer e de quem é o recurso que ela quer mexer. Esta apostila explica o token JWT por dentro, mostra como o Spring Security valida esse token sem que você escreva um filtro, e separa com cuidado a autorização por papel da autorização por dono, que é onde a maior parte das APIs reais falha.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">Autenticar e autorizar</a></li>
+      <li><a href="#s3">Sessão com estado e token sem estado</a></li>
+      <li><a href="#s4">O JWT por dentro</a></li>
+      <li><a href="#s5">HS256 e RS256</a></li>
+      <li><a href="#s6">Claims registradas e privadas</a></li>
+      <li><a href="#s7">Expiração, revogação e refresh token</a></li>
+      <li><a href="#s8">OAuth 2.0 e resource server</a></li>
+      <li><a href="#s9">Papel, dono e menor privilégio</a></li>
+      <li><a href="#s10">401 ou 403</a></li>
+      <li><a href="#s11">Aplicação no ServiceHub</a></li>
+      <li><a href="#s12">Construindo com IA</a></li>
+      <li><a href="#s13">Glossário</a></li>
+      <li><a href="#s14">Exercícios</a></li>
+      <li><a href="#s15">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>comparar sessão com estado e token sem estado e explicar por que uma API REST prefere o token;</li>
+  <li>ler um JWT, dizer o que a assinatura garante e o que ela não garante, e escolher entre HS256 e RS256;</li>
+  <li>configurar emissão e validação de JWT com o suporte nativo do Spring Security, sem biblioteca extra e sem filtro escrito à mão;</li>
+  <li>aplicar autorização por papel com <code>@PreAuthorize</code> e autorização por dono com checagem explícita no service, evitando BOLA;</li>
+  <li>decidir entre 401 e 403 e devolver os dois no formato ProblemDetail do contrato.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. Autenticar e autorizar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Duas palavras parecidas descrevem etapas diferentes. <strong>Autenticação</strong> responde "quem é você?": o sistema confere uma prova de identidade, como senha, token ou certificado. <strong>Autorização</strong> responde "o que você pode fazer?": com a identidade já conhecida, o sistema decide se aquela operação, sobre aquele objeto, é permitida.</p>
+<p>A ordem importa. Não faz sentido perguntar se alguém pode apagar um serviço antes de saber quem é esse alguém. Por isso as falhas também são diferentes: falhar na autenticação gera um erro que convida o cliente a se identificar; falhar na autorização gera um erro que diz que, mesmo identificado, ele não tem permissão. A seção 10 transforma essa diferença em status HTTP.</p>
+<div class="note"><div class="label">Analogia</div>
+<p>Na portaria de uma empresa, o crachá com foto é a autenticação: prova que você é você. A catraca que libera só certos andares é a autorização. Ter crachá não abre todas as portas; e uma porta trancada não questiona quem você é, apenas recusa a entrada.</p></div>
+<p>Uma API costuma autorizar em duas camadas. A primeira olha o <strong>papel</strong> do usuário (cliente, prestador, administrador). A segunda olha a <strong>relação</strong> entre o usuário e o objeto (é o dono? participa desta ordem?). A primeira é fácil de lembrar; a segunda é a que tutoriais e código gerado por IA mais esquecem.</p>
+
+<!-- 3 -->
+<h2 id="s3">3. Sessão com estado e token sem estado <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O HTTP não lembra de nada entre uma requisição e outra. Depois do login, alguma coisa precisa fazer a ponte e dizer ao servidor, a cada chamada, que é a mesma pessoa. Há duas famílias de solução, e a diferença entre elas está em <em>quem guarda o estado</em>. "Estado", aqui, é a memória que o servidor tem sobre o cliente entre uma requisição e outra.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 210" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+  <marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <text x="10" y="18" font-weight="700" fill="#1d4ed8" font-size="12.5">Sessão com estado: o servidor lembra</text>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="10" y="30" width="190" height="50" rx="7"/><rect x="255" y="30" width="190" height="50" rx="7"/><rect x="500" y="30" width="190" height="50" rx="7"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937"><text x="105" y="51" font-weight="700">Login</text><text x="350" y="51" font-weight="700">Cookie com id</text><text x="595" y="51" font-weight="700">Cada chamada</text></g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10"><text x="105" y="68">servidor cria a sessão na memória</text><text x="350" y="68">cliente guarda só um id aleatório</text><text x="595" y="68">servidor procura o id na tabela</text></g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#b1)"><path d="M202 55 H251"/><path d="M447 55 H496"/></g>
+  <text x="10" y="118" font-weight="700" fill="#047857" font-size="12.5">Token sem estado: o cliente carrega a prova</text>
+  <g fill="#fff" stroke="#047857" stroke-width="1.3">
+    <rect x="10" y="130" width="190" height="50" rx="7"/><rect x="255" y="130" width="190" height="50" rx="7"/><rect x="500" y="130" width="190" height="50" rx="7"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937"><text x="105" y="151" font-weight="700">Login</text><text x="350" y="151" font-weight="700">Token assinado</text><text x="595" y="151" font-weight="700">Cada chamada</text></g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10"><text x="105" y="168">servidor monta os dados e assina</text><text x="350" y="168">Authorization: Bearer &lt;token&gt;</text><text x="595" y="168">confere assinatura e validade</text></g>
+  <g stroke="#047857" stroke-width="1.8" marker-end="url(#b2)"><path d="M202 155 H251"/><path d="M447 155 H496"/></g>
+  <text x="350" y="202" text-anchor="middle" fill="#6b7280" font-size="10">na sessão, o dado mora no servidor; no token, ele viaja com o cliente e é protegido pela assinatura</text>
+</svg>
+<figcaption>As duas formas de manter o usuário identificado entre requisições.</figcaption>
+</figure>
+<p>Na <strong>sessão</strong>, o servidor cria um registro na memória (ou num banco de sessões) e entrega ao cliente só um identificador aleatório, em geral num cookie. A cada chamada o servidor procura esse id na sua tabela. No <strong>token</strong>, o servidor monta os dados do usuário, assina e entrega tudo ao cliente. A cada chamada o servidor apenas confere a assinatura e a validade; não precisa lembrar de nada.</p>
+<table>
+<thead><tr><th style="width:22%">Critério</th><th>Sessão no servidor</th><th>Token (JWT)</th></tr></thead>
+<tr><td>Onde fica o estado</td><td>Na memória ou banco do servidor</td><td>No próprio token, com o cliente</td></tr>
+<tr><td>Várias instâncias da API</td><td>Exigem sessão compartilhada ou balanceador "grudento"</td><td>Qualquer instância valida, basta ter a chave</td></tr>
+<tr><td>Como viaja</td><td>Cookie de sessão, enviado pelo navegador sozinho</td><td>Header <code>Authorization: Bearer &lt;token&gt;</code></td></tr>
+<tr><td>Revogar</td><td>Apagar a sessão: efeito imediato</td><td>Esperar o vencimento ou consultar algo no servidor</td></tr>
+<tr><td>CSRF</td><td>Precisa de proteção, porque o navegador manda o cookie sozinho</td><td>Não se aplica ao header Bearer, que o código cliente envia de propósito</td></tr>
+</table>
+<p>O token combina com a restrição <em>stateless</em> do REST, vista na Semana 01: cada requisição carrega tudo o que o servidor precisa. O preço aparece na linha "revogar", e a seção 7 volta a ela.</p>
+<p>Uma imagem ajuda: a sessão é a comanda que fica com o garçom; o token é a pulseira do parque de diversões, que você mostra em cada brinquedo. <strong>No ServiceHub</strong>, a configuração de segurança declara <code>SessionCreationPolicy.STATELESS</code>: o Spring não cria sessão HTTP, e cada requisição protegida precisa trazer o token.</p>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. O JWT por dentro <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>JWT</strong> (<em>JSON Web Token</em>, definido na RFC 7519) é um formato compacto para transportar afirmações sobre alguém entre duas partes. O JWT que usamos é assinado segundo o padrão <strong>JWS</strong> (<em>JSON Web Signature</em>, RFC 7515). Na prática ele é um texto com três partes separadas por ponto:</p>
+<pre>eyJhbGciOiJIUzI1NiJ9 . eyJzdWIiOiJhbmEifQ . &lt;assinatura&gt;
+       header                payload            assinatura</pre>
+<table>
+<thead><tr><th style="width:18%">Parte</th><th>O que contém</th><th style="width:34%">Exemplo decodificado</th></tr></thead>
+<tr><td>Header</td><td>JSON que diz o algoritmo da assinatura (<code>alg</code>) e, opcionalmente, o tipo (<code>typ</code>).</td><td><code>{"alg":"HS256"}</code></td></tr>
+<tr><td>Payload</td><td>JSON com as afirmações sobre o usuário, chamadas <strong>claims</strong>.</td><td><code>{"sub":"ana"}</code></td></tr>
+<tr><td>Assinatura</td><td>Calculada sobre o texto <code>header.payload</code> com uma chave. Mudou um caractere, a assinatura deixa de conferir.</td><td>bytes codificados, sem significado legível</td></tr>
+</table>
+
+<h3>Base64URL: codificação, não criptografia</h3>
+<p>Cada parte é codificada em <strong>Base64URL</strong>, uma variante do Base64 adaptada para URLs: troca <code>+</code> por <code>-</code>, <code>/</code> por <code>_</code> e remove o <code>=</code> de preenchimento do fim. O objetivo é que o token viaje em headers e URLs sem precisar de escape. Qualquer pessoa reverte essa codificação: no console do navegador, <code>atob("eyJhbGciOiJIUzI1NiJ9")</code> devolve <code>{"alg":"HS256"}</code>.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>"O JWT é criptografado." Não é. O payload de um JWT assinado é legível por qualquer um que tenha o token. Existe um formato criptografado, o JWE, mas é outro padrão e não é o que usamos. Retome a tabela da Semana 08: Base64URL é <em>codificação</em> (reversível sem chave), a assinatura usa <em>hash</em> com chave, e nada ali é <em>criptografia</em> do conteúdo.</p></div>
+
+<h3>O que a assinatura garante e o que não garante</h3>
+<div class="grid2">
+<div class="card good"><h3 class="ch">Garante</h3>
+<ul>
+<li><strong>Integridade:</strong> ninguém alterou header nem payload depois da emissão.</li>
+<li><strong>Origem:</strong> foi emitido por quem tem a chave.</li>
+<li><strong>Validade</strong>, junto com o claim <code>exp</code>: ainda está dentro do prazo.</li>
+</ul></div>
+<div class="card bad"><h3 class="ch">Não garante</h3>
+<ul>
+<li><strong>Sigilo:</strong> o payload não é cifrado.</li>
+<li><strong>Posse legítima:</strong> quem rouba o token o usa como se fosse o dono.</li>
+<li><strong>Dado atual:</strong> o papel ou o status do usuário podem ter mudado depois da emissão.</li>
+</ul></div>
+</div>
+<p>Dessas limitações saem quatro regras práticas: o token só trafega sobre HTTPS; a validade é curta; nada sensível vai no payload (senha, documento, dados de cartão); e, quando a informação precisa estar atualizada, o servidor confere no banco em vez de confiar no token.</p>
+<p>Um exemplo mostra a força da integridade. Se alguém decodifica o payload, troca <code>"ROLE_CLIENT"</code> por <code>"ROLE_ADMIN"</code> e codifica de novo, a assinatura calculada pelo servidor sobre o novo conteúdo não bate com a assinatura enviada. O token é recusado com 401.</p>
+<div class="warn"><div class="label">Cuidado com o campo alg</div><p>O header diz qual algoritmo foi usado, mas é o <em>servidor</em> que deve decidir quais aceita. Um validador que obedece cegamente ao <code>alg</code> do token abre brecha para ataques em que o atacante declara um algoritmo mais fraco ou nenhum. Configure o validador para aceitar só o algoritmo esperado, como o ServiceHub faz com <code>macAlgorithm(MacAlgorithm.HS256)</code>.</p></div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. HS256 e RS256 <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A assinatura pode ser feita de duas formas. No <strong>HS256</strong>, a assinatura é um <strong>HMAC</strong> (<em>Hash-based Message Authentication Code</em>): o algoritmo mistura um segredo com o conteúdo e aplica SHA-256. Quem assina e quem confere usam o mesmo segredo. No <strong>RS256</strong>, a assinatura é assimétrica, com RSA: um par de chaves em que a privada assina e a pública confere.</p>
+<table>
+<thead><tr><th style="width:20%">Critério</th><th>HS256 (HMAC + SHA-256)</th><th>RS256 (RSA + SHA-256)</th></tr></thead>
+<tr><td>Chaves</td><td>Um segredo compartilhado</td><td>Par: chave privada e chave pública</td></tr>
+<tr><td>Assina com</td><td>O segredo</td><td>A chave privada</td></tr>
+<tr><td>Confere com</td><td>O mesmo segredo</td><td>A chave pública</td></tr>
+<tr><td>Quem confere</td><td>Também consegue emitir tokens</td><td>Só confere; não consegue emitir</td></tr>
+<tr><td>Quando usar</td><td>Um único serviço emite e valida</td><td>Muitos serviços validam o que um emissor assina</td></tr>
+</table>
+<p>Exemplo geral: uma empresa com vinte microsserviços e um servidor de login central. Se usasse HS256, os vinte precisariam conhecer o segredo, e qualquer um deles vazando permitiria forjar tokens para todos. Com RS256, o servidor de login guarda a chave privada e publica a pública; os vinte conferem, mas nenhum consegue emitir.</p>
+<p><strong>No ServiceHub</strong>, a própria API emite e valida o token. Não há terceiro envolvido, então HS256 é suficiente e mais simples. O segredo vem da variável <code>JWT_SECRET</code> e precisa ter pelo menos 32 bytes. O número não é arbitrário: o SHA-256 produz 256 bits (32 bytes), e o padrão de algoritmos JWA pede para o HS256 uma chave de pelo menos esse tamanho. Um segredo menor que a saída do hash enfraquece a assinatura.</p>
+<div class="note"><div class="label">Para lembrar</div><p>Se a API um dia passar a aceitar tokens de um provedor externo (por exemplo, "entrar com o Google"), quem assina passa a ser o provedor, com chave assimétrica. A API troca o decoder para validar com a chave pública do provedor; o resto da cadeia de segurança continua igual.</p></div>
+
+<!-- 6 -->
+<h2 id="s6">6. Claims registradas e privadas <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A RFC 7519 reserva alguns nomes de claim com significado fixo, para que bibliotecas diferentes se entendam. Todas são opcionais; o padrão só garante que, se aparecerem, querem dizer a mesma coisa.</p>
+<table>
+<thead><tr><th style="width:12%">Claim</th><th style="width:24%">Nome</th><th>Significado</th></tr></thead>
+<tr><td><code>iss</code></td><td>Issuer</td><td>Quem emitiu o token</td></tr>
+<tr><td><code>sub</code></td><td>Subject</td><td>De quem o token fala (o usuário)</td></tr>
+<tr><td><code>aud</code></td><td>Audience</td><td>Para quem o token se destina</td></tr>
+<tr><td><code>exp</code></td><td>Expiration time</td><td>Depois deste instante, o token não vale</td></tr>
+<tr><td><code>nbf</code></td><td>Not before</td><td>Antes deste instante, o token ainda não vale</td></tr>
+<tr><td><code>iat</code></td><td>Issued at</td><td>Quando foi emitido</td></tr>
+<tr><td><code>jti</code></td><td>JWT ID</td><td>Identificador único do token</td></tr>
+</table>
+<p>Os tempos são números: segundos desde 1º de janeiro de 1970 em UTC (o "tempo Unix"). Além das registradas existem as <strong>claims privadas</strong>, combinadas entre quem emite e quem consome. Use nomes curtos, porque o token viaja em toda requisição.</p>
+<p><strong>No ServiceHub</strong>, o payload tem quatro claims registradas e duas privadas. Os valores numéricos abaixo são ilustrativos:</p>
+<pre>{
+  "iss":   "servicehub-api",
+  "sub":   "ana@exemplo.com",
+  "uid":   42,
+  "roles": ["ROLE_PROVIDER"],
+  "iat":   1792764000,
+  "exp":   1792850400
+}</pre>
+<ul>
+  <li><code>sub</code> é o e-mail; <code>uid</code> é o id do usuário no banco. O servidor busca o usuário pelo <code>uid</code>, porque o e-mail pode mudar e o id não.</li>
+  <li><code>roles</code> é o papel no momento da emissão. Ele serve ao cliente (um front-end pode esconder botões), mas o servidor não confia nele: o papel válido é o que está no banco agora.</li>
+  <li><code>exp</code> menos <code>iat</code> dá 86 400 segundos, as 24 horas padrão da variável <code>JWT_EXPIRATION_SECONDS</code>.</li>
+</ul>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Expiração, revogação e refresh token <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Expiração</h3>
+<p>O claim <code>exp</code> limita o estrago de um token roubado: passado o prazo, ele não vale mais. Escolher o prazo é um equilíbrio. Curto demais obriga o usuário a fazer login o tempo todo; longo demais amplia a janela em que um atacante usa o token capturado.</p>
+<h3>Revogação</h3>
+<p>Um token sem estado não pode ser "apagado", porque o servidor não guarda nada sobre ele. Para invalidá-lo antes do <code>exp</code>, o servidor precisa consultar alguma coisa a cada requisição: uma lista de tokens bloqueados ou o próprio usuário no banco. Isso é, de propósito, um pouco de estado de volta, aplicado só onde ele compensa.</p>
+<h3>Refresh token</h3>
+<p>Muitos sistemas usam dois tokens. O <strong>token de acesso</strong> é curto (minutos) e vai em cada chamada. O <strong>refresh token</strong> é longo, fica registrado no servidor e só serve para pedir um novo token de acesso. Como o refresh é consultado no servidor, ele pode ser revogado; como o de acesso é curto, ele expira logo. O par reúne a leveza do token com a capacidade de revogar da sessão.</p>
+<p>O custo do refresh são mais peças: endpoint de renovação, armazenamento e rotação do refresh, logout que o revoga. <strong>No ServiceHub</strong> há só token de acesso, de 24 horas, sem refresh. Para compensar, o servidor confere no banco a cada chamada se o usuário segue ativo: desativou, o próximo pedido já é 401 (RN11). Conferir o usuário no banco custa uma consulta por requisição autenticada. O projeto aceita esse custo e o registra no ADR-0003: em troca, desativar alguém ou trocar seu papel vale na hora, sem esperar o token vencer.</p>
+<p>Refresh token é conceito desta semana, não entrega: o contrato não pede renovação de token.</p>
+
+<!-- 8 -->
+<h2 id="s8">8. OAuth 2.0 e resource server <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O <strong>OAuth 2.0</strong> é um padrão de <em>delegação de acesso</em>: ele permite que uma pessoa autorize um aplicativo a acessar dados dela em outro sistema, sem entregar a senha ao aplicativo. O exemplo do dia a dia é o botão "entrar com o Google" num site qualquer. O padrão define quatro papéis:</p>
+<table>
+<thead><tr><th style="width:26%">Papel</th><th>Quem é</th><th style="width:30%">No "entrar com o Google"</th></tr></thead>
+<tr><td>Dono do recurso</td><td>A pessoa cujos dados estão em jogo e que autoriza o acesso.</td><td>Você</td></tr>
+<tr><td>Cliente</td><td>O aplicativo que quer acessar em nome da pessoa.</td><td>O site em que você entra</td></tr>
+<tr><td>Servidor de autorização</td><td>Autentica a pessoa e emite o token de acesso.</td><td>O login do Google</td></tr>
+<tr><td>Resource server</td><td>A API que guarda os dados e aceita o token como prova.</td><td>A API do Google que devolve seu perfil</td></tr>
+</table>
+<p>O OAuth 2.0 trata de autorização delegada. O login federado propriamente dito, em que o site quer saber <em>quem</em> você é, é o <strong>OpenID Connect</strong>, construído por cima do OAuth 2.0. Não vamos implementar nenhum dos dois; o que interessa é o papel de <strong>resource server</strong>, porque é ele que o Spring Security oferece pronto.</p>
+<p><strong>No ServiceHub</strong>, os papéis se simplificam: a própria API emite o token no login (faz as vezes de servidor de autorização) e o valida em cada chamada (é o resource server). Daí o nome da dependência, <code>spring-boot-starter-oauth2-resource-server</code>: ela dá à API a capacidade de validar tokens Bearer.</p>
+
+<h3>O que o resource server faz em cada requisição</h3>
+<figure class="figure">
+<svg viewBox="0 0 700 150" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="b3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="6" y="14" width="150" height="58" rx="7"/><rect x="186" y="14" width="150" height="58" rx="7"/>
+    <rect x="366" y="14" width="150" height="58" rx="7"/><rect x="546" y="14" width="148" height="58" rx="7"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937" font-weight="700"><text x="81" y="37">1. Extrai</text><text x="261" y="37">2. Confere</text><text x="441" y="37">3. Converte</text><text x="620" y="37">4. Autoriza</text></g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10"><text x="81" y="55">lê o Bearer do header</text><text x="261" y="55">assinatura e exp</text><text x="441" y="55">claims viram usuário</text><text x="620" y="55">rota e método</text></g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#b3)"><path d="M158 43 H182"/><path d="M338 43 H362"/><path d="M518 43 H542"/></g>
+  <g text-anchor="middle" font-size="10" fill="#1d4ed8"><text x="81" y="92">BearerToken…Filter</text><text x="261" y="92">JwtDecoder</text><text x="441" y="92">JwtUserConverter</text><text x="620" y="92">FilterChain + @PreAuthorize</text></g>
+  <g text-anchor="middle" font-size="10.5" fill="#b45309"><text x="171" y="128">falhou: 401</text><text x="441" y="128">falhou: 401</text><text x="620" y="128">falhou: 403</text></g>
+  <text x="350" y="146" text-anchor="middle" fill="#6b7280" font-size="10">nenhuma etapa consulta sessão: tudo sai do token e, na conversão, do banco</text>
+</svg>
+<figcaption>As quatro etapas da validação e a peça do Spring (ou do projeto) responsável por cada uma.</figcaption>
+</figure>
+<p>As três primeiras etapas respondem "sei quem você é?"; qualquer falha nelas é 401 (sem token, token adulterado, expirado, usuário inexistente ou inativo). A quarta responde "você pode isto?"; falha nela é 403.</p>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Papel, dono e menor privilégio <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Autorização por papel (RBAC)</h3>
+<p><strong>RBAC</strong> (<em>Role-Based Access Control</em>, controle de acesso baseado em papéis) agrupa permissões em papéis e atribui papéis a pessoas. A regra fica do tipo "só ADMIN lista usuários". A decisão depende só do usuário e pode ser tomada antes de carregar qualquer dado.</p>
+<h3>Autorização por dono do recurso</h3>
+<p>A segunda pergunta é sobre o objeto: "este serviço é seu?". A decisão depende do usuário <em>e</em> do objeto, então só pode ser tomada depois de carregar a entidade do banco. Quando essa checagem falta, a falha tem nome: <strong>BOLA</strong> (<em>Broken Object Level Authorization</em>, autorização quebrada no nível do objeto), o item API1 do OWASP API Security Top 10.</p>
+<table>
+<thead><tr><th style="width:18%">Critério</th><th>Por papel (RBAC)</th><th>Por dono do recurso</th></tr></thead>
+<tr><td>Pergunta</td><td>Este tipo de usuário pode esta operação?</td><td>Este objeto é deste usuário?</td></tr>
+<tr><td>Depende de</td><td>Só do usuário</td><td>Do usuário e do objeto no banco</td></tr>
+<tr><td>Onde decide</td><td>Antes de carregar dados</td><td>Depois de carregar a entidade</td></tr>
+<tr><td>Se faltar</td><td>Usuário comum executa função de admin (API5 do OWASP, autorização quebrada no nível da função)</td><td>BOLA: ver ou alterar o que é de outro (API1)</td></tr>
+<tr><td>ServiceHub</td><td><code>@PreAuthorize("hasRole('ADMIN')")</code></td><td>Só o prestador dono (ou ADMIN) altera o serviço</td></tr>
+</table>
+<div class="note"><div class="label">Exemplo fora do ServiceHub</div><p>Num hospital, ser médico (papel) permite abrir prontuários. Ser o médico daquele paciente (dono da relação) permite alterar aquele prontuário. Um sistema que só confere o papel deixa qualquer médico alterar o prontuário de qualquer paciente.</p></div>
+<div class="warn"><div class="label">Por que BOLA escapa</div><p>Com um usuário só, o código sem checagem de dono funciona perfeitamente: você cria um serviço e consegue editá-lo. A falha só aparece com <strong>dois</strong> usuários, quando Ana troca o id na URL e edita o serviço de Bruno. Por isso a prova desta semana sempre usa dois usuários do mesmo papel.</p></div>
+
+<h3>Os papéis do ServiceHub</h3>
+<table>
+<thead><tr><th style="width:18%">Papel</th><th>O que faz</th></tr></thead>
+<tr><td>CLIENT</td><td>Busca serviços, abre ordens, cancela as suas e avalia o que foi concluído.</td></tr>
+<tr><td>PROVIDER</td><td>Cadastra os próprios serviços e conduz as ordens recebidas. Também pode contratar serviços de outros.</td></tr>
+<tr><td>ADMIN</td><td>Gerencia usuários e papéis e modera serviços. Não contrata serviços. O primeiro ADMIN nasce das variáveis <code>SERVICEHUB_ADMIN_*</code> (ADR-0007); o cadastro público aceita só CLIENT ou PROVIDER (RN03).</td></tr>
+</table>
+<p>Se o corpo do cadastro aceitasse qualquer papel, qualquer pessoa se cadastraria como ADMIN. Esse ataque se chama <strong>mass assignment</strong>: o cliente preenche um campo que não deveria controlar. A defesa é o DTO de entrada aceitar só os campos permitidos e validar o valor.</p>
+
+<h3>Princípio do menor privilégio</h3>
+<p>Cada usuário, serviço ou componente recebe só o acesso de que precisa, e nada além. Exemplo geral: o estagiário recebe a chave da sala dele, não a chave mestra do prédio; se perder a chave, o estrago fica pequeno.</p>
+<p>No ServiceHub o princípio aparece em vários lugares: o cadastro público não cria ADMIN; ADMIN não contrata; o Actuator completo é só para ADMIN; e, principalmente, a cadeia de filtros termina com <code>anyRequest().authenticated()</code>. Essa última linha é o menor privilégio aplicado à configuração: <em>negar por padrão e liberar por exceção</em>. Uma rota nova nasce protegida; para ser pública, alguém precisa liberá-la de propósito.</p>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. 401 ou 403 <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A RFC 9110, que define a semântica do HTTP, separa os dois status pela pergunta que falhou.</p>
+<table>
+<thead><tr><th style="width:20%">Status</th><th>Significa</th><th style="width:38%">O cliente deve</th></tr></thead>
+<tr><td>401 Unauthorized</td><td>Não autenticado: falhou "sei quem você é?". Vem com o header <code>WWW-Authenticate</code>, que diz como se autenticar (<code>Bearer</code>).</td><td>Fazer login e repetir com um token válido.</td></tr>
+<tr><td>403 Forbidden</td><td>Autenticado, mas sem permissão: falhou "você pode isto?".</td><td>Não repetir: outro token do mesmo usuário não muda nada.</td></tr>
+</table>
+<div class="warn"><div class="label">Confusão comum</div><p>O nome "Unauthorized" engana: o 401 é sobre <em>autenticação</em>. Os dois erros típicos em código gerado por IA são devolver 403 para quem não mandou token e devolver 401 para quem tem token válido mas não é dono do objeto.</p></div>
+<p>Algumas APIs respondem 404 em vez de 403 a quem não é dono, para não revelar que o objeto existe. É uma escolha válida desde que esteja no contrato. No ServiceHub, falta de posse é 403, e rota inexistente continua 404 mesmo sem token.</p>
+<p>Os dois erros seguem o mesmo formato ProblemDetail (RFC 9457) do resto da API, com <code>type</code> próprio:</p>
+<pre>HTTP/1.1 401
+WWW-Authenticate: Bearer
+Content-Type: application/problem+json
+
+{
+  "type": "urn:servicehub:problem:unauthorized",
+  "title": "Não autenticado",
+  "status": 401,
+  "detail": "Envie um token válido no header Authorization: Bearer &lt;token&gt;.",
+  "instance": "/api/v1/auth/me"
+}</pre>
+<p>O 403 tem o mesmo formato, com <code>"type": "urn:servicehub:problem:forbidden"</code>, <code>"title": "Acesso negado"</code> e <code>"detail": "Você não tem permissão para esta operação."</code>. O corpo acima está resumido: a resposta real também traz o campo <code>timestamp</code>.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Muitos tutoriais implementam JWT com a biblioteca <code>jjwt</code> e um filtro escrito à mão. O ServiceHub usa o suporte nativo do Spring Security 7, decisão registrada no ADR-0003. São uma dependência, três beans e um converter. Lembre o detalhe do Spring Boot 4: é o <em>starter</em> <code>spring-boot-starter-oauth2-resource-server</code> que liga a auto-configuração; ele traz junto a biblioteca Nimbus JOSE, que faz a parte criptográfica.</p>
+
+<h3>A cadeia de filtros</h3>
+<p>Trecho de <code>security/SecurityConfig.java</code>, resumido (sem CORS, Actuator e documentação):</p>
+<pre>http.csrf(csrf -&gt; csrf.disable())
+    .sessionManagement(s -&gt; s.sessionCreationPolicy(STATELESS))
+    .authorizeHttpRequests(auth -&gt; auth
+        .requestMatchers(HttpMethod.POST,
+                "/api/v1/auth/register", "/api/v1/auth/login").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/v1/services", "/api/v1/services/**",
+                "/api/v1/reviews/**", "/api/v1/info").permitAll()
+        .requestMatchers("/actuator/**").hasRole("ADMIN")
+        .anyRequest().authenticated())
+    .oauth2ResourceServer(oauth -&gt; oauth
+        .jwt(jwt -&gt; jwt.jwtAuthenticationConverter(converter))
+        .authenticationEntryPoint(problems.entryPoint())
+        .accessDeniedHandler(problems.accessDeniedHandler()));</pre>
+<p><code>STATELESS</code> elimina a sessão HTTP; com o token no header, CSRF pode ser desligado. <code>permitAll</code> libera login, cadastro e leitura do catálogo; todo o resto exige token. <code>oauth2ResourceServer</code> liga o filtro do Spring que lê o Bearer, valida com o <code>JwtDecoder</code> e chama o nosso converter. O <code>entryPoint</code> e o <code>accessDeniedHandler</code> vêm do <code>ProblemResponseWriter</code>, para que 401 e 403 gerados nos filtros (antes do controller) saiam no mesmo ProblemDetail do <code>GlobalExceptionHandler</code>. A classe também tem <code>@EnableMethodSecurity</code>, sem a qual <code>@PreAuthorize</code> é ignorado em silêncio.</p>
+
+<h3>Chave, encoder e decoder</h3>
+<pre>@Bean SecretKey jwtSigningKey(JwtProperties properties) {
+    return new SecretKeySpec(properties.secret().getBytes(UTF_8), "HmacSHA256");
+}
+@Bean JwtEncoder jwtEncoder(SecretKey jwtSigningKey) {
+    return new NimbusJwtEncoder(new ImmutableSecret&lt;&gt;(jwtSigningKey));
+}
+@Bean JwtDecoder jwtDecoder(SecretKey jwtSigningKey) {
+    return NimbusJwtDecoder.withSecretKey(jwtSigningKey)
+            .macAlgorithm(MacAlgorithm.HS256).build();
+}</pre>
+<p>O decoder valida assinatura e <code>exp</code> sozinho. É ele que substitui o método <code>isTokenValid</code> que os tutoriais escrevem à mão. O segredo vem de <code>JwtProperties</code>, um <code>record</code> anotado com <code>@ConfigurationProperties("servicehub.jwt")</code> cujo construtor compacto lança <code>IllegalStateException</code> se o segredo faltar ou tiver menos de <code>MIN_SECRET_BYTES = 32</code> bytes, e usa 86 400 segundos quando a expiração não é informada.</p>
+<p>No <code>application.properties</code>, a linha é <code>servicehub.jwt.secret=${JWT_SECRET:}</code>: sem a variável a API não sobe, o que é melhor do que assinar tokens com chave fraca.</p>
+
+<h3>Login e emissão do token</h3>
+<p>O <code>AuthService.login</code> devolve a mesma resposta 401 ("E-mail ou senha inválidos.") para e-mail inexistente, senha errada e conta inativa, para não revelar quais e-mails existem. Quando o e-mail não existe, ele ainda compara a senha com um hash BCrypt fictício (<code>DUMMY_HASH</code>), para que o tempo de resposta também não denuncie. Com o usuário conferido, o <code>TokenService</code> monta as claims e assina:</p>
+
+<pre>Instant now = Instant.now();
+JwtClaimsSet claims = JwtClaimsSet.builder()
+        .issuer("servicehub-api")
+        .subject(user.getEmail())
+        .issuedAt(now)
+        .expiresAt(now.plusSeconds(properties.expirationSeconds()))
+        .claim(CLAIM_USER_ID, user.getId())                       // "uid"
+        .claim(CLAIM_ROLES, List.of(user.getRole().authority()))  // "roles"
+        .build();
+JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+String token = encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+return new TokenResponse(token, "Bearer", properties.expirationSeconds());</pre>
+<p><code>Role.authority()</code> devolve <code>"ROLE_" + name()</code>, o formato que <code>hasRole('PROVIDER')</code> espera. A resposta do login fica <code>{"accessToken": "eyJ...", "tokenType": "Bearer", "expiresIn": 86400}</code>.</p>
+
+<h3>O converter: o usuário ainda está ativo?</h3>
+<pre>public AbstractAuthenticationToken convert(Jwt jwt) {
+    Object uid = jwt.getClaim(TokenService.CLAIM_USER_ID);
+    if (!(uid instanceof Long || uid instanceof Integer)) {
+        throw new DisabledException("Token sem identificação de usuário válida.");
+    }
+    User user = userRepository.findById(((Number) uid).longValue())
+            .filter(User::isActive)
+            .orElseThrow(() -&gt; new DisabledException("Usuário inexistente ou desativado."));
+    return new AuthUserAuthentication(
+            new AuthUser(user.getId(), user.getEmail(), user.getRole()), jwt);
+}</pre>
+<p>O <code>JwtUserConverter</code> recebe um JWT já validado e o transforma no usuário autenticado. Como lê o usuário do banco, ganha duas coisas: usuário desativado depois do login recebe 401 na hora (RN11), e as authorities vêm do papel atual do banco, não do claim <code>roles</code>. Se confiasse no claim, um ADMIN rebaixado continuaria ADMIN por até 24 horas.</p>
+<div class="warn"><div class="label">@Bean, não @Component</div><p>O converter é registrado com <code>@Bean</code> no <code>SecurityConfig</code>. Com <code>@Component</code>, os testes de fatia <code>@WebMvcTest</code> (Semana 10), que carregam todo <code>Converter</code>, tentariam criá-lo sem repositório e quebrariam.</p></div>
+
+<h3>Regra de papel: @PreAuthorize no service</h3>
+<pre>/** RN04: o prestador é sempre o usuário autenticado. */
+@PreAuthorize("hasRole('PROVIDER')")
+public ServiceOfferingResponseDTO createService(ServiceOfferingDTO dto) {
+    User provider = userRepository.findById(currentUser.get().id()).orElseThrow(...);
+    ...
+    service.setProvider(provider);
+    ...
+}</pre>
+<p>A anotação fica no <em>service</em>, para valer em qualquer caminho que chame o método, e o dono vem do token via <code>CurrentUser</code>, nunca do corpo. Outros usos: <code>hasAnyRole('CLIENT', 'PROVIDER')</code> para abrir ordem e <code>hasRole('ADMIN')</code> na gestão de usuários.</p>
+
+<h3>Regra de dono: checagem explícita depois de carregar</h3>
+<pre>private boolean canManage(ServiceOffering service) {
+    return currentUser.find()
+            .map(u -&gt; u.isAdmin() || u.id().equals(service.getProvider().getId()))
+            .orElse(false);
+}
+private void requireOwnerOrAdmin(ServiceOffering service) {
+    if (!canManage(service)) {
+        throw new AccessDeniedException(
+                "Apenas o prestador dono ou um ADMIN pode alterar este serviço.");
+    }
+}</pre>
+<p><code>@PreAuthorize</code> não sabe de quem é o objeto; a checagem de dono vem depois de buscar a entidade e lança <code>AccessDeniedException</code> (403). O mesmo padrão aparece em <code>UserService.requireSelfOrAdmin</code> (RN13), nas ordens e nas avaliações (RN09).</p>
+
+<h3>Do tutorial ao nativo</h3>
+<p>Mesmos conceitos, menos código seu; o <code>@Value("${jwt.secret}")</code> dos tutoriais vira o <code>JwtProperties</code>. Quem preferir <code>jjwt</code> pode usá-lo na API atual, justificando num ADR.</p>
+<table>
+<thead><tr><th style="width:46%">Com jjwt e filtro manual</th><th>Com o Spring Security nativo</th></tr></thead>
+<tr><td><code>JwtService.generateToken</code></td><td><code>TokenService</code> com <code>JwtEncoder</code> (<code>NimbusJwtEncoder</code>, HS256)</td></tr>
+<tr><td><code>JwtAuthFilter extends OncePerRequestFilter</code></td><td><code>BearerTokenAuthenticationFilter</code> do Spring, ligado por <code>.oauth2ResourceServer(jwt)</code></td></tr>
+<tr><td><code>jwtService.isTokenValid</code></td><td><code>NimbusJwtDecoder</code> valida assinatura e <code>exp</code></td></tr>
+<tr><td><code>loadUserByUsername</code> dentro do filtro</td><td><code>JwtUserConverter</code> carrega por <code>uid</code> e rejeita inativos</td></tr>
+</table>
+</section>
+
+<!-- 12 -->
+<section class="page" id="s12">
+<h2>12. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Segurança é onde o código gerado por IA mais engana: passa no teste com um usuário e deixa a porta aberta para o segundo.</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>O que você faz nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>Tabela "papel × rota × dono" tirada do Mapa, com os casos 401 e 403 esperados.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Plano primeiro; starter do resource server, sem jjwt nem filtro manual; código por partes.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Segredo fora do código, papel do banco, dono checado no service, erros em ProblemDetail.</td></tr>
+<tr><td><strong>Provar</strong></td><td>Dois usuários do mesmo papel; usuário desativado repetindo a chamada com o token antigo.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>adiciona login com JWT na API</pre><p>Volta com jjwt antigo, filtro manual, segredo fixo e nenhuma regra de dono.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Fixa versões, starter, claims e segredo, proíbe jjwt, cita as RN e pede plano. É o prompt abaixo.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>A entrega é o login com JWT, as rotas protegidas por papel e por dono, e a prova com dois usuários. O prompt parte da API da Semana 08 (cadastro com BCrypt e validação já prontos):</p>
+<pre style="break-inside:auto">Contexto: API ServiceHub em Java 21, Spring Boot 4.1, Spring Security 7,
+PostgreSQL 16 + Flyway. Já existem POST /api/v1/auth/register (só CLIENT
+ou PROVIDER), BCrypt, SecurityConfig STATELESS e ProblemDetail global.
+
+Objetivo: POST /api/v1/auth/login (público) devolvendo {accessToken,
+tokenType: "Bearer", expiresIn}, GET /api/v1/auth/me e as rotas
+protegidas conforme a tabela de endpoints do Mapa (colada no fim).
+
+Restrições:
+- spring-boot-starter-oauth2-resource-server com NimbusJwtEncoder e
+  NimbusJwtDecoder.withSecretKey(...).macAlgorithm(HS256). NÃO use
+  jjwt, OncePerRequestFilter manual nem WebSecurityConfigurerAdapter.
+- servicehub.jwt.secret=${JWT_SECRET:} lido por um record
+  @ConfigurationProperties que impede a subida sem segredo ou com
+  menos de 32 bytes. Nenhum segredo no código.
+- Claims iss, sub (e-mail), iat, exp (24 h), uid e roles. Sem refresh.
+  STATELESS; anyRequest().authenticated() no fim da cadeia.
+- Converter&lt;Jwt, AbstractAuthenticationToken&gt; como @Bean (não
+  @Component): busca o usuário pelo claim uid, rejeita inexistente ou
+  inativo (RN11) e usa o papel do BANCO, não o claim roles.
+- Login: mesma resposta 401 para e-mail inexistente, senha errada e
+  conta inativa.
+- Papel: @PreAuthorize nos métodos do SERVICE (@EnableMethodSecurity).
+  Dono (RN05 serviço, RN13 perfil): AccessDeniedException explícita no
+  service, depois de carregar a entidade. Prestador vem do token.
+- 401 (WWW-Authenticate: Bearer) e 403 em ProblemDetail, nos filtros
+  e no GlobalExceptionHandler.
+
+Antes do código, mostre o plano: arquivos a criar ou alterar e a
+tabela papel x rota x dono que você entendeu. Espere minha aprovação.
+
+Critério de aceite: testes de integração com
+(a) rota protegida sem token: 401 em ProblemDetail;
+(b) token com um caractere alterado: 401;
+(c) CLIENT em POST /api/v1/services: 403;
+(d) PROVIDER Ana em PUT no serviço do PROVIDER Bruno: 403; Bruno: 200;
+(e) usuário desativado pelo ADMIN, com o token que já tinha: 401.
+
+Endpoints do Mapa: &lt;cole aqui&gt;</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li>Usar <code>WebSecurityConfigurerAdapter</code> (removido) ou <code>jjwt</code> com <code>setClaims</code> e <code>signWith(key, SignatureAlgorithm)</code>, APIs antigas e depreciadas.</li>
+  <li>Segredo fixo ou curto; authorities lidas do claim <code>roles</code> em vez do banco.</li>
+  <li>Só <code>@PreAuthorize</code>, sem checagem de dono; <code>providerId</code> lido do corpo.</li>
+  <li>Converter com <code>@Component</code>; 401 e 403 com corpo vazio ou HTML, ou trocados.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>O <code>pom.xml</code> tem <code>spring-boot-starter-oauth2-resource-server</code> e não tem <code>jjwt</code>?</li>
+  <li>A API se recusa a subir sem <code>JWT_SECRET</code> ou com segredo de menos de 32 bytes?</li>
+  <li>O converter busca por <code>uid</code>, rejeita inativos e usa o papel do banco? É <code>@Bean</code>?</li>
+  <li>Cada alteração de serviço e de perfil tem checagem de dono no service?</li>
+</ul>
+<h3>Prova</h3>
+<p>Testes do critério de aceite verdes. À mão, com o serviço 1 do Bruno e o token da Ana, a resposta tem de ser 403 em <code>application/problem+json</code>; depois de o ADMIN desativar Ana, <code>GET /api/v1/auth/me</code> com o token antigo dela tem de dar 401.</p>
+<pre>curl -i -X PUT localhost:8090/api/v1/services/1 -H "Authorization: Bearer $TOKEN_ANA" \
+  -H "Content-Type: application/json" -d '{"title":"Faxina","price":120,"category":"LIMPEZA"}'</pre>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Autenticação</dt><dd>Conferir quem está chamando, a partir de uma prova de identidade.</dd>
+  <dt>Autorização</dt><dd>Decidir se quem já foi identificado pode executar a operação sobre aquele objeto.</dd>
+  <dt>Sessão</dt><dd>Registro guardado no servidor sobre um cliente, identificado por um id enviado em cookie.</dd>
+  <dt>JWT</dt><dd>JSON Web Token: texto compacto com header, payload e assinatura (RFC 7519).</dd>
+  <dt>Claim</dt><dd>Afirmação dentro do payload, como <code>sub</code> ou <code>exp</code>.</dd>
+  <dt>Base64URL</dt><dd>Codificação reversível de bytes em texto seguro para URL; não é criptografia.</dd>
+  <dt>HMAC</dt><dd>Código de autenticação de mensagem que combina um segredo com um hash; base do HS256.</dd>
+  <dt>HS256 / RS256</dt><dd>Assinatura com segredo compartilhado / com par de chaves privada e pública.</dd>
+  <dt>Bearer</dt><dd>Esquema do header <code>Authorization</code>: quem porta o token tem o acesso.</dd>
+  <dt>Refresh token</dt><dd>Token longo, guardado no servidor, usado só para obter novo token de acesso.</dd>
+  <dt>OAuth 2.0</dt><dd>Padrão de delegação de acesso com dono do recurso, cliente, servidor de autorização e resource server.</dd>
+  <dt>Resource server</dt><dd>API que aceita um token de acesso como prova e protege os dados.</dd>
+  <dt>RBAC</dt><dd>Controle de acesso baseado em papéis.</dd>
+  <dt>BOLA</dt><dd>Falha em que um usuário acessa objeto de outro porque falta a checagem de dono (OWASP API1).</dd>
+  <dt>Menor privilégio</dt><dd>Dar a cada parte só o acesso de que ela precisa; negar por padrão.</dd>
+  <dt>Mass assignment</dt><dd>Ataque em que o cliente preenche campos que não deveria controlar, como o papel.</dd>
+</dl>
+
+<!-- 14 -->
+<h2 id="s14">14. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Explique a diferença entre autenticação e autorização e dê, para cada uma, um exemplo de falha no ServiceHub com o status HTTP correspondente.</li>
+  <li>Uma API roda em quatro instâncias atrás de um balanceador. Compare o que é preciso fazer para manter o usuário logado com sessão no servidor e com JWT.</li>
+  <li>Decodifique mentalmente (ou no console) o trecho <code>eyJzdWIiOiJhbmEifQ</code>. O que isso prova sobre o sigilo do payload? Cite duas coisas que nunca devem ir no payload.</li>
+  <li>Um colega diz: "como o token é assinado, posso guardar nele o papel e nunca mais consultar o banco". Aponte o problema usando o que a assinatura não garante e diga como o ServiceHub resolve.</li>
+  <li>Uma empresa tem um servidor de login e quinze APIs que precisam validar os tokens. HS256 ou RS256? Justifique pelo risco de vazamento.</li>
+  <li>Por que <code>JwtProperties</code> exige pelo menos 32 bytes? O que acontece se <code>JWT_SECRET</code> não estiver definida, e por que isso é desejável?</li>
+  <li>Analise o código: <code>@PreAuthorize("hasRole('PROVIDER')") public void update(Long id, ServiceOfferingDTO dto) { var s = repo.findById(id).orElseThrow(); apply(s, dto); }</code>. Qual regra do Mapa ele viola, qual o nome da falha e como corrigir?</li>
+  <li>Classifique cada caso em 401, 403 ou 404: (a) GET <code>/api/v1/auth/me</code> sem header; (b) CLIENT faz GET <code>/api/v1/users</code>; (c) token com <code>exp</code> vencido; (d) PROVIDER apaga serviço de outro; (e) GET <code>/api/v1/rota-que-nao-existe</code> sem token; (f) usuário desativado usa token emitido ontem.</li>
+  <li>Por que o <code>JwtUserConverter</code> é registrado como <code>@Bean</code> e não como <code>@Component</code>? Que tipo de teste quebraria?</li>
+  <li>Explique o que é refresh token e que problema ele resolve. Por que o ServiceHub consegue ficar sem ele sem perder a capacidade de bloquear um usuário?</li>
+  <li>Escreva um prompt para pedir à IA apenas os testes de integração de BOLA da rota <code>PUT /api/v1/users/{id}</code> (RN13). Indique os dois usuários envolvidos, os status esperados e o que você conferiria no código gerado.</li>
+</ol>
+
+<!-- 15 -->
+<h2 id="s15">15. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>RODRIGUES, T. N. et al. <em>Integração de aplicações</em>. Grupo A, 2020. Capítulo "Segurança em webservices".</li>
+  <li>PRESSMAN, R. S.; MAXIM, B. R. <em>Engenharia de software</em>. 9. ed. Grupo A, 2021. Capítulo 18 (engenharia de segurança), em revisão.</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>RFC 7519, <em>JSON Web Token (JWT)</em>: seções 3 (estrutura) e 4.1 (claims registradas). <code>rfc-editor.org</code>. Leia com um token real do projeto decodificado ao lado.</li>
+  <li>RFC 9110, <em>HTTP Semantics</em>: status 401 e 403.</li>
+  <li>Documentação do Spring Security: <em>OAuth 2.0 Resource Server — JWT</em> e <em>Method Security</em> (<code>@PreAuthorize</code>). <code>docs.spring.io/spring-security</code>.</li>
+  <li>OWASP API Security Top 10: API1 (Broken Object Level Authorization) e API5 (Broken Function Level Authorization). <code>owasp.org</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

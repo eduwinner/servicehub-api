@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 16 — Checkpoint final, banca e revisão para a 3ª VA</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 16 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semanas 16 a 18<br>Checkpoint final, banca e revisão para a 3ª VA</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Esta apostila acompanha a reta final do semestre. Nas semanas 16 a 18 a sua API passa por três provas: o checklist dos critérios de aceite do Mapa de Construção, a bancada de testes rodando ao vivo e a banca, que pergunta por que cada decisão foi tomada. A teoria desta apostila trata do que sustenta essa conversa: como defender uma escolha técnica, como argumentar um trade-off, como apresentar uma arquitetura com o modelo C4, como declarar dívida técnica e limitações com honestidade e como uma API de qualidade é avaliada. No fim, uma síntese do semestre e os pontos de revisão para a 3ª VA, na semana 19.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">O que é uma defesa técnica</a></li>
+      <li><a href="#s3">Trade-offs: como argumentar</a></li>
+      <li><a href="#s4">Apresentar arquitetura: o modelo C4</a></li>
+      <li><a href="#s5">Dívida técnica e limitações</a></li>
+      <li><a href="#s6">Rubrica de qualidade de uma API</a></li>
+      <li><a href="#s7">Como a bancada valida o contrato</a></li>
+      <li><a href="#s8">O checkpoint final no ServiceHub</a></li>
+      <li><a href="#s9">A banca: roteiro e perguntas</a></li>
+      <li><a href="#s10">Síntese do semestre e revisão para a 3ª VA</a></li>
+      <li><a href="#s11">Construindo com IA</a></li>
+      <li><a href="#s12">Glossário</a></li>
+      <li><a href="#s13">Exercícios</a></li>
+      <li><a href="#s14">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final das semanas 16 a 18 você deve ser capaz de:</p>
+<ol>
+  <li>conduzir uma defesa técnica, explicando uma decisão pelo problema, pelas alternativas, pelo critério, pelo custo e pela evidência;</li>
+  <li>desenhar e apresentar a arquitetura do ServiceHub nos níveis de contexto, container e componente do modelo C4;</li>
+  <li>distinguir dívida técnica de defeito e declarar as limitações reais do projeto com motivo, impacto e caminho de solução;</li>
+  <li>autoavaliar a API com uma rubrica de qualidade e conferir, item a item, os critérios de aceite da seção 12 do Mapa;</li>
+  <li>explicar o que cada um dos 15 passos da bancada de testes verifica e diagnosticar um passo vermelho a partir do motivo informado.</li>
+</ol>
+
+<div class="note"><div class="label">Calendário da reta final</div>
+<p>A banca acontece entre as semanas 16 e 18. Data, horário e ordem das equipes são divulgados no AVA, conforme o calendário de eventos da instituição. A versão que vai à banca é a marcada com a tag <code>etapa-final</code> no repositório da equipe. A 3ª VA vem depois, na semana 19, e cobra os conceitos do semestre, não só o projeto.</p></div>
+
+<!-- 2 -->
+<h2 id="s2">2. O que é uma defesa técnica <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>defesa técnica</strong> é a explicação de uma escolha de engenharia diante de quem pode questioná-la. Ela não tenta provar que a solução é perfeita, porque nenhuma é. Ela mostra que a solução foi escolhida <em>de propósito</em>: a equipe sabia qual problema estava resolvendo, considerou outras opções, usou um critério claro e sabe o que pagou pela escolha.</p>
+<p>Código que funciona pode ter sido copiado, gerado ou montado por tentativa e erro; a única forma de saber se a equipe domina o que entregou é perguntar <em>por quê</em>.</p>
+
+<div class="note"><div class="label">Analogia</div>
+<p>Um médico que explica um tratamento não diz apenas "tome este remédio". Ele diz qual é o diagnóstico, quais opções existiam, por que escolheu esta e quais riscos ela traz. O paciente pode até preferir outra opção, mas sabe que a escolha não foi aleatória. A defesa técnica tem a mesma estrutura.</p></div>
+
+<h3>Descrever não é defender</h3>
+<p>A confusão mais comum na banca é responder com uma descrição. Descrever é dizer <em>o que</em> foi feito. Defender é dizer <em>por que</em>, <em>em vez de quê</em> e <em>a que custo</em>.</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Descrição</h3><p>"Usamos JWT para autenticação."</p><p>Correto, mas não mostra se a equipe entende a escolha. Qualquer pessoa que leu o <code>pom.xml</code> diria o mesmo.</p></div>
+<div class="card good"><h3 class="ch">Defesa</h3><p>"Usamos JWT em vez de sessão no servidor porque a API é sem estado. O custo é que um token emitido não pode ser revogado facilmente. Para reduzir isso, o usuário do token é conferido no banco a cada requisição: desativado, recebe 401."</p></div>
+</div>
+
+<h3>As cinco partes de uma boa resposta</h3>
+<table>
+<thead><tr><th style="width:18%">Parte</th><th>Pergunta que responde</th><th style="width:38%">Exemplo genérico (app de agendamento)</th></tr></thead>
+<tr><td>Problema</td><td>Que força obrigou a decidir?</td><td>Dois clientes podem reservar o mesmo horário ao mesmo tempo.</td></tr>
+<tr><td>Alternativas</td><td>O que mais foi considerado?</td><td>Verificar no código antes de gravar, ou uma restrição de unicidade no banco.</td></tr>
+<tr><td>Critério</td><td>O que pesou mais?</td><td>Garantia sob concorrência.</td></tr>
+<tr><td>Custo</td><td>O que se perdeu?</td><td>Tratar a exceção do banco e traduzi-la num erro claro.</td></tr>
+<tr><td>Evidência</td><td>Como você sabe que funciona?</td><td>Um teste que tenta duas reservas iguais e recebe 409 na segunda.</td></tr>
+</table>
+<p>No ServiceHub essa estrutura já existe por escrito: são os <strong>ADRs</strong> (<em>Architecture Decision Records</em>, registros de decisão de arquitetura) da pasta <code>docs/adr/</code>, no formato proposto por Michael Nygard, com contexto, decisão e consequências. O Mapa pede ao menos três; na banca, o ADR é o roteiro da resposta.</p>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. Trade-offs: como argumentar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Trade-off</strong> é uma troca: ganhar uma característica abrindo mão de outra. Richards e Ford resumem a arquitetura de software numa frase conhecida, a de que tudo em arquitetura é um trade-off. A consequência prática é direta: se uma escolha parece ter só vantagens, a análise ainda não terminou.</p>
+
+<p>O argumento segue os mesmos cinco passos da defesa técnica (seção 2): contexto, opções, critério, custo e evidência. Sem o custo, é propaganda; sem a evidência, é opinião.</p>
+
+<h3>Um exemplo fora do ServiceHub</h3>
+<p>O catálogo de uma loja virtual recebe muito mais leituras do que alterações (contexto). A equipe pode consultar o banco a cada visita ou guardar o catálogo em cache por alguns minutos (opções). A velocidade de leitura pesou mais (critério), então escolheu o cache. Em troca, um preço alterado pode levar alguns minutos para aparecer (custo). Um teste de carga comparando as duas versões mostra a diferença de tempo de resposta (evidência).</p>
+<p>O argumento não diz que cache é "melhor": diz que, <em>naquele contexto</em> e com <em>aquele critério</em>, ele venceu. Para o saldo de uma conta bancária, a consistência pesaria mais, e a escolha seria outra.</p>
+
+<h3>O mesmo raciocínio no ServiceHub</h3>
+<p>O ADR-0005 decide entre H2 e Testcontainers nos testes. <strong>Contexto:</strong> as migrações Flyway usam SQL que só o PostgreSQL entende, como <code>BIGSERIAL</code> e <code>CHECK (status IN (...))</code>. <strong>Opções:</strong> H2 em memória, sem dependências; ou PostgreSQL 16 real num container. <strong>Critério:</strong> fidelidade ao banco de produção. <strong>Custo:</strong> Docker obrigatório para rodar <code>mvnw verify</code> e alguns segundos a mais por execução. <strong>Evidência:</strong> <code>mvnw verify</code> aplica as migrações reais e roda os testes de integração contra elas, inclusive no GitHub Actions.</p>
+
+<div class="warn"><div class="label">Confusão comum</div><p>"Porque é a melhor prática" não é critério, é apelo à autoridade. A banca vai perguntar: melhor para quê, em que contexto, comparada com o quê? Outra armadilha é listar só vantagens. Quem não sabe o custo da própria decisão provavelmente não decidiu: aceitou o que veio pronto, às vezes da IA.</p></div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. Apresentar arquitetura: o modelo C4 <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Na banca você vai precisar mostrar como o sistema é organizado em poucos minutos. Um diagrama sem convenção vira um amontoado de caixas e setas que cada pessoa lê de um jeito. O <strong>modelo C4</strong>, proposto por Simon Brown, resolve isso com uma ideia simples: descrever o software em <strong>níveis de zoom</strong>, cada um para um público, como um mapa digital que vai do país à rua. Para a banca, contexto e container quase sempre bastam. Richards e Ford o apresentam ao lado de UML e ArchiMate como forma de diagramar arquitetura.</p>
+
+<table>
+<thead><tr><th style="width:16%">Nível</th><th>O que mostra</th><th style="width:26%">Para quem</th></tr></thead>
+<tr><td>1. Contexto</td><td>O sistema como uma caixa só, as pessoas que o usam e os sistemas externos com que conversa.</td><td>Qualquer público, inclusive não técnico.</td></tr>
+<tr><td>2. Container</td><td>As partes que rodam separadamente (aplicações, bancos, filas) e como se comunicam.</td><td>Equipe técnica e banca.</td></tr>
+<tr><td>3. Componente</td><td>Os blocos principais dentro de um container e a responsabilidade de cada um.</td><td>Quem vai mexer no código.</td></tr>
+<tr><td>4. Código</td><td>Classes e relações. Raramente desenhado à mão: a IDE já mostra.</td><td>Casos pontuais.</td></tr>
+</table>
+
+
+<h3>Um exemplo genérico: biblioteca universitária</h3>
+<p>No <strong>contexto</strong>, há uma caixa "Sistema da biblioteca", as pessoas "aluno" e "bibliotecário" e o sistema externo "cadastro acadêmico", que informa quem está matriculado. No nível de <strong>container</strong>, a caixa se abre em um aplicativo web, uma API e um banco de dados, com setas dizendo "HTTPS + JSON" e "SQL". No nível de <strong>componente</strong>, a API se abre em empréstimos, multas e catálogo.</p>
+
+<div class="warn"><div class="label">Confusão comum</div><p>"Container" no C4 não significa container Docker. É qualquer coisa que roda e guarda estado separadamente: uma aplicação, um banco, um app de celular. Às vezes coincide com um container Docker, como no ServiceHub, mas não é a mesma ideia.</p></div>
+
+<h3>O ServiceHub no nível de container</h3>
+<figure class="figure">
+<svg viewBox="0 0 700 250" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12">
+  <defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <rect x="2" y="2" width="696" height="246" fill="#fafbfd" stroke="#d1d5db" stroke-width="1" rx="6"/>
+  <text x="14" y="20" fill="#6b7280" font-size="10.5">Diagrama de container · ServiceHub API</text>
+  <rect x="16" y="70" width="170" height="110" rx="10" fill="#e8eefc" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="101" y="98" text-anchor="middle" font-weight="700" fill="#1d4ed8">Usuários e clientes</text>
+  <text x="101" y="118" text-anchor="middle" fill="#1f2937" font-size="10.5">cliente, prestador, admin</text>
+  <text x="101" y="138" text-anchor="middle" fill="#6b7280" font-size="10">bancada de testes (5173),</text>
+  <text x="101" y="152" text-anchor="middle" fill="#6b7280" font-size="10">Swagger em /docs, Postman</text>
+  <rect x="236" y="34" width="448" height="200" rx="8" fill="none" stroke="#9ca3af" stroke-width="1.3" stroke-dasharray="6 4"/>
+  <text x="460" y="52" text-anchor="middle" fill="#6b7280" font-size="10.5">o que o docker compose up -d --build sobe</text>
+  <rect x="262" y="70" width="180" height="110" rx="10" fill="#e7f5ef" stroke="#047857" stroke-width="1.5"/>
+  <text x="352" y="96" text-anchor="middle" font-weight="700" fill="#047857">API ServiceHub</text>
+  <text x="352" y="116" text-anchor="middle" fill="#1f2937" font-size="10.5">Java 21 · Spring Boot 4</text>
+  <text x="352" y="134" text-anchor="middle" fill="#6b7280" font-size="10">porta 8090 no host</text>
+  <text x="352" y="150" text-anchor="middle" fill="#6b7280" font-size="10">rotas em /api/v1</text>
+  <text x="352" y="166" text-anchor="middle" fill="#6b7280" font-size="10">saúde em /actuator/health</text>
+  <rect x="496" y="70" width="170" height="110" rx="10" fill="#e7f5ef" stroke="#047857" stroke-width="1.5"/>
+  <text x="581" y="96" text-anchor="middle" font-weight="700" fill="#047857">PostgreSQL 16</text>
+  <text x="581" y="116" text-anchor="middle" fill="#1f2937" font-size="10.5">users, services,</text>
+  <text x="581" y="132" text-anchor="middle" fill="#1f2937" font-size="10.5">service_requests, reviews</text>
+  <text x="581" y="152" text-anchor="middle" fill="#6b7280" font-size="10">volume pg_data</text>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#c1)"><path d="M187 125 H258"/><path d="M443 125 H492"/></g>
+  <text x="222" y="114" text-anchor="middle" fill="#1d4ed8" font-size="10">HTTP + JSON</text>
+  <text x="222" y="142" text-anchor="middle" fill="#1d4ed8" font-size="10">token JWT</text>
+  <text x="468" y="114" text-anchor="middle" fill="#1d4ed8" font-size="10">JDBC</text>
+  <text x="468" y="142" text-anchor="middle" fill="#1d4ed8" font-size="10">Flyway</text>
+  <text x="460" y="210" text-anchor="middle" fill="#6b7280" font-size="10">azul: pessoas e clientes externos · verde: o que a equipe construiu · tracejado: escopo do Compose</text>
+</svg>
+<figcaption>Nível 2 do C4 para o ServiceHub. Cada seta diz o que trafega; a legenda explica cores e molduras.</figcaption>
+</figure>
+<p>O pgAdmin, que o Compose do projeto sobe só no perfil <code>tools</code>, fica fora do diagrama principal: é ferramenta de apoio, não parte do sistema. O diagrama mostra o que é <em>necessário</em> para o sistema funcionar.</p>
+
+<h3>O zoom seguinte: componentes da API</h3>
+<figure class="figure">
+<svg viewBox="0 0 700 150" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <rect x="2" y="2" width="696" height="146" fill="#fafbfd" stroke="#047857" stroke-width="1.2" rx="6"/>
+  <text x="14" y="20" fill="#047857" font-size="10.5" font-weight="700">API ServiceHub (componentes)</text>
+  <g fill="#fff" stroke="#047857" stroke-width="1.3">
+    <rect x="14" y="34" width="150" height="58" rx="7"/><rect x="190" y="34" width="150" height="58" rx="7"/>
+    <rect x="366" y="34" width="150" height="58" rx="7"/><rect x="542" y="34" width="144" height="58" rx="7"/>
+  </g>
+  <g text-anchor="middle" font-weight="700" fill="#1f2937">
+    <text x="89" y="57">Filtros de segurança</text><text x="265" y="57">Controllers</text><text x="441" y="57">Services</text><text x="614" y="57">Repositories</text>
+  </g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10">
+    <text x="89" y="76">JWT, CORS, X-Request-Id</text><text x="265" y="76">rotas, DTOs, @Valid</text><text x="441" y="76">regras RN, transação</text><text x="614" y="76">Spring Data JPA</text>
+  </g>
+  <g stroke="#047857" stroke-width="1.6" marker-end="url(#c2)"><path d="M165 63 H186"/><path d="M341 63 H362"/><path d="M517 63 H538"/></g>
+  <rect x="190" y="106" width="326" height="32" rx="7" fill="#fdf3e6" stroke="#b45309" stroke-width="1.2"/>
+  <text x="353" y="126" text-anchor="middle" fill="#1f2937" font-size="10.5"><tspan font-weight="700">GlobalExceptionHandler</tspan>: toda exceção vira ProblemDetail</text>
+</svg>
+<figcaption>Nível 3 do C4: a caixa verde da API aberta nos blocos que a equipe programou.</figcaption>
+</figure>
+
+<h3>Quatro regras para apresentar</h3>
+<ul>
+  <li><strong>O todo antes da parte.</strong> Mostre onde a peça se encaixa antes de dar zoom nela.</li>
+  <li><strong>Título e legenda.</strong> Todo diagrama diz o que mostra e o que cada forma, cor e linha significa. Formas iguais para coisas diferentes, como a mesma caixa para banco e para fila, confundem.</li>
+  <li><strong>Setas com rótulo.</strong> Uma seta sem rótulo não diz nada. Escreva o que trafega e em que sentido.</li>
+  <li><strong>O slide é metade.</strong> O slide mostra; quem apresenta explica. Richards e Ford recomendam revelar o diagrama aos poucos, na ordem da fala.</li>
+</ul>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. Dívida técnica e limitações <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Dívida técnica</strong> é o custo futuro de um atalho tomado hoje. A metáfora é de Ward Cunningham: como num empréstimo, o atalho dá velocidade agora, mas cobra <strong>juros</strong>. Enquanto a dívida não é paga, com refatoração, cada mudança naquele trecho sai mais cara.</p>
+<p>Exemplo genérico de juros: uma regra de desconto foi copiada em cinco lugares para entregar rápido. No dia em que a regra mudar, será preciso alterar os cinco trechos e lembrar de todos. Esquecer um gera um defeito que ninguém percebe até o cliente reclamar.</p>
+
+<h3>O quadrante de Fowler</h3>
+<p>Martin Fowler classificou a dívida em dois eixos: se foi tomada de propósito (deliberada) ou sem perceber (inadvertida), e se foi uma decisão sensata (prudente) ou descuidada (imprudente).</p>
+<table>
+<thead><tr><th style="width:18%"></th><th>Imprudente</th><th>Prudente</th></tr></thead>
+<tr><td><strong>Deliberada</strong></td><td>"Não temos tempo para testes."</td><td>"Entregamos agora, anotamos o atalho e pagamos na próxima etapa."</td></tr>
+<tr><td><strong>Inadvertida</strong></td><td>"Camadas? O controller fala direto com o banco."</td><td>"Só agora entendemos como deveríamos ter feito."</td></tr>
+</table>
+<p>Dívida não é pecado; o problema é a dívida <em>escondida</em>. A dívida deliberada e prudente é registrada, com motivo e plano de pagamento, num ADR, no README ou numa issue. Código gerado por IA e aceito sem revisão costuma cair no quadrante inadvertido e imprudente: ninguém decidiu nada, apenas aceitou.</p>
+
+<div class="warn"><div class="label">Dívida não é defeito</div><p>Um defeito é o sistema fazendo algo errado, como devolver 500 quando deveria devolver 409. Dívida é o sistema fazendo o certo de um jeito que encarece as mudanças. Defeito se corrige antes da banca; dívida se declara.</p></div>
+
+<h3>Declarar limitações com honestidade</h3>
+<p>Uma <strong>limitação</strong> é algo que o sistema conscientemente não faz. Uma limitação declarada mostra domínio; uma descoberta pela banca mostra descuido. A forma de declarar tem sempre quatro colunas: o quê, por quê, impacto e caminho.</p>
+<p>O projeto de referência do ServiceHub tem estas limitações reais:</p>
+<table>
+<thead><tr><th style="width:20%">Limitação</th><th style="width:22%">Por que ficou assim</th><th style="width:26%">Impacto</th><th>Como resolveríamos</th></tr></thead>
+<tr><td>Sem limite de taxa (<em>rate limiting</em>)</td><td>Fora do escopo do semestre.</td><td>O login fica exposto a tentativas em massa de senha (força bruta).</td><td>Limite de requisições por cliente num gateway ou num filtro, respondendo 429.</td></tr>
+<tr><td>Sem rastreamento distribuído (<em>tracing</em>)</td><td>Há uma única API; o <code>X-Request-Id</code> já liga a requisição às linhas de log.</td><td>Não seria possível seguir uma chamada através de outros serviços.</td><td>Tracing com identificadores de <em>trace</em> e <em>span</em>, se surgirem outros serviços.</td></tr>
+<tr><td>Só a v1, sem headers de depreciação</td><td>Ainda não houve mudança incompatível no contrato.</td><td>Nenhum hoje; vira risco quando nascer a v2.</td><td>Filtro que emite os headers <code>Deprecation</code> e <code>Sunset</code> nas rotas da v1.</td></tr>
+<tr><td>Métricas lidas com token de ADMIN</td><td>Simplicidade no ambiente da disciplina.</td><td>Um coletor de métricas precisaria guardar uma credencial.</td><td>Porta de gerenciamento separada, acessível só na rede interna.</td></tr>
+</table>
+<div class="note"><div class="label">Para lembrar</div><p>"Não deu tempo" é desculpa, não limitação. A coluna do caminho é o que transforma a frase em engenharia: mostra que a equipe sabe como resolveria e o que isso custaria.</p></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. Rubrica de qualidade de uma API <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>rubrica</strong> é uma tabela de critérios com níveis de desempenho descritos, usada para avaliar algo de forma consistente. Ela troca a impressão geral por perguntas com resposta verificável.</p>
+<table>
+<thead><tr><th style="width:17%">Critério</th><th style="width:33%">A pergunta</th><th>Evidência que responde</th></tr></thead>
+<tr><td>Consistência</td><td>Toda rota segue as mesmas convenções?</td><td>Mesmos nomes, mesmos status e ProblemDetail em 400, 401, 403, 404 e 409.</td></tr>
+<tr><td>Segurança</td><td>Só quem pode faz, e nada sensível vaza?</td><td>401 sem token, 403 na ordem alheia, nenhuma senha ou hash na resposta.</td></tr>
+<tr><td>Documentação</td><td>Alguém de fora usa e entende sem o autor?</td><td>Swagger em <code>/docs</code> coerente com as respostas reais; README e ADRs.</td></tr>
+<tr><td>Testabilidade</td><td>As regras estão protegidas por testes?</td><td><code>mvnw verify</code> verde; quebrar uma regra deixa um teste vermelho.</td></tr>
+<tr><td>Operabilidade</td><td>Sobe, se diagnostica e se observa sem heroísmo?</td><td><code>docker compose up</code>, health UP, <code>X-Request-Id</code>, logs e métricas.</td></tr>
+</table>
+<p>Cada critério tem três níveis: <strong>ausente</strong>, <strong>parcial</strong> ou <strong>atendido com evidência</strong>. Só o terceiro se defende na banca. "Temos testes" é parcial; "temos um teste por regra, e aqui está o que falha se eu quebrar a RN09" é atendido com evidência.</p>
+<p>A rubrica serve de autoavaliação; os critérios oficiais estão na seção 12 do Mapa (seção 8 desta apostila). Onde der "parcial", corrija até a banca ou declare a limitação.</p>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Como a bancada valida o contrato <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A <strong>bancada de testes</strong> é uma ferramenta que roda a mesma sequência de chamadas contra a API de cada equipe e confere, passo a passo, se as respostas cumprem o contrato do Mapa. Ela é um teste de <strong>caixa-preta</strong>: não lê o seu código, só fala HTTP com a API, como faria qualquer cliente real. Por isso ela é justa: a mesma ferramenta, com as mesmas verificações, para todas as equipes.</p>
+<p>Fora da disciplina, a ideia se chama suíte de conformidade: o dono de um contrato a roda contra cada implementação. A bancada fica na pasta <code>frontend/</code> do projeto de referência. É HTML, CSS e JavaScript puro, sem etapa de build; o Playwright apenas dirige um navegador por ela e transforma cada passo numa etapa do relatório.</p>
+
+<h3>Os 15 passos</h3>
+<table>
+<thead><tr><th style="width:5%">#</th><th style="width:30%">Passo</th><th style="width:32%">Chamada</th><th>O que confere</th></tr></thead>
+<tr><td>1</td><td>API no ar</td><td><code>GET /api/v1/info</code></td><td>200 e <code>status</code> igual a "OK"</td></tr>
+<tr><td>2–3</td><td>Cadastrar prestador e cliente</td><td><code>POST /api/v1/auth/register</code></td><td>201, <code>id</code>, papel correto, nenhuma senha na resposta</td></tr>
+<tr><td>4–5</td><td>Login de cada um</td><td><code>POST /api/v1/auth/login</code></td><td>200 e <code>accessToken</code></td></tr>
+<tr><td>6</td><td>Prestador publica serviço</td><td><code>POST /api/v1/services</code></td><td>201 e <code>providerId</code> igual ao do token</td></tr>
+<tr><td>7</td><td>Cliente contrata</td><td><code>POST …/service-requests</code></td><td>201, PENDING, <code>totalPrice</code> copiado</td></tr>
+<tr><td>8–10</td><td>Prestador aceita, inicia, conclui</td><td><code>PATCH …/{id}/status</code></td><td>200 e status ACCEPTED, IN_PROGRESS, COMPLETED</td></tr>
+<tr><td>11</td><td>Cliente avalia</td><td><code>POST …/{id}/reviews</code></td><td>201 e nota 5</td></tr>
+<tr><td>12</td><td>Avaliações públicas</td><td><code>GET …/services/{id}/reviews</code></td><td>200, página com a avaliação em <code>content</code></td></tr>
+<tr><td>13</td><td>Sem token não cria serviço</td><td><code>POST /api/v1/services</code></td><td>401 em ProblemDetail, <code>type</code> …<code>unauthorized</code></td></tr>
+<tr><td>14</td><td>Cliente não publica serviço</td><td><code>POST /api/v1/services</code></td><td>403 em ProblemDetail, <code>type</code> …<code>forbidden</code></td></tr>
+<tr><td>15</td><td>Ordem concluída não volta a PENDING</td><td><code>PATCH …/{id}/status</code></td><td>409 em ProblemDetail, <code>type</code> …<code>invalid-transition</code></td></tr>
+</table>
+<p>Os passos 2 a 12 são o fluxo completo da seção 12 do Mapa; os três últimos, o contrato de erro.</p>
+
+<h3>Como um passo é escrito</h3>
+<p>Cada passo do <code>frontend/app.js</code> declara método, rota, corpo, status esperado e uma função de verificação que devolve <code>null</code> quando passa ou um texto explicando o que faltou. O passo 7, por exemplo (resumido):</p>
+<pre>id: 'create-request', method: 'POST', path: () =&gt; '/api/v1/service-requests',
+expect: 201, needs: ['clientToken', 'serviceId'],
+check: (b) =&gt; requireField(b, 'id') || expectStatus(b, 'PENDING') ||
+  (Number(b.totalPrice) === 150 ? null
+    : 'totalPrice deveria copiar o preço do serviço (150.00)'),</pre>
+<p>O campo <code>needs</code> explica por que um vermelho arrasta outros: se o passo 6 falhar, não há <code>serviceId</code>, e os passos seguintes aparecem como pulados. A regra prática é sempre <strong>corrigir o primeiro vermelho</strong>. Nos passos 13 a 15, a função <code>problemType</code> confere primeiro o cabeçalho <code>Content-Type</code> (precisa ser <code>application/problem+json</code>) e depois se o campo <code>type</code> termina no sufixo esperado.</p>
+
+<h3>Rodando a bancada</h3>
+<p>Pré-requisitos: Node 18 ou superior, a API da equipe de pé e CORS liberado para <code>http://localhost:5173</code>. No PowerShell, dentro da pasta <code>frontend</code>:</p>
+<pre>npm install                      # e, se preciso: npx playwright install chromium
+$env:API_URL = "http://localhost:8090"; $env:EQUIPE = "Grupo 3"
+npm run aovivo      # navegador visível, ritmo de apresentação
+npm run teste       # sem janela, rápido: para conferir antes
+npm run relatorio   # relatório HTML com os anexos das falhas</pre>
+<p>No Git Bash ou Linux a sintaxe das variáveis muda: <code>API_URL=http://localhost:8090 EQUIPE="Grupo 3" npm run aovivo</code>. Cada execução cria prestador e cliente novos, com e-mails únicos baseados na hora, então o ciclo pode ser repetido contra o mesmo banco. Há ainda <code>npm run bancada</code>, que abre a tela em <code>localhost:5173</code> para uso manual; nela, o botão <strong>Copiar relatório</strong> gera um resumo em texto para colar no AVA.</p>
+
+<h3>Quando um passo falha</h3>
+<table>
+<thead><tr><th style="width:42%">Sintoma na bancada</th><th>Causa provável</th></tr></thead>
+<tr><td>"Sem resposta" em todos os passos</td><td>CORS sem <code>http://localhost:5173</code>, ou a API fora do ar.</td></tr>
+<tr><td>Passo 1 falha</td><td>API em outra porta, ou <code>/api/v1/info</code> sem <code>status</code> "OK".</td></tr>
+<tr><td>Cadastro: esperado 201, recebido 400</td><td>DTO com nomes diferentes do Mapa: <code>fullName</code>, <code>email</code>, <code>password</code>, <code>role</code>.</td></tr>
+<tr><td>Passo 6: <code>providerId</code> errado</td><td><code>providerId</code> lido do corpo da requisição, e não do token.</td></tr>
+<tr><td>Passos 13–15 vermelhos com o status certo</td><td>Erro sem <code>application/problem+json</code>, ou com <code>type</code> diferente do Mapa.</td></tr>
+</table>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. O checkpoint final no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A seção 12 do Mapa de Construção é a lista de critérios de aceite. A banca confere item a item; a sua equipe deve conferir antes. Os critérios se dividem em quatro grupos. O grupo Processo é o mais deixado para a véspera, e o que menos se conserta nela: o histórico do Git e os ADRs não se fabricam de forma convincente na noite anterior.</p>
+<table>
+<thead><tr><th style="width:17%">Grupo</th><th>Critérios</th></tr></thead>
+<tr><td>Funcionamento</td><td><code>docker compose up -d --build</code> sobe API e banco sem passo manual; API em <code>localhost:8090</code>; CORS para 5173; dados persistem após <code>down</code> e <code>up</code>; fluxo completo; rotas da seção 6 com os status indicados; erros em ProblemDetail e nenhum 500 para erro do cliente.</td></tr>
+<tr><td>Banco</td><td>Schema igual ao da seção 3, alcançado por migrações Flyway. Nenhuma migração antiga editada.</td></tr>
+<tr><td>Qualidade</td><td>Ao menos um teste por regra RN01–RN13; integração com PostgreSQL real; teste de 401 nas rotas protegidas; GitHub Actions verde no último commit; Swagger em <code>/docs</code> coerente.</td></tr>
+<tr><td>Processo</td><td><code>docs/diagnostico.md</code>; commits pequenos e claros; README com como rodar, testar e variáveis; <code>.env.example</code> versionado e nenhum segredo; ao menos três decisões registradas.</td></tr>
+</table>
+
+<h3>Funcionamento se prova com comandos</h3>
+<p>Num clone limpo, de preferência na máquina de outra pessoa da equipe:</p>
+<pre>docker compose up -d --build
+docker compose ps                          # api e postgres healthy
+curl http://localhost:8090/actuator/health # "UP"; /api/v1/info: "OK"
+docker compose down                        # SEM -v; depois:
+docker compose up -d                       # o usuário cadastrado continua lá?</pre>
+<p>A persistência depende do volume nomeado <code>pg_data</code>, declarado no <code>docker-compose.yml</code> para o serviço <code>postgres</code>; a API só sobe depois que o banco responde ao healthcheck (<code>depends_on</code> com <code>condition: service_healthy</code>) e é publicada em <code>${API_PORT:-8090}:8080</code>.</p>
+<div class="warn"><div class="label">Armadilha clássica</div><p><code>docker compose down -v</code> apaga o volume e, com ele, os dados do banco. Quem roda esse comando na demonstração conclui, errado, que a persistência não funciona.</p></div>
+
+
+<h3>CORS e as rotas protegidas</h3>
+<p>Sem CORS para a origem da bancada, o navegador bloqueia as chamadas antes de chegarem à API. O Mapa exige origens explícitas vindas de variável de ambiente, nunca <code>*</code>; no projeto de referência, o <code>SecurityConfig</code> lê <code>servicehub.cors.allowed-origins</code>, preenchida por <code>CORS_ALLOWED_ORIGINS</code>. Já o critério "401 nas rotas protegidas" é coberto por <code>ProtectedRoutesIntegrationTest</code>, um teste parametrizado com <code>@CsvSource</code>: cada linha é uma rota protegida, e o método <code>deveRetornar401QuandoSemToken</code> confere, para todas, o 401 e o <code>type</code> <code>urn:servicehub:problem:unauthorized</code>.</p>
+
+<h3>Checklist das últimas 24 horas</h3>
+<div class="grid2">
+<div class="card"><h3 class="ch">Técnico</h3>
+<ul class="checklist">
+  <li>Clone limpo sobe com <code>docker compose</code></li>
+  <li><code>mvnw verify</code> verde na sua máquina</li>
+  <li>GitHub Actions verde no último commit</li>
+  <li>Bancada com os 15 passos verdes</li>
+  <li>Swagger em <code>/docs</code> coerente com a API</li>
+  <li>Nenhum 500 no log depois da bancada</li>
+</ul></div>
+<div class="card"><h3 class="ch">Entrega</h3>
+<ul class="checklist">
+  <li>Repositório acessível ao professor</li>
+  <li>README: rodar, testar, variáveis</li>
+  <li><code>.env.example</code> no Git, <code>.env</code> fora</li>
+  <li><code>docs/diagnostico.md</code> e três ADRs</li>
+  <li>Tag <code>etapa-final</code> no repositório</li>
+  <li>Roteiro ensaiado do início ao fim</li>
+</ul></div>
+</div>
+<p>A tag fecha a série <code>etapa-N</code> do semestre e marca exatamente a versão que a banca vai clonar:</p>
+<pre>git tag -a etapa-final -m "versão da banca"
+git push origin etapa-final</pre>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. A banca: roteiro e perguntas <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A banca vê a API funcionando e depois pergunta por quê. Nas palavras do Mapa: <strong>você é avaliado pelas decisões, não pela digitação</strong>. Um roteiro em cinco movimentos:</p>
+<ol>
+  <li><strong>Problema:</strong> que dor o ServiceHub resolve, os papéis e a jornada da ordem.</li>
+  <li><strong>Arquitetura:</strong> o diagrama de container (seção 4), as camadas e o Compose que sobe tudo.</li>
+  <li><strong>Bancada:</strong> os 15 passos ao vivo, sem cortes.</li>
+  <li><strong>Decisões:</strong> três ADRs, com problema, decisão e consequência, inclusive o custo.</li>
+  <li><strong>Prova:</strong> quebrar uma regra no código e ver o teste falhar.</li>
+</ol>
+<p>A bancada vem cedo: o resto da conversa parte do que a banca acabou de ver. O tempo de cada equipe é definido no AVA; se faltar, encurte problema e arquitetura, nunca a bancada e a prova.</p>
+
+<h3>A prova: quebrar uma regra diante da banca</h3>
+<p>A RN09 diz que só se avalia uma ordem concluída. No <code>ReviewService</code> do projeto (resumido):</p>
+<pre>public ReviewResponseDTO create(Long requestId, ReviewCreateDTO dto) {
+    ...
+    if (request.getStatus() != RequestStatus.COMPLETED) {
+        throw new BusinessRuleException(
+            "Só é possível avaliar ordens concluídas (status atual: "
+            + request.getStatus() + ").");
+    }
+    ...
+}</pre>
+<p>O teste que a protege fica em <code>ReviewIntegrationTest</code>:</p>
+<pre>@Test
+@DisplayName("RN09: só depois de COMPLETED")
+void deveRetornar409QuandoAvaliarOrdemNaoConcluida() {
+    ResponseEntity&lt;Map&gt; resp = avaliar(maria, ordem(), 5);
+    assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+}</pre>
+<p>Ao vivo: mostre a regra e o teste; comente o <code>if</code>; rode <code>mvnw.cmd test -Dtest=ReviewIntegrationTest</code> e veja o teste ficar vermelho, porque o 409 virou 201; desfaça a mudança, rode de novo e veja o verde. O teste usa Testcontainers, então o Docker precisa estar rodando. Cada equipe escolhe a própria regra e ensaia a quebra antes.</p>
+
+<p><strong>Plano B.</strong> Se a demonstração falhar, faça o <strong>diagnóstico em voz alta</strong>: leia o ProblemDetail, pegue o <code>X-Request-Id</code> e ache a linha no log; investigar também é demonstrar. Relatório do Playwright da véspera, vídeo do ciclo e coleção do Postman provam que funcionou antes, mas não substituem a demonstração.</p>
+
+<h3>Perguntas típicas e onde está a resposta</h3>
+<p>Não decore a coluna da direita: a banca pede o arquivo e a linha do <em>seu</em> código.</p>
+<table>
+<thead><tr><th style="width:36%">Pergunta</th><th>Linha de resposta</th></tr></thead>
+<tr><td>Por que 409 e não 400 aqui?</td><td>400 é requisição mal formada. 409 é requisição válida que viola uma regra ou o estado atual: e-mail repetido, transição proibida, avaliação duplicada.</td></tr>
+<tr><td>Onde a API impede um cliente de ver a ordem de outro?</td><td>No service, comparando o usuário do token com os participantes da ordem: 403 (RN13, BOLA).</td></tr>
+<tr><td>Por que o <code>providerId</code> não vem no corpo?</td><td>Mass assignment: quem publica é quem está no token. Campos que o cliente não pode definir não existem no DTO.</td></tr>
+<tr><td>E o token de um usuário desativado?</td><td>Deixa de valer: o <code>JwtUserConverter</code> carrega o usuário pelo id do token a cada requisição e, inativo, responde 401 (RN11).</td></tr>
+<tr><td>Por que exclusão lógica?</td><td>Apagar um prestador apagaria ordens e avaliações de outras pessoas. Excluir é marcar <code>is_active = false</code>; as FKs são RESTRICT.</td></tr>
+<tr><td>Por que a ordem guarda <code>totalPrice</code>?</td><td>É o preço no momento da contratação. Se o prestador reajustar o serviço, a ordem já feita não muda.</td></tr>
+<tr><td>Esta parte foi a IA que escreveu?</td><td>Responda com honestidade e evidência: o teste que prova a regra e o commit em que a equipe revisou o código.</td></tr>
+</table>
+
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. Síntese do semestre e revisão para a 3ª VA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O ServiceHub foi construído em quatro etapas, cada uma respondendo a uma pergunta.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 230" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+  <defs><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4">
+    <rect x="4" y="10" width="158" height="170" rx="9"/><rect x="182" y="10" width="158" height="170" rx="9"/>
+    <rect x="360" y="10" width="158" height="170" rx="9"/><rect x="538" y="10" width="158" height="170" rx="9"/>
+  </g>
+  <g text-anchor="middle">
+    <text x="83" y="30" fill="#6b7280" font-size="10">semanas 1–6</text><text x="261" y="30" fill="#6b7280" font-size="10">semanas 4–6</text>
+    <text x="439" y="30" fill="#6b7280" font-size="10">semanas 8–10</text><text x="617" y="30" fill="#6b7280" font-size="10">semanas 11–18</text>
+    <text x="83" y="50" font-weight="700" font-size="13" fill="#1d4ed8">Contrato</text><text x="261" y="50" font-weight="700" font-size="13" fill="#1d4ed8">Persistência</text>
+    <text x="439" y="50" font-weight="700" font-size="13" fill="#1d4ed8">Segurança</text><text x="617" y="50" font-weight="700" font-size="13" fill="#1d4ed8">Operação</text>
+    <g fill="#1f2937" font-style="italic" font-size="10.5">
+      <text x="83" y="70">Como o mundo fala</text><text x="83" y="84">com a API?</text>
+      <text x="261" y="70">Como os dados</text><text x="261" y="84">ficam corretos?</text>
+      <text x="439" y="70">Quem pode o quê,</text><text x="439" y="84">e como provamos?</text>
+      <text x="617" y="70">Como ela roda,</text><text x="617" y="84">muda e é vista?</text>
+    </g>
+    <g fill="#6b7280" font-size="10">
+      <text x="83" y="108">REST, métodos e status</text><text x="83" y="123">OpenAPI, DTO</text><text x="83" y="138">validação, ProblemDetail</text><text x="83" y="153">paginação</text>
+      <text x="261" y="108">JPA, migrações Flyway</text><text x="261" y="123">ddl-auto=validate, N+1</text><text x="261" y="138">exclusão lógica</text><text x="261" y="153">preço copiado na ordem</text>
+      <text x="439" y="108">hash de senha, JWT</text><text x="439" y="123">401 e 403, BOLA</text><text x="439" y="138">mass assignment</text><text x="439" y="153">testes com banco real</text>
+      <text x="617" y="108">Docker, Compose, CI</text><text x="617" y="123">deploy, versionamento</text><text x="617" y="138">observabilidade</text><text x="617" y="153">ADR, governança</text>
+    </g>
+  </g>
+  <g stroke="#047857" stroke-width="1.8" marker-end="url(#m1)"><path d="M163 95 H178"/><path d="M341 95 H356"/><path d="M519 95 H534"/></g>
+  <text x="350" y="204" text-anchor="middle" fill="#047857" font-size="11">sem contrato não há teste · sem teste não há CI confiável · sem observabilidade não há operação</text>
+  <text x="350" y="222" text-anchor="middle" fill="#6b7280" font-size="10">cada etapa apoia a seguinte</text>
+</svg>
+<figcaption>Mapa conceitual do semestre. Os conceitos se cruzam: o 403 de BOLA depende do contrato de erro, do dono gravado no banco e do token.</figcaption>
+</figure>
+
+<h3>Pontos de revisão para a 3ª VA</h3>
+<table>
+<thead><tr><th style="width:14%">Tema</th><th style="width:40%">Saiba explicar</th><th>Pergunta para treinar</th></tr></thead>
+<tr><td>Contrato</td><td>Status HTTP, idempotência, DTO, ProblemDetail, versão na URL</td><td>Por que 409 e não 400 numa transição proibida?</td></tr>
+<tr><td>Persistência</td><td>Migração versionada, <code>validate</code>, N+1, exclusão lógica</td><td>Por que nunca editar uma migração já aplicada?</td></tr>
+<tr><td>Segurança</td><td>Hash, JWT, autenticação × autorização, BOLA, mass assignment</td><td>Onde se confere que a ordem é do usuário?</td></tr>
+<tr><td>Testes</td><td>Unidade × integração, Testcontainers, cobertura</td><td>Por que testar com PostgreSQL real e não H2?</td></tr>
+<tr><td>Operação</td><td>Container, Compose, CI, pilares da observabilidade, SLO × SLA, ADR, depreciação</td><td>Que dado você usaria para decidir desligar a v1?</td></tr>
+</table>
+<div class="note"><div class="label">Como responder</div><p>Responda com <strong>conceito, exemplo e consequência</strong>, e treine exemplos fora do ServiceHub (o formato da 3ª VA sai no AVA). Ex.: "Idempotência: repetir a operação deixa o servidor no mesmo estado (conceito). Dois <code>PUT /services/12</code> iguais produzem o mesmo serviço (exemplo). Logo, o cliente pode repetir um PUT após falha de rede sem duplicar dados (consequência)."</p></div>
+
+</section>
+
+<!-- 11 -->
+<section class="page" id="s11">
+<h2>11. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Na reta final, a IA não escreve funcionalidades: ajuda a <strong>auditar</strong> e a <strong>treinar</strong>. <strong>Especificar:</strong> a seção 12 do Mapa é a especificação. <strong>Gerar:</strong> relatório critério por critério, com arquivo de evidência, sem alterar código. <strong>Revisar:</strong> cada "atendido" vira um comando que você roda. <strong>Provar:</strong> bancada verde, <code>mvnw verify</code> verde e uma regra quebrada de propósito.</p>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><p>"Meu projeto está pronto para a banca? Se faltar algo, conserta." Pede opinião e autoriza mexer no código na véspera.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Entrega a seção 12, proíbe alterações e exige, por item, arquivo e comando de verificação.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Dois pedidos, em conversas separadas: auditar e treinar a defesa.</p>
+<pre>Contexto: equipe de Engenharia de Software terminando a API ServiceHub
+(Java 21, Spring Boot 4.1, Spring Security 7 + JWT HS256, PostgreSQL 16,
+Flyway, Testcontainers 2, Docker Compose, GitHub Actions). A banca confere
+os critérios abaixo, item a item, contra a tag etapa-final.
+&lt;cole aqui a seção 12 do Mapa: Funcionamento, Banco, Qualidade, Processo&gt;
+
+Objetivo: auditar este repositório contra CADA critério acima.
+
+Restrições:
+- NÃO altere, crie nem apague arquivos: auditoria só de leitura.
+- NÃO rode docker compose down -v; NÃO leia o .env (só o .env.example).
+- Só marque "atendido" depois de abrir o arquivo e citar o trecho.
+- Para RN01–RN13, nomeie o teste de cada regra; sem teste = "não encontrado".
+- Para "nenhuma migração antiga editada", use o git log das migrações.
+- Não sugira correções agora; só o diagnóstico.
+
+Antes do relatório, mostre o plano: arquivos que vai inspecionar e
+comandos que EU devo rodar para confirmar cada grupo. Espere meu ok.
+
+Saída: tabela critério | atendido/parcial/ausente | evidência (arquivo
+e trecho) | comando de confirmação.
+Critério de aceite: todos os itens da seção 12 na tabela, nenhum
+"atendido" sem arquivo e comando, git status limpo ao final.</pre>
+
+<pre>Contexto: vou defender a API ServiceHub numa banca. Seguem os ADRs da
+equipe; o contrato é o Mapa de Construção.
+&lt;cole aqui os ADRs da equipe&gt;
+
+Objetivo: me treinar para a banca. Você é o avaliador, não o autor.
+
+Restrições:
+- NÃO escreva respostas modelo para eu decorar.
+- UMA pergunta por vez: "por que X e não Y?", "onde no código isso
+  está?", "qual o custo dessa decisão?".
+- Após minha resposta, diga qual parte faltou (problema, alternativas,
+  critério, custo, evidência) e faça uma pergunta de acompanhamento.
+- "Porque é a melhor prática" não vale: cobre o critério.
+- Não invente fatos sobre o meu código; pergunte.
+
+Antes de começar, liste os temas que vai cobrir (contrato, erros,
+segurança, BOLA, domínio, banco, testes, operação) e espere meu ok.
+Critério de aceite: após 8 perguntas, respondo cada uma citando um
+arquivo do meu projeto e o teste que prova a resposta.</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li>Declarar "tudo pronto" sem ter rodado nada. Peça a evidência, não a opinião.</li>
+  <li>Sugerir <code>docker compose down -v</code> para "limpar": o <code>-v</code> apaga os dados do banco.</li>
+  <li>"Consertar" um teste vermelho trocando o 409 esperado pelo 201 recebido, em vez de corrigir o código.</li>
+  <li>Editar uma migração já aplicada em vez de criar a próxima: o Flyway recusa o checksum alterado.</li>
+  <li>Liberar CORS com <code>*</code>; o Mapa pede origens explícitas por variável de ambiente.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Cada "atendido" tem um arquivo que eu abri e um comando que eu rodei?</li>
+  <li>Cada regra RN01–RN13 tem um teste nomeado, e eu li o teste?</li>
+  <li><code>git status</code> está limpo depois da auditoria?</li>
+  <li>Algum diff tocou em <code>src/test</code>? Revisei cada asserção alterada?</li>
+  <li>Respondo às perguntas da banca mostrando arquivo e linha, sem texto pronto?</li>
+</ul>
+<h3>Prova</h3>
+<p>Num clone limpo da tag <code>etapa-final</code>: <code>docker compose up -d --build</code>, <code>npm run teste</code> com os 15 passos verdes, <code>mvnw verify</code> verde e uma regra quebrada de propósito deixando o teste certo vermelho. Depois, cada pessoa responde a uma pergunta da seção 9 com o arquivo do próprio projeto.</p>
+</section>
+
+<!-- 12 -->
+<section class="page" id="s12">
+<h2>12. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Defesa técnica</dt><dd>Explicação de uma escolha pelo problema, alternativas, critério, custo e evidência.</dd>
+  <dt>Trade-off</dt><dd>Troca em que se ganha uma característica abrindo mão de outra.</dd>
+  <dt>ADR</dt><dd>Registro de decisão de arquitetura: contexto, decisão e consequências.</dd>
+  <dt>Modelo C4</dt><dd>Forma de diagramar software em quatro níveis de zoom: contexto (o sistema e quem o usa), container, componente e código.</dd>
+    <dt>Container (C4)</dt><dd>Parte que roda e guarda estado separadamente, como uma API ou um banco. Não é o mesmo que container Docker.</dd>
+    <dt>Dívida técnica</dt><dd>Custo futuro de um atalho tomado hoje; os juros são o encarecimento de cada mudança.</dd>
+  <dt>Limitação declarada</dt><dd>Algo que o sistema conscientemente não faz, registrado com motivo, impacto e caminho.</dd>
+  <dt>Rubrica</dt><dd>Tabela de critérios com níveis descritos, usada para avaliar de forma consistente.</dd>
+    <dt>Bancada de testes</dt><dd>Ferramenta que roda o mesmo ciclo de chamadas contra cada API e confere o contrato.</dd>
+    <dt>Rate limiting</dt><dd>Limite de requisições por cliente num intervalo; o excesso recebe 429.</dd>
+  <dt>Tracing distribuído</dt><dd>Rastreamento de uma requisição através de vários serviços, por identificadores de trace e span.</dd>
+  <dt>Tag anotada</dt><dd>Marca com nome, autor e mensagem num commit do Git, como <code>etapa-final</code>.</dd>
+</dl>
+
+<!-- 13 -->
+<h2 id="s13">13. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Os exercícios 1 a 6 são perguntas típicas de banca: responda como responderia em voz alta, citando o arquivo do seu projeto. Os demais revisam o semestre.</p>
+<ol class="ex">
+  <li>Transforme esta descrição numa defesa técnica com as cinco partes: "Usamos Flyway para o banco".</li>
+  <li>Por que a API responde 409, e não 400, quando o cliente tenta avaliar uma ordem que ainda está IN_PROGRESS? E quando ele envia a nota 7?</li>
+  <li>Onde, no seu projeto, a API impede que um cliente veja a ordem de outro? Que status volta, e por que esse status e não 404?</li>
+  <li>Um avaliador pergunta: "por que vocês não usaram H2, que é mais rápido?". Responda com contexto, critério, custo e evidência.</li>
+  <li>Declare, no formato de quatro colunas, uma limitação do seu projeto que não esteja na tabela da seção 5.</li>
+  <li>A bancada mostra o passo 6 vermelho com a mensagem "providerId deveria ser o do prestador autenticado (vem do token)". Qual é a causa provável, que vulnerabilidade ela representa e por que os passos 7 a 12 aparecem como pulados?</li>
+  <li>Desenhe o diagrama de contexto (nível 1 do C4) do ServiceHub. Quais pessoas e sistemas aparecem? O pgAdmin entra? Justifique.</li>
+  <li>Classifique no quadrante de Fowler: (a) a equipe aceitou, sem ler, um controller gerado por IA que acessa o repositório direto; (b) a equipe decidiu não paginar uma rota interna e registrou isso num ADR, com o plano de paginar se a lista passar de cem itens.</li>
+  <li>Um colega roda <code>docker compose down -v</code>, sobe de novo e diz que "a persistência não funciona". Explique o que aconteceu e qual critério da seção 12 ele está tentando verificar.</li>
+  <li>Por que nunca se edita uma migração Flyway já aplicada? O que acontece na próxima subida da aplicação, e qual é o jeito certo de mudar o schema?</li>
+  <li>Explique a diferença entre autenticação e autorização usando dois passos da bancada como exemplo.</li>
+  <li>Durante a auditoria com IA, o assistente propõe "corrigir" um teste vermelho trocando <code>HttpStatus.CONFLICT</code> por <code>HttpStatus.CREATED</code>. Explique por que isso é errado e escreva a instrução que você acrescentaria ao prompt para impedir esse tipo de mudança.</li>
+</ol>
+
+<!-- 14 -->
+<h2 id="s14">14. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>RICHARDS, M.; FORD, N. <em>Fundamentos da arquitetura de software</em>. Alta Books, 2024. Capítulo 21, sobre diagramar e apresentar a arquitetura.</li>
+  <li>MARTIN, R. C. <em>Desenvolvimento ágil limpo</em>. Alta Books, 2020. Capítulo 7.</li>
+  <li>Revisão: RICHARDS, M.; FORD, N. <em>Fundamentos da arquitetura de software</em>. Capítulos 4 a 6 e 19, sobre características e decisões de arquitetura.</li>
+  <li>Para a 3ª VA: as leituras indicadas ao longo do semestre e o Mapa de Construção, guiados pelo mapa conceitual da seção 10.</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>NYGARD, M. <em>Documenting Architecture Decisions</em>. 2011.</li>
+  <li>IETF. RFC 9457: <em>Problem Details for HTTP APIs</em>. 2023.</li>
+  <li>OWASP. <em>API Security Top 10</em>. 2023.</li>
+  <li>Documentação oficial do Spring Boot: <code>docs.spring.io/spring-boot</code>.</li>
+  <li>Documentação oficial do Playwright: <code>playwright.dev</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 15 — Governança e observabilidade</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 15 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 15<br>Governança e observabilidade</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">A API está no ar. Agora é preciso enxergar o que ela faz, registrar por que ela é assim e mudá-la sem surpreender quem depende dela. Imagine um cliente dizendo que a contratação dele deu erro às 14h: como descobrir o que aconteceu sem reproduzir o erro? Esta apostila responde a essa pergunta com métricas, logs e rastreio, e depois trata das decisões que protegem a qualidade da API ao longo do tempo: características de arquitetura, ADRs, governança e API Gateway.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">Monitorar e observar</a></li>
+      <li><a href="#s3">Os três pilares</a></li>
+      <li><a href="#s4">Tipos de métrica</a></li>
+      <li><a href="#s5">O que medir primeiro: RED e USE</a></li>
+      <li><a href="#s6">SLI, SLO e SLA</a></li>
+      <li><a href="#s7">Logs estruturados</a></li>
+      <li><a href="#s8">Correlação: trace, span e request id</a></li>
+      <li><a href="#s9">Características de arquitetura</a></li>
+      <li><a href="#s10">Decisões de arquitetura e ADR</a></li>
+      <li><a href="#s11">Governança de API</a></li>
+      <li><a href="#s12">API Gateway</a></li>
+      <li><a href="#s13">Aplicação no ServiceHub</a></li>
+      <li><a href="#s14">Construindo com IA</a></li>
+      <li><a href="#s15">Glossário</a></li>
+      <li><a href="#s16">Exercícios</a></li>
+      <li><a href="#s17">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>diferenciar monitoramento de observabilidade e explicar o papel de logs, métricas e traces;</li>
+  <li>escolher o tipo de métrica certo (contador, gauge, histograma) e aplicar RED, USE, SLI, SLO e SLA;</li>
+  <li>explicar como logs estruturados e um id por requisição permitem investigar um erro sem reproduzi-lo;</li>
+  <li>identificar características de arquitetura, propor como medi-las e registrar decisões em ADRs;</li>
+  <li>descrever o que é governança de API e o papel de um API Gateway.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. Monitorar e observar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Monitoramento</strong> acompanha sinais escolhidos de antemão e avisa quando passam de um limite: "a taxa de erro passou de 5%", "o disco está 90% cheio". <strong>Observabilidade</strong> é a capacidade de entender o estado interno de um sistema a partir dos dados que ele emite, inclusive para perguntas que ninguém previu quando o sistema foi escrito.</p>
+<table>
+<thead><tr><th style="width:18%">Critério</th><th>Monitoramento</th><th>Observabilidade</th></tr></thead>
+<tr><td>Pergunta típica</td><td>Está funcionando?</td><td>Por que não está funcionando?</td></tr>
+<tr><td>Parte de</td><td>Painéis e alertas definidos antes</td><td>Dados ricos, explorados depois</td></tr>
+<tr><td>Bom para</td><td>Falhas conhecidas: disco cheio, serviço fora do ar</td><td>Falhas novas, que ninguém previu</td></tr>
+<tr><td>Exemplo</td><td>Alerta quando a taxa de erro passa do limite</td><td>Filtrar os erros por rota, versão e cliente</td></tr>
+</table>
+<p>Uma não substitui a outra: <strong>o monitoramento avisa, a observabilidade explica</strong>. Um alerta diria que houve erros às 14h; só dados com contexto dizem qual cliente, qual rota e por quê.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>Um painel bonito não é observabilidade. Se os dados por trás dele não permitem filtrar e cruzar informações para responder a uma pergunta nova, o painel só mostra o que alguém já sabia que queria ver.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. Os três pilares: logs, métricas e traces <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Os dados que um sistema emite costumam ser agrupados em três tipos, chamados de pilares da observabilidade. Os exemplos abaixo são de uma loja virtual genérica.</p>
+<table>
+<thead><tr><th style="width:13%">Pilar</th><th>O que é</th><th style="width:27%">Responde</th><th style="width:26%">Exemplo</th></tr></thead>
+<tr><td><strong>Logs</strong></td><td>Registro de um evento, com horário, nível e contexto. Detalhado e caro de guardar em volume.</td><td>O que aconteceu, exatamente?</td><td><code>ERROR pagamento recusado pedido=981</code></td></tr>
+<tr><td><strong>Métricas</strong></td><td>Números agregados ao longo do tempo. Baratos de guardar e bons para alertas.</td><td>Quanto, com que frequência, está piorando?</td><td>Requisições por segundo, memória em uso</td></tr>
+<tr><td><strong>Traces</strong></td><td>O caminho de uma requisição por todos os componentes, com o tempo gasto em cada um.</td><td>Onde a requisição demorou ou falhou?</td><td>checkout → estoque → banco</td></tr>
+</table>
+<p>A diferença de custo explica como eles são usados juntos. Uma métrica é um número por intervalo de tempo, não importa quantas requisições ocorreram; um log é uma linha por evento. Por isso <strong>se alerta em métrica e se investiga em log</strong>: as métricas avisam que algo mudou, os traces mostram onde, os logs contam o que aconteceu.</p>
+<p>Há ainda um quarto sinal, mais simples: a <strong>saúde</strong> (<em>health</em>), que responde só "está de pé?". É o que o Docker, o CI e a plataforma de hospedagem consultam, como visto na Semana 14.</p>
+
+<!-- 4 -->
+<h2 id="s4">4. Tipos de métrica <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<table>
+<thead><tr><th style="width:14%">Tipo</th><th>O que mede</th><th style="width:22%">Comportamento</th><th style="width:30%">Exemplo genérico</th></tr></thead>
+<tr><td><strong>Contador</strong></td><td>Quantas vezes algo aconteceu.</td><td>Só cresce; zera ao reiniciar a aplicação.</td><td>Pedidos criados, respostas 500.</td></tr>
+<tr><td><strong>Gauge</strong></td><td>Um valor no instante da leitura.</td><td>Sobe e desce.</td><td>Conexões abertas, itens na fila, memória em uso.</td></tr>
+<tr><td><strong>Histograma</strong></td><td>Como os valores se distribuem em faixas (<em>buckets</em>).</td><td>Conta observações por faixa.</td><td>Tempo de resposta: quantas abaixo de 100 ms, de 500 ms, de 1 s.</td></tr>
+</table>
+<p>Por que o contador "zerar ao reiniciar" não é problema? Porque o sistema de métricas não olha o valor absoluto, e sim quanto ele cresceu num intervalo (a <strong>taxa</strong>). Se a aplicação reinicia, a ferramenta percebe a queda e continua o cálculo.</p>
+<h3>Média esconde, percentil mostra</h3>
+<p>Imagine 100 requisições: 95 levam 50 ms e 5 levam 4 segundos. A média é cerca de 250 ms, um número que nenhum usuário viveu. O <strong>percentil 95 (p95)</strong> é o tempo abaixo do qual ficam 95% das requisições; o p99, 99%. Os percentis altos mostram o que o usuário mais lento sente, e é por isso que tempos de resposta se medem com histograma.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>O número de pedidos <em>pendentes agora</em> é um gauge, porque sobe e desce. O número de pedidos <em>criados</em> é um contador. Usar gauge para algo que deveria ser contador faz perder eventos que acontecem entre duas coletas.</p></div>
+<p>No Micrometer, a biblioteca de métricas que o Spring Boot usa, os tipos se chamam <code>Counter</code>, <code>Gauge</code> e <code>Timer</code>. O <code>Timer</code> registra tempos e pode publicar histograma.</p>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. O que medir primeiro: RED e USE <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Medir tudo é caro e confuso. Duas listas mínimas ajudam a começar pelo que importa:</p>
+<div class="grid2">
+  <div class="card"><h3 class="ch">RED · para serviços que atendem requisições</h3><p><strong>Rate</strong> (taxa): quantas requisições por segundo.<br><strong>Errors</strong> (erros): quantas falham.<br><strong>Duration</strong> (duração): quanto tempo levam, em percentis.</p></div>
+  <div class="card"><h3 class="ch">USE · para recursos: CPU, memória, pool</h3><p><strong>Utilization</strong> (utilização): quanto do recurso está ocupado.<br><strong>Saturation</strong> (saturação): quanto trabalho espera na fila.<br><strong>Errors</strong> (erros): falhas do próprio recurso.</p></div>
+</div>
+<p>Numa API, aplica-se RED a cada rota, vista de fora, e USE à JVM e ao pool de conexões com o banco, vistos de dentro. Exemplo de saturação: um pool com 10 conexões, todas em uso, e requisições esperando. A utilização está em 100%, mas é a fila que explica a lentidão. No Spring Boot, o Actuator já entrega RED por rota na métrica <code>http.server.requests</code>.</p>
+
+<!-- 6 -->
+<h2 id="s6">6. SLI, SLO e SLA: medir, prometer, contratar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<table>
+<thead><tr><th style="width:17%">Sigla</th><th>O que é</th><th style="width:40%">Exemplo (números ilustrativos)</th></tr></thead>
+<tr><td><strong>SLI</strong> · indicador</td><td>Uma medida do serviço do ponto de vista do usuário.</td><td>Fração das requisições respondidas com sucesso em menos de 300 ms.</td></tr>
+<tr><td><strong>SLO</strong> · objetivo</td><td>A meta interna que a equipe quer manter para o SLI num período.</td><td>99,5% das requisições dentro do SLI, medido em 30 dias.</td></tr>
+<tr><td><strong>SLA</strong> · acordo</td><td>Compromisso com o cliente, com consequência se for descumprido.</td><td>Abaixo de 99% no mês, o cliente recebe crédito na fatura.</td></tr>
+</table>
+<p>Os números da tabela são <strong>exemplos</strong>, não recomendações: cada serviço escolhe os seus. Repare que o SLO é mais rígido que o SLA. A equipe precisa perceber o problema e reagir antes de quebrar o contrato.</p>
+<p><strong>Orçamento de erro</strong> é a folga que o SLO deixa. Com um SLO de 99,5%, até 0,5% das requisições podem falhar no período. Enquanto há folga, a equipe pode arriscar entregas novas; gastou a folga, a prioridade passa a ser estabilidade. Assim, confiabilidade vira uma decisão com número, e não uma discussão de opinião.</p>
+<div class="note"><div class="label">No ServiceHub</div><p>Um SLI que faz sentido: a fração dos <code>POST /api/v1/service-requests</code> (contratações) respondidos sem erro 5xx. É a operação que gera receita para a plataforma.</p></div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Logs estruturados <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um log sem contexto é uma frase solta no meio de milhares. <strong>Log estruturado</strong> é um evento escrito como pares chave-valor, em geral em JSON, para que a ferramenta de logs filtre por campo em vez de procurar texto solto.</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Texto livre</h3><pre>14:02:11 ERROR Falha ao criar pedido
+  do cliente 77 na rota /orders</pre><p>Achar todos os erros do cliente 77 exige uma expressão regular frágil, que quebra quando alguém muda a frase.</p></div>
+<div class="card good"><h3 class="ch">Estruturado (JSON)</h3><pre>{"@timestamp":"…","log.level":"ERROR",
+ "message":"Falha ao criar pedido",
+ "customerId":77,"route":"/orders"}</pre><p>A busca é um filtro: <code>log.level=ERROR</code> e <code>customerId=77</code>.</p></div>
+</div>
+<p>Para que ferramentas diferentes entendam os mesmos campos, existem esquemas de nomes padronizados. Um deles é o <strong>ECS</strong> (<em>Elastic Common Schema</em>), com campos como <code>@timestamp</code>, <code>log.level</code> e <code>message</code>. O Spring Boot escreve logs nesse formato com uma propriedade, sem biblioteca extra.</p>
+<h3>Níveis de log</h3>
+<table>
+<thead><tr><th style="width:12%">Nível</th><th>Quando usar</th><th style="width:40%">Exemplo genérico</th></tr></thead>
+<tr><td>ERROR</td><td>Falha que alguém precisa olhar.</td><td>Banco indisponível ao gravar pedido.</td></tr>
+<tr><td>WARN</td><td>Algo estranho, mas o sistema seguiu.</td><td>Nova tentativa de chamada ao fornecedor.</td></tr>
+<tr><td>INFO</td><td>Fluxo normal relevante para o negócio.</td><td>Pedido 981 criado.</td></tr>
+<tr><td>DEBUG</td><td>Detalhe para depurar, em geral só em desenvolvimento.</td><td>SQL gerado e parâmetros.</td></tr>
+</table>
+<div class="warn"><div class="label">Erros comuns em código gerado por IA</div><p>Registrar como ERROR uma situação esperada, como um 404 de recurso inexistente, enche o alerta de ruído: erro do cliente é WARN ou INFO. E log também é dado a proteger: nada de senha, token JWT ou documento pessoal completo, nem "só para depurar". Também não use <code>System.out.println</code>: ele não tem nível, não tem contexto e não sai em JSON.</p></div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Correlação: trace, span e request id <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Num sistema com vários serviços, uma requisição do usuário vira várias chamadas internas. O <strong>rastreamento distribuído</strong> (<em>distributed tracing</em>) registra essa viagem.</p>
+<ul>
+  <li><strong>Trace:</strong> a viagem completa de uma requisição, identificada por um <em>trace id</em>.</li>
+  <li><strong>Span:</strong> uma etapa da viagem, com nome, início, duração e o span pai que a chamou.</li>
+  <li><strong>Correlação:</strong> o id viaja num header de um serviço para o outro, e todo log e span carrega esse id.</li>
+</ul>
+<figure class="figure">
+<svg viewBox="0 0 700 190" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <text x="8" y="16" fill="#6b7280" font-size="10.5">trace 4bf92f35… · loja virtual genérica</text>
+  <g stroke="#d1d5db" stroke-width="1"><path d="M230 26 V180"/><path d="M342 26 V180"/><path d="M454 26 V180"/><path d="M566 26 V180"/><path d="M678 26 V180"/></g>
+  <g fill="#6b7280" font-size="10" text-anchor="middle"><text x="230" y="188">0 ms</text><text x="342" y="188">100</text><text x="454" y="188">200</text><text x="566" y="188">300</text><text x="678" y="188">400</text></g>
+  <g fill="#1f2937">
+    <text x="8" y="44">GET /checkout · gateway</text>
+    <text x="22" y="72">serviço de pedidos</text>
+    <text x="36" y="100">banco de pedidos</text>
+    <text x="36" y="128">serviço de estoque</text>
+    <text x="50" y="156">banco de estoque</text>
+  </g>
+  <rect x="230" y="32" width="440" height="16" rx="3" fill="#1d4ed8"/>
+  <rect x="240" y="60" width="420" height="16" rx="3" fill="#6b8fe8"/>
+  <rect x="250" y="88" width="50" height="16" rx="3" fill="#047857"/>
+  <rect x="310" y="116" width="340" height="16" rx="3" fill="#b45309"/>
+  <rect x="320" y="144" width="310" height="16" rx="3" fill="#047857"/>
+  <text x="656" y="128" fill="#b45309" font-size="10.5" font-weight="700">gargalo</text>
+</svg>
+<figcaption>Um trace em cascata: cada barra é um span, o recuo mostra quem chamou quem e o comprimento mostra a duração. Aqui o estoque é o gargalo.</figcaption>
+</figure>
+<p>Entre serviços, o padrão <strong>W3C Trace Context</strong> leva o id no header <code>traceparent</code>. Uma aplicação isolada não precisa de tudo isso, mas precisa da ideia central: <strong>um id por requisição, carimbado em cada linha de log</strong>. É o papel do header <code>X-Request-Id</code>: o cliente pode enviá-lo ou a API gera um; a API o devolve na resposta; quem reporta um problema informa o id, e você filtra os logs por ele.</p>
+<h3>MDC: o id em toda linha</h3>
+<p>Para que cada linha de log carregue o id sem que cada método o receba como parâmetro, as bibliotecas de log Java oferecem o <strong>MDC</strong> (<em>Mapped Diagnostic Context</em>): um mapa ligado à thread que atende a requisição. Um filtro coloca o id no MDC no início da requisição; o padrão de log ou o formato JSON o inclui em cada linha; no fim, o filtro remove o id.</p>
+<div class="warn"><div class="label">Por que remover no fim</div><p>Servidores web reaproveitam threads de um pool. Se o id não for removido, a próxima requisição atendida pela mesma thread herda o id da anterior, e os logs de uma aparecem com o id da outra: um defeito difícil de achar justamente na ferramenta de achar defeitos.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Características de arquitetura <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O que a API faz é o domínio. <em>Como</em> ela precisa ser é arquitetura. Em Richards e Ford, uma <strong>característica de arquitetura</strong> é um requisito que não é do domínio, influencia a estrutura do sistema e é crítico para o sucesso dele. Elas costumam ser agrupadas assim:</p>
+<table>
+<thead><tr><th style="width:18%">Grupo</th><th>O que cobre</th><th style="width:44%">Exemplos</th></tr></thead>
+<tr><td>Operacionais</td><td>Como o sistema se comporta rodando.</td><td>Disponibilidade, desempenho, escalabilidade, recuperação.</td></tr>
+<tr><td>Estruturais</td><td>Como o código é organizado.</td><td>Manutenibilidade, extensibilidade, portabilidade, configurabilidade.</td></tr>
+<tr><td>Transversais</td><td>O que atravessa tudo.</td><td>Segurança, privacidade, acessibilidade, exigências legais.</td></tr>
+</table>
+<p>Para identificá-las, leia as preocupações do negócio e traduza: "a loja não pode cair na Black Friday" vira escalabilidade e disponibilidade. E escolha <strong>poucas</strong>. Querer todas no máximo produz uma arquitetura genérica, que não atende bem nenhuma; listar dez características "importantes" é o mesmo que não escolher.</p>
+<h3>Medir e governar</h3>
+<p>Uma característica que não se mede degrada sem ninguém perceber. As medidas podem ser de três tipos:</p>
+<table>
+<thead><tr><th style="width:15%">Medida</th><th style="width:20%">O que observa</th><th>Exemplo genérico</th><th style="width:30%">No ServiceHub</th></tr></thead>
+<tr><td>Operacional</td><td>O sistema rodando</td><td>p95 de latência, disponibilidade no mês</td><td><code>http.server.requests</code> no Actuator</td></tr>
+<tr><td>Estrutural</td><td>O código</td><td>Complexidade ciclomática, dependências entre pacotes</td><td>Camadas controller → service → repository</td></tr>
+<tr><td>De processo</td><td>Como a equipe entrega</td><td>Cobertura de testes, tempo até o deploy</td><td>JaCoCo no <code>mvnw verify</code>, CI verde</td></tr>
+</table>
+<p><strong>Governar</strong> uma característica é impedir que ela se degrade. A ferramenta para isso é a <strong>função de aptidão</strong> (<em>fitness function</em>): uma verificação automática e objetiva de uma característica, que roda no build. Exemplo genérico: um teste que falha se o pacote <code>controller</code> importar algo do pacote <code>repository</code>, protegendo a separação em camadas.</p>
+
+<!-- 10 -->
+<h2 id="s10">10. Decisões de arquitetura e ADR <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma decisão é <strong>arquiteturalmente significativa</strong> quando afeta a estrutura, as características, as dependências, as interfaces ou as técnicas de construção do sistema. Escolher entre H2 e PostgreSQL nos testes é uma delas; o nome de uma variável local, não. Richards e Ford descrevem três antipadrões no modo de decidir:</p>
+<table>
+<thead><tr><th style="width:22%">Antipadrão</th><th>O que acontece</th><th style="width:36%">Remédio</th></tr></thead>
+<tr><td>Proteger-se</td><td>A decisão é adiada por medo de errar.</td><td>Decidir no último momento responsável, com o que se sabe.</td></tr>
+<tr><td>Dia da Marmota</td><td>A mesma discussão volta sempre, porque ninguém registrou o porquê.</td><td>Justificar a decisão por escrito.</td></tr>
+<tr><td>Decisão por e-mail</td><td>A decisão se perde em conversas e mensagens.</td><td>Um único lugar de registro, e aviso a quem é afetado.</td></tr>
+</table>
+<p>O <strong>ADR</strong> (<em>Architecture Decision Record</em>, registro de decisão de arquitetura) resolve os três. No formato proposto por Michael Nygard, ele cabe numa página e fica versionado junto com o código:</p>
+<table>
+<thead><tr><th style="width:20%">Seção</th><th>Conteúdo</th></tr></thead>
+<tr><td>Título</td><td>Número e nome curto: "ADR-0004 — Formato único de erro".</td></tr>
+<tr><td>Status</td><td>Proposto, aceito ou substituído (por qual ADR), com data.</td></tr>
+<tr><td>Contexto</td><td>O problema e as forças que obrigaram a decidir, com os fatos da época.</td></tr>
+<tr><td>Decisão</td><td>O que foi decidido, em voz ativa e sem rodeio.</td></tr>
+<tr><td>Consequências</td><td>O que fica mais fácil e o que fica mais difícil, incluindo os custos.</td></tr>
+</table>
+<p>Um ADR aceito não se edita: se a decisão muda, escreve-se um novo que substitui o antigo, e o histórico fica. O livro de Richards e Ford propõe seções extras, como <em>conformidade</em> (como verificar que a decisão é seguida), que combina bem com as funções de aptidão.</p>
+<div class="note"><div class="label">Para lembrar</div><p>O ADR é o "problema, decisão, efeito" de uma escolha. Ele serve a quem entra no projeto depois, ao seu eu de daqui a seis meses e também a um assistente de IA, que passa a ter o contexto para não desfazer uma decisão já tomada.</p></div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. Governança de API <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Governança de API</strong> é o conjunto de regras e práticas que mantém muitas APIs consistentes, seguras e fáceis de encontrar, sem depender de quem escreveu cada uma. Numa empresa com dezenas de APIs e sem governança, cada equipe inventa o próprio formato de erro e a própria paginação, e quem consome sofre. Não é burocracia: é o mínimo para outra pessoa entender e usar a API sem perguntar ao autor.</p>
+<div class="grid2">
+  <div class="card"><h3 class="ch">Padrões</h3><p>Um guia de estilo: nomes de rota, versão, formato de erro, paginação, autenticação.</p></div>
+  <div class="card"><h3 class="ch">Revisão de design</h3><p>O contrato é revisado antes do código, por pessoas e por um verificador automático de OpenAPI no CI.</p></div>
+  <div class="card"><h3 class="ch">Catálogo</h3><p>O inventário: cada API com dono, versão, contrato OpenAPI e situação (ativa ou depreciada).</p></div>
+  <div class="card"><h3 class="ch">Ciclo de vida</h3><p>Política de versionamento e de depreciação, vista na Semana 14: anunciar, marcar, conviver e só então remover.</p></div>
+</div>
+<p>Governança e observabilidade se encontram na depreciação. Sem métrica por rota, decidir quando desligar uma versão antiga é um chute; com <code>http.server.requests</code> separado por URI, a equipe sabe quem ainda chama a v1 e pode avisar antes.</p>
+
+<!-- 12 -->
+<h2 id="s12">12. API Gateway <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um <strong>API Gateway</strong> é um ponto único de entrada entre os clientes e as APIs. Ele aplica, num lugar só, regras que seriam repetidas em cada serviço. As três funções centrais:</p>
+<table>
+<thead><tr><th style="width:20%">Função</th><th>O que faz</th></tr></thead>
+<tr><td>Roteamento</td><td>Decide o destino de cada requisição por caminho, versão ou host: <code>/v1</code> para o serviço antigo, <code>/v2</code> para o novo. É onde a política de versão vira regra.</td></tr>
+<tr><td>Autenticação</td><td>Valida o token na borda e repassa a identidade ao serviço.</td></tr>
+<tr><td>Limite de taxa</td><td><em>Rate limiting</em>: no máximo N requisições por cliente numa janela de tempo. Passou do limite, responde <code>429 Too Many Requests</code>, em geral com o header <code>Retry-After</code>.</td></tr>
+</table>
+<p>Outras funções frequentes: terminação TLS, CORS, logs e métricas de borda. Exemplos de produtos são o Kong, o Spring Cloud Gateway e os gateways gerenciados das nuvens; nesta disciplina o gateway é só conceito.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>O gateway autentica (quem é você), mas não substitui a autorização por recurso. A regra "esta ordem é sua?" depende de dados que só o serviço tem; a proteção contra acesso a objetos de outros usuários (BOLA, Semana 9) continua no service.</p></div>
+<p>No ServiceHub, essas funções estão dentro da própria API: <code>SecurityConfig</code>, CORS e <code>RequestIdFilter</code>. Com muitas APIs, elas sobem para o gateway e ficam iguais para todas. O ServiceHub não tem limite de taxa; numa API pública, essa seria a primeira barreira contra abuso e força bruta no login.</p>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+<h2>13. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Actuator: o que expor e para quem</h3>
+<p>O <code>pom.xml</code> tem <code>spring-boot-starter-actuator</code> e <code>micrometer-registry-prometheus</code>. A exposição na web é uma lista permitida, no <code>application.properties</code>:</p>
+<pre>management.endpoints.web.exposure.include=health,info,metrics,prometheus
+management.endpoint.health.show-details=when-authorized
+management.endpoint.health.roles=ADMIN</pre>
+<p>E o <code>security/SecurityConfig</code> decide quem acessa:</p>
+<pre>.requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+.requestMatchers("/actuator/**").hasRole("ADMIN")</pre>
+<p>Saúde e info são públicas, para o Docker e a plataforma de hospedagem. Métricas e detalhes da saúde, só ADMIN. Endpoints como <code>env</code> e <code>heapdump</code> ficam fora da lista porque poderiam vazar configuração e memória.</p>
+
+<h3>Uma métrica de negócio</h3>
+<p>CPU, memória e <code>http.server.requests</code> o Micrometer mede sozinho. A métrica que só quem conhece o domínio sabe criar é a de negócio. Em <code>service/ServiceRequestService</code> (resumido):</p>
+<pre>public static final String TRANSITIONS_METRIC = "servicehub.service_requests.transitions";
+private final MeterRegistry meterRegistry;   // recebido pelo construtor
+
+private void count(RequestStatus to) {
+    meterRegistry.counter(TRANSITIONS_METRIC, "to", to.name()).increment();
+}</pre>
+<p><code>count(RequestStatus.PENDING)</code> é chamado ao criar a ordem, e <code>count(target)</code> a cada mudança de status válida em <code>changeStatus</code>, depois de gravar. A tag <code>to</code> separa a contagem pelo estado de destino e tem só cinco valores possíveis, os estados de <code>RequestStatus</code>: baixa cardinalidade, de propósito. É um contador, porque só cresce.</p>
+<p>No <code>/actuator/prometheus</code>, o ponto vira sublinhado e o contador ganha o sufixo <code>_total</code>. Uma linha da saída (valor ilustrativo) e uma consulta PromQL que mostra a taxa por segundo de cada transição nos últimos 5 minutos:</p>
+<pre>servicehub_service_requests_transitions_total{to="CANCELLED"} 4.0
+
+sum by (to) (rate(servicehub_service_requests_transitions_total[5m]))</pre>
+<p>O <strong>Prometheus</strong> coleta esse endpoint de tempos em tempos e guarda as séries; um painel (por exemplo, no Grafana) e alertas leem dele. Uma alta de <code>CANCELLED</code> é um alerta de negócio, não de máquina.</p>
+
+<h3>A métrica tem teste</h3>
+<p><code>ObservabilityIntegrationTest</code> cria uma ordem, chama o endpoint com token de ADMIN e confere a série (resumido):</p>
+<pre>ResponseEntity&lt;String&gt; resp = call(HttpMethod.GET, "/actuator/prometheus",
+        adminToken(), null, String.class);
+assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+assertThat(resp.getBody())
+        .contains("servicehub_service_requests_transitions_total{to=\"PENDING\"");</pre>
+<p>A mesma classe prova que <code>/actuator/health</code> é público e que um CLIENT recebe 403 em <code>/actuator/metrics</code>.</p>
+
+<h3>O X-Request-Id</h3>
+<p><code>config/RequestIdFilter</code> roda antes de todos os outros filtros, inclusive o de segurança, então até um 401 tem id. Trecho real, resumido:</p>
+<pre>@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class RequestIdFilter extends OncePerRequestFilter {
+    private static final Pattern VALID_ID = Pattern.compile("^[A-Za-z0-9._-]{1,64}$");
+
+    protected void doFilterInternal(...) {
+        String received = request.getHeader(HEADER);          // "X-Request-Id"
+        String id = (received != null &amp;&amp; VALID_ID.matcher(received).matches())
+                ? received : UUID.randomUUID().toString();
+        MDC.put(MDC_KEY, id);                                  // "requestId"
+        response.setHeader(HEADER, id);
+        try { chain.doFilter(request, response); }
+        finally { MDC.remove(MDC_KEY); }
+    }
+}</pre>
+<p>Validar o header impede que o cliente injete quebras de linha ou um texto gigante nos seus logs (forjando linhas falsas). O <code>finally</code> limpa o MDC antes de a thread voltar ao pool. O contrato do Mapa exige o header em toda resposta, e o CORS o expõe ao navegador.</p>
+
+<h3>Logs: texto em desenvolvimento, JSON em produção</h3>
+<p>Em desenvolvimento, o <code>application.properties</code> usa um padrão de texto com o id entre colchetes:</p>
+<pre>logging.pattern.console=%d{HH:mm:ss.SSS} %-5level [%X{requestId:-}] %logger{36} - %msg%n</pre>
+<p>No perfil <code>prod</code>, que o Compose ativa com <code>SPRING_PROFILES_ACTIVE=prod</code>, o <code>application-prod.properties</code> troca para JSON no formato ECS, um objeto por linha, com o <code>requestId</code> como campo:</p>
+<pre>logging.structured.format.console=ecs
+logging.level.root=INFO
+logging.level.org.hibernate.SQL=WARN</pre>
+<p>O SQL sai pelo logger <code>org.hibernate.SQL</code>, e não por <code>show-sql</code>, justamente para que cada comando SQL carregue o id da requisição que o gerou.</p>
+
+<h3>Função de aptidão e ADRs do projeto</h3>
+<p><code>ProtectedRoutesIntegrationTest</code> percorre todas as rotas protegidas e exige 401 sem token: se alguém criar uma rota e esquecer a segurança, o build falha. É uma função de aptidão de segurança. As decisões do projeto estão em <code>docs/adr/</code>, no formato de Nygard:</p>
+<table>
+<thead><tr><th style="width:10%">ADR</th><th style="width:42%">Decisão</th><th>Por que importa</th></tr></thead>
+<tr><td>0001</td><td>Stack e versões</td><td>Spring Boot 4 e Java 21 fixados por escrito.</td></tr>
+<tr><td>0002</td><td>Exclusão lógica de usuários e serviços</td><td>Apagar não leva junto o histórico de terceiros.</td></tr>
+<tr><td>0003</td><td>JWT nativo do Spring Security</td><td>Sem filtro de token escrito à mão.</td></tr>
+<tr><td>0004</td><td>ProblemDetail (RFC 9457)</td><td>Um único formato de erro em toda a API.</td></tr>
+<tr><td>0005</td><td>Testcontainers em vez de H2</td><td>Os testes rodam as migrações Postgres reais.</td></tr>
+<tr><td>0006</td><td>Máquina de estados da ordem</td><td>A regra central vive como dado no enum; um teste cobre as 25 combinações de estados (5 × 5) para os três papéis.</td></tr>
+<tr><td>0007</td><td>Admin inicial por variável de ambiente</td><td>Nenhuma senha de admin no código.</td></tr>
+</table>
+<p>O guia de estilo do ServiceHub também existe, espalhado pelo Mapa e pelo arquivo de contexto do repositório: <code>/api/v1</code>, ProblemDetail, paginação <code>{content, page}</code> e <code>sort</code> por lista permitida.</p>
+</section>
+
+<!-- 14 -->
+<section class="page" id="s14">
+<h2>14. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Métricas e logs são código que quase nunca quebra um teste funcional: um erro aqui só aparece em produção, quando o monitoramento cai ou o log vaza um token. Por isso a revisão pesa mais que a geração. Os quatro movimentos:</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>Nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>Quero saber quantas ordens chegam a cada estado: um contador por estado de destino, lido só por ADMIN, e um id em toda resposta e todo log.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Plano primeiro (onde incrementar, qual tag, qual filtro); depois o código, em passos.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Tags com poucos valores, nenhum dado pessoal no log, <code>/actuator</code> fechado, header validado, MDC limpo no <code>finally</code>.</td></tr>
+<tr><td><strong>Provar</strong></td><td>Teste que chama <code>/actuator/prometheus</code> como ADMIN e acha a série; sem token, 401; a resposta traz <code>X-Request-Id</code>.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>adiciona métricas e logs na minha api</pre><p>Volta Actuator todo exposto, id de usuário como tag e header sem validar.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Diz a pergunta de negócio, nomeia métrica e tag, define quem lê, exige header validado e MDC limpo, pede plano e fecha com critério de aceite. É o prompt abaixo.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Continue de onde a Semana 14 parou (CI verde a cada push e PR). Cole no assistente e ajuste ao seu repositório, se algo for diferente:</p>
+<pre style="break-inside:auto">Contexto: API ServiceHub em Java 21 e Spring Boot 4.1, com Spring
+Security 7 (JWT, papéis CLIENT, PROVIDER e ADMIN), PostgreSQL 16 e
+testes de integração com Testcontainers. A ordem de serviço muda de
+estado em ServiceRequestService (PENDING, ACCEPTED, IN_PROGRESS,
+COMPLETED, CANCELLED). Já temos spring-boot-starter-actuator.
+
+Objetivo:
+1. Uma métrica de negócio: contador Micrometer
+   "servicehub.service_requests.transitions" com a tag "to" (estado
+   de destino), incrementado ao criar a ordem (PENDING) e a cada
+   mudança de status válida, só depois de gravar.
+2. Um filtro que garanta o header X-Request-Id em toda resposta e
+   coloque o mesmo id no MDC (chave "requestId").
+
+Restrições:
+- Adicionar micrometer-registry-prometheus; expor na web só
+  health, info, metrics e prometheus. NADA de include=*.
+- /actuator/health e /actuator/info públicos; o resto de /actuator/**
+  só para ADMIN, na configuração de segurança existente.
+- A tag "to" só pode ter os 5 valores do enum. NÃO usar id de
+  usuário, de ordem ou de requisição como tag.
+- MeterRegistry injetado pelo construtor; nada de static.
+- Filtro com a maior precedência; aceitar o id do cliente só se
+  casar com ^[A-Za-z0-9._-]{1,64}$, senão gerar um UUID; remover do
+  MDC num finally.
+- NÃO logar senha, token nem corpo de requisição; NÃO usar
+  System.out; NÃO adicionar biblioteca de log JSON.
+- Incluir o requestId no padrão de log do console.
+
+Antes do código: mostre um plano com os arquivos que vai alterar e
+onde exatamente o contador é incrementado. Espere minha confirmação.
+
+Critério de aceite: a série aparece em /actuator/prometheus com token
+de ADMIN e o header volta na resposta. Escreva testes de integração
+que provem isso, e que sem token /actuator/prometheus responde 401.</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li><strong>Tag sem limite:</strong> <code>userId</code> ou <code>requestId</code> como tag cria uma série por valor e afoga o Prometheus. Funciona no teste com três usuários e só derruba o monitoramento em produção.</li>
+  <li><strong>Actuator escancarado:</strong> <code>exposure.include=*</code> e <code>/actuator/**</code> público expõem <code>env</code> e <code>heapdump</code>.</li>
+  <li><strong>Segredo no log:</strong> logar o corpo do login, o token JWT ou o e-mail inteiro "para depurar".</li>
+  <li><strong>Header sem validar:</strong> copiar o <code>X-Request-Id</code> do cliente direto para o log permite forjar linhas.</li>
+  <li><strong>MDC sem <code>finally</code></strong>, e incremento do contador antes de gravar (conta transições que falharam).</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>A tag tem um conjunto pequeno e fixo de valores?</li>
+  <li>A lista de exposição tem só os quatro endpoints, e só health e info são públicos?</li>
+  <li>O header recebido é validado e o MDC é limpo num <code>finally</code>?</li>
+  <li>O contador é incrementado depois de a mudança ser gravada?</li>
+</ul>
+<h3>Prova</h3>
+<p style="text-align:left">Rode <code>./mvnw verify</code> com os testes novos. Depois, com a API no ar, crie uma ordem e confira à mão:</p>
+<pre>curl -H "Authorization: Bearer &lt;token de ADMIN&gt;" http://localhost:8090/actuator/prometheus
+  → contém servicehub_service_requests_transitions_total{to="PENDING"   (sem token: 401)
+curl -i -H "X-Request-Id: teste-123" http://localhost:8090/api/v1/info
+  → a resposta traz X-Request-Id: teste-123, e o id aparece nos logs</pre>
+</section>
+
+<!-- 15 -->
+<section class="page" id="s15">
+<h2>15. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Observabilidade</dt><dd>Capacidade de entender o estado interno do sistema pelos dados que ele emite.</dd>
+  <dt>Monitoramento</dt><dd>Acompanhamento de sinais definidos antes, com alertas por limite.</dd>
+  <dt>Métrica</dt><dd>Número agregado ao longo do tempo, como uma contagem ou uma duração.</dd>
+  <dt>Contador</dt><dd>Métrica que só cresce: quantas vezes algo aconteceu.</dd>
+  <dt>Gauge</dt><dd>Métrica que sobe e desce: o valor no instante da leitura.</dd>
+  <dt>Histograma</dt><dd>Distribuição de valores em faixas, base para percentis.</dd>
+  <dt>Percentil (p95)</dt><dd>Valor abaixo do qual ficam 95% das observações.</dd>
+  <dt>Cardinalidade</dt><dd>Número de valores distintos de uma tag; alta cardinalidade multiplica as séries.</dd>
+  <dt>SLI / SLO / SLA</dt><dd>Indicador medido / meta interna para ele / acordo com o cliente, com consequência.</dd>
+  <dt>Log estruturado</dt><dd>Evento registrado como pares chave-valor, em geral JSON.</dd>
+  <dt>Trace / span</dt><dd>Viagem completa de uma requisição / uma etapa dessa viagem.</dd>
+  <dt>MDC</dt><dd>Mapa por thread cujo conteúdo o log inclui em cada linha.</dd>
+  <dt>Característica de arquitetura</dt><dd>Requisito fora do domínio que influencia a estrutura e é crítico para o sucesso.</dd>
+  <dt>Função de aptidão</dt><dd>Verificação automática e objetiva de uma característica de arquitetura.</dd>
+  <dt>ADR</dt><dd>Registro curto de uma decisão de arquitetura: contexto, decisão, consequências.</dd>
+  <dt>API Gateway</dt><dd>Ponto único de entrada que roteia, autentica e limita a taxa de requisições.</dd>
+</dl>
+
+<!-- 16 -->
+<h2 id="s16">16. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Explique a diferença entre monitoramento e observabilidade usando o caso do erro das 14h relatado por um cliente.</li>
+  <li>A API ficou lenta. Em qual pilar você procuraria primeiro, e qual usaria em seguida? Justifique pelo custo e pelo tipo de pergunta que cada um responde.</li>
+  <li>Classifique como contador, gauge ou histograma: (a) avaliações publicadas; (b) ordens em IN_PROGRESS agora; (c) tempo de resposta de <code>POST /auth/login</code>; (d) conexões em uso no pool do banco.</li>
+  <li>Um serviço tem tempo médio de 120 ms, mas os usuários reclamam de lentidão. Que métrica você pediria e por quê?</li>
+  <li>Proponha um SLI e um SLO para a listagem pública <code>GET /api/v1/services</code>. Explique o orçamento de erro do seu SLO.</li>
+  <li>Um colega quer a tag <code>clientId</code> no contador de transições "para saber quem cancela mais". Qual é o problema e como obter essa informação de outro jeito?</li>
+  <li>Leia o <code>RequestIdFilter</code> da seção 13. O que aconteceria se (a) o header do cliente não fosse validado; (b) o <code>MDC.remove</code> não estivesse num <code>finally</code>?</li>
+  <li>Escolha três características de arquitetura para o ServiceHub, justifique cada uma e proponha uma medida ou função de aptidão para uma delas.</li>
+  <li>Escreva um ADR curto (formato de Nygard) para a decisão "logs em JSON no perfil de produção".</li>
+  <li>Que funções um API Gateway assumiria se o ServiceHub fosse dividido em vários serviços? Qual regra deve continuar no serviço, e por quê?</li>
+  <li>Escreva um prompt que peça à IA um contador de avaliações publicadas por nota (1 a 5), com pelo menos três restrições e um critério de aceite verificável.</li>
+</ol>
+
+<!-- 17 -->
+<h2 id="s17">17. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>RICHARDS, M.; FORD, N. <em>Fundamentos da arquitetura de software</em>. Alta Books, 2024. Capítulos 4 a 6 (definir, identificar, medir e governar características de arquitetura) e 19 (decisões de arquitetura). Comece pelo 19, que conversa com os ADRs.</li>
+  <li>MARTIN, R. C. <em>Arquitetura limpa</em>. Alta Books, 2019. Capítulo 15.</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>Documentação oficial do Spring Boot, seções Actuator, Observability e Structured Logging: <code>docs.spring.io/spring-boot</code>.</li>
+  <li>Documentação do Prometheus, tipos de métrica: <code>prometheus.io/docs</code>.</li>
+  <li>NYGARD, M. <em>Documenting Architecture Decisions</em>. 2011.</li>
+  <li>W3C, <em>Trace Context</em>: <code>w3.org/TR/trace-context</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

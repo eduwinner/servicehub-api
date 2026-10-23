@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 02 — HTTP, REST e modelagem do domínio</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 02 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 02<br>HTTP, REST e modelagem do domínio</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Na Semana 01 vimos que uma API é um contrato. Nesta semana o contrato ganha forma em duas partes. A primeira é o que trafega pela rede: URLs, mensagens HTTP, métodos, status codes e headers, organizados segundo o estilo REST. A segunda é o que o negócio permite: quem pode fazer o quê, por quais estados uma ordem de serviço passa e o que nunca pode ser verdade. As duas partes são desenhadas antes de qualquer linha de código, e é exatamente isso que você vai precisar dizer à IA, porque o CRUD ela gera sozinha.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">URI e URL: o endereço do recurso</a></li>
+      <li><a href="#s3">A mensagem HTTP</a></li>
+      <li><a href="#s4">Métodos e sua semântica</a></li>
+      <li><a href="#s5">Status codes</a></li>
+      <li><a href="#s6">Headers e negociação de conteúdo</a></li>
+      <li><a href="#s7">Sem estado: sessão e token</a></li>
+      <li><a href="#s8">Recursos, coleções e sub-recursos</a></li>
+      <li><a href="#s9">O modelo de maturidade de Richardson</a></li>
+      <li><a href="#s10">Modelagem do domínio</a></li>
+      <li><a href="#s11">A máquina de estados da ordem</a></li>
+      <li><a href="#s12">Aplicação no ServiceHub</a></li>
+      <li><a href="#s13">Construindo com IA</a></li>
+      <li><a href="#s14">Glossário</a></li>
+      <li><a href="#s15">Exercícios</a></li>
+      <li><a href="#s16">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>decompor uma URL em suas partes e ler uma mensagem HTTP de requisição e de resposta;</li>
+  <li>escolher o método HTTP de cada operação, sabendo quais são seguros, idempotentes e cacheáveis;</li>
+  <li>responder com o status code certo, em especial distinguindo 400, 401, 403, 404 e 409;</li>
+  <li>projetar recursos, coleções e sub-recursos no nível 2 do modelo de Richardson;</li>
+  <li>modelar o domínio do ServiceHub: subdomínios, linguagem ubíqua, entidades, objetos de valor, invariantes e a máquina de estados da ordem.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. URI e URL: o endereço do recurso <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Em REST, cada recurso tem um identificador. O nome técnico desse identificador é <strong>URI</strong> (<em>Uniform Resource Identifier</em>, identificador uniforme de recurso), definido na RFC 3986. Existem dois tipos de URI que você vai encontrar:</p>
+<ul>
+  <li><strong>URL</strong> (<em>Uniform Resource Locator</em>): uma URI que diz <em>onde</em> buscar o recurso, porque traz esquema e host. Exemplo: <code>https://api.livraria.com/v1/livros/42</code>.</li>
+  <li><strong>URN</strong> (<em>Uniform Resource Name</em>): uma URI que apenas <em>nomeia</em>, sem dizer onde buscar. Exemplo: <code>urn:isbn:9788550819686</code>. O ServiceHub usa URNs para identificar tipos de erro, como <code>urn:servicehub:problem:invalid-transition</code>.</li>
+</ul>
+
+<h3>Anatomia de uma URL</h3>
+<pre>https://api.livraria.com:443/v1/livros/42?formato=resumo&amp;idioma=pt#capitulo-3
+└─┬─┘   └───────┬───────┘└┬┘└─────┬─────┘└──────────┬──────────┘└────┬────┘
+esquema       host     porta  caminho         query string        fragmento</pre>
+<ul>
+  <li><strong>Esquema</strong> (<code>https</code>): o protocolo; <code>https</code> é HTTP cifrado com TLS.</li>
+  <li><strong>Host e porta</strong> (<code>api.livraria.com:443</code>): qual máquina e qual porta. Sem porta, vale o padrão do esquema: 80 para <code>http</code>, 443 para <code>https</code>.</li>
+  <li><strong>Caminho</strong> (<code>/v1/livros/42</code>): identifica o recurso dentro do servidor.</li>
+  <li><strong>Query string</strong> (<code>?formato=resumo&amp;idioma=pt</code>): pares <code>chave=valor</code> separados por <code>&amp;</code>, que filtram, ordenam ou paginam.</li>
+  <li><strong>Fragmento</strong> (<code>#capitulo-3</code>): fica no cliente, que o usa para rolar a página. Nunca chega ao servidor.</li>
+</ul>
+<div class="note"><div class="label">Para lembrar</div><p>Caminho identifica <em>qual</em> recurso; query string diz <em>como</em> você quer vê-lo. Por isso o número da página de uma listagem vai na query (<code>/services?page=2</code>) e o id de um serviço vai no caminho (<code>/services/12</code>).</p></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. A mensagem HTTP <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O <strong>HTTP</strong> (<em>Hypertext Transfer Protocol</em>) é um protocolo de pedido e resposta: o cliente envia uma <strong>requisição</strong>, o servidor devolve uma <strong>resposta</strong>. A semântica do protocolo, isto é, o significado de métodos, status codes e headers, está na RFC 9110. Toda mensagem, nas duas direções, tem quatro partes: (1) a <strong>linha inicial</strong>, que na requisição traz método, alvo e versão (<code>GET /v1/livros/42 HTTP/1.1</code>) e na resposta traz versão, código e frase (<code>HTTP/1.1 200 OK</code>); (2) os <strong>headers</strong>, pares <code>Nome: valor</code> com metadados; (3) uma <strong>linha em branco</strong>; (4) o <strong>corpo</strong>, opcional, no formato indicado por <code>Content-Type</code>. Essa é a forma textual do HTTP/1.1; o HTTP/2 e o HTTP/3 mudam o transporte, mas não a semântica. Um exemplo genérico:</p>
+<pre>GET /v1/livros/42 HTTP/1.1                 HTTP/1.1 200 OK
+Host: api.livraria.com                     Content-Type: application/json
+Accept: application/json                   Content-Length: 38
+
+(sem corpo)                                { "id": 42, "titulo": "Dom Casmurro" }</pre>
+
+<h3>Uma requisição real do ServiceHub</h3>
+<p>Abrir uma ordem de serviço é um <code>POST</code> na coleção de ordens. Note o que o corpo <em>não</em> traz: nem o preço, nem o id do cliente. O preço vem do serviço contratado e o cliente vem do token. Voltaremos a isso nas invariantes (seção 10).</p>
+<div class="grid2">
+<div class="card"><h3 class="ch">Requisição</h3>
+<pre>POST /api/v1/service-requests HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Authorization: Bearer eyJhbGciOi...
+
+{ "serviceId": 12,
+  "notes": "Portão azul" }</pre></div>
+<div class="card"><h3 class="ch">Resposta</h3>
+<pre>HTTP/1.1 201 Created
+Location: /api/v1/service-requests/31
+Content-Type: application/json
+
+{ "id": 31,
+  "status": "PENDING",
+  "totalPrice": 150.00, ... }</pre></div>
+</div>
+<p>Método e URI dizem <em>o que</em> se pede; o status code diz <em>como terminou</em>; os headers dizem o formato e dão informações extras, como o endereço do recurso criado.</p>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. Métodos e sua semântica <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O método diz a <strong>intenção</strong> do pedido. A RFC 9110 define três propriedades que ajudam a escolher o método certo e que clientes, proxies e caches usam para decidir o que fazer:</p>
+<ul>
+  <li><strong>Seguro:</strong> o cliente não pede nenhuma mudança de estado no servidor; um robô de busca pode chamá-lo à vontade. GET, HEAD e OPTIONS.</li>
+  <li><strong>Idempotente:</strong> repetir o mesmo pedido deixa o servidor no mesmo estado que fazê-lo uma vez. Os seguros, mais PUT e DELETE.</li>
+  <li><strong>Cacheável:</strong> a resposta pode ser guardada e reaproveitada por um tempo, sem perguntar de novo. Em geral, GET e HEAD.</li>
+</ul>
+<p>Exemplos do cotidiano: abrir a página de um produto é seguro; "defina o endereço de entrega como X" é idempotente, porque fazer duas vezes dá o mesmo resultado; a foto de capa de um livro é cacheável. Já "some R$ 10 ao saldo" não é idempotente: repetir soma de novo.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>Idempotência fala do <strong>estado do servidor</strong>, não da resposta. O primeiro <code>DELETE /services/12</code> responde 204; o segundo pode responder 404. Mesmo assim o método é idempotente, porque depois de um ou de dois pedidos o serviço está igualmente removido.</p></div>
+
+<h3>Os cinco métodos que a API usa</h3>
+<table>
+<thead><tr><th style="width:12%">Método</th><th>Intenção</th><th>No ServiceHub</th><th style="width:10%">Seguro</th><th style="width:13%">Idempotente</th><th style="width:10%">Sucesso</th></tr></thead>
+<tr><td>GET</td><td>Ler</td><td>Listar ou buscar serviços</td><td>sim</td><td>sim</td><td>200</td></tr>
+<tr><td>POST</td><td>Criar dentro de uma coleção</td><td>Abrir uma ordem de serviço</td><td>não</td><td>não</td><td>201</td></tr>
+<tr><td>PUT</td><td>Substituir o recurso inteiro</td><td>Atualizar os dados de um serviço</td><td>não</td><td>sim</td><td>200</td></tr>
+<tr><td>PATCH</td><td>Alterar parte do recurso</td><td>Mudar só o status da ordem</td><td>não</td><td>não garante</td><td>200</td></tr>
+<tr><td>DELETE</td><td>Remover</td><td>Desativar um serviço</td><td>não</td><td>sim</td><td>204</td></tr>
+</table>
+<p>HEAD é um GET sem corpo; OPTIONS pergunta quais métodos são aceitos e aparece no <em>preflight</em> de CORS (Semana 08). O DELETE do ServiceHub é uma <strong>exclusão lógica</strong>: o serviço fica com <code>active = false</code>, mas, para quem usa a API, continua sendo um DELETE que responde 204.</p>
+
+<p>Imagine que a conexão caiu e o cliente não sabe se o servidor recebeu o pedido. Repetir <code>PUT /services/12</code> com o mesmo corpo deixa o serviço igual. Repetir <code>POST /service-requests</code> cria duas ordens. Repetir o <code>PATCH /service-requests/31/status</code> de PENDING para ACCEPTED faz a segunda tentativa receber 409, porque a ordem já está em ACCEPTED: é a máquina de estados protegendo o domínio (seção 11). Conclusão: GET, PUT e DELETE podem ser repetidos sem medo; POST e PATCH exigem cuidado do cliente.</p>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. Status codes <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O status code é um número de três dígitos na primeira linha da resposta. O <strong>primeiro dígito</strong> define a família e diz quem precisa agir. Um cliente que não conhece o código exato deve tratá-lo pela família: um 418 desconhecido ainda é um erro do cliente.</p>
+<table>
+<thead><tr><th style="width:10%">Família</th><th style="width:22%">Significado</th><th>Exemplos</th></tr></thead>
+<tr><td>1xx</td><td>Informativo</td><td>Recebido, continue. 101 ao trocar de protocolo, como ao abrir um WebSocket.</td></tr>
+<tr><td>2xx</td><td>Sucesso</td><td>200 OK, 201 Created, 204 No Content.</td></tr>
+<tr><td>3xx</td><td>Redirecionamento</td><td>Procure em outro lugar ou use o cache: 301, 304.</td></tr>
+<tr><td>4xx</td><td>Erro do cliente</td><td>O pedido precisa mudar: 400, 401, 403, 404, 409.</td></tr>
+<tr><td>5xx</td><td>Erro do servidor</td><td>O pedido estava certo; o servidor falhou: 500, 502, 503.</td></tr>
+</table>
+<p>A diferença entre 4xx e 5xx tem consequência prática. Um 4xx diz "corrija e tente de novo"; um 5xx diz "o problema é nosso, tente mais tarde". Por isso uma regra de negócio violada <strong>nunca</strong> pode virar 500: o cliente acharia que vale repetir o mesmo pedido.</p>
+
+<h3>Os status codes do ServiceHub</h3>
+<table>
+<thead><tr><th style="width:9%">Código</th><th style="width:20%">Nome</th><th>Quando, no ServiceHub</th></tr></thead>
+<tr><td>200</td><td>OK</td><td>Leitura ou atualização, com corpo na resposta.</td></tr>
+<tr><td>201</td><td>Created</td><td><code>POST</code> criou o recurso; o header <code>Location</code> aponta para ele.</td></tr>
+<tr><td>204</td><td>No Content</td><td><code>DELETE</code> deu certo; não há corpo.</td></tr>
+<tr><td>400</td><td>Bad Request</td><td>JSON malformado ou campo inválido; o corpo traz <code>errors: [{field, message}]</code>.</td></tr>
+<tr><td>401</td><td>Unauthorized</td><td>Sem token, token inválido ou expirado, usuário desativado. Apesar do nome, significa "não autenticado".</td></tr>
+<tr><td>403</td><td>Forbidden</td><td>Autenticado, mas sem permissão: papel errado ou recurso de outra pessoa.</td></tr>
+<tr><td>404</td><td>Not Found</td><td>O recurso não existe, ou o serviço está inativo e quem pede não é o dono nem ADMIN.</td></tr>
+<tr><td>409</td><td>Conflict</td><td>Pedido bem escrito que o estado atual não permite: e-mail repetido, transição inválida, avaliação duplicada.</td></tr>
+<tr><td>500</td><td>Internal Server Error</td><td>Erro inesperado, ou seja, um bug. Nenhuma regra de negócio termina em 500.</td></tr>
+</table>
+<p>Uma forma de lembrar: <strong>401</strong> pergunta "quem é você?" e se resolve com login; <strong>403</strong> diz "sei quem você é, e não pode", e fazer login de novo não resolve.</p>
+
+<h3>400, 422 ou 409? Decida uma vez</h3>
+<p>Há APIs que usam 422 (<em>Unprocessable Content</em>) para erros de validação e 400 só para JSON quebrado. Ambas as escolhas são válidas pelo HTTP. O ServiceHub decidiu assim:</p>
+<ul>
+  <li><strong>400 — forma:</strong> o pedido está mal escrito. JSON quebrado, campo obrigatório faltando, preço negativo, status desconhecido.</li>
+  <li><strong>409 — estado:</strong> o pedido está bem escrito, mas o estado atual dos dados não permite. E-mail já cadastrado, transição de COMPLETED para CANCELLED, segunda avaliação da mesma ordem.</li>
+  <li><strong>422:</strong> não usamos.</li>
+</ul>
+<p>O importante não é qual número, e sim que a API inteira decida uma vez e documente. Todo erro do ServiceHub sai no formato <strong>ProblemDetail</strong> (RFC 9457), com <code>Content-Type: application/problem+json</code>, tema da Semana 04:</p>
+<pre>HTTP/1.1 409 Conflict
+Content-Type: application/problem+json
+
+{ "type": "urn:servicehub:problem:invalid-transition",
+  "title": "Transição de status inválida", "status": 409,
+  "detail": "Não é possível mudar de COMPLETED para CANCELLED." }</pre>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. Headers e negociação de conteúdo <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Headers são metadados da mensagem; o nome não diferencia maiúsculas de minúsculas. Quatro deles aparecem toda semana:</p>
+<table>
+<thead><tr><th style="width:20%">Header</th><th style="width:16%">Direção</th><th>Para que serve</th></tr></thead>
+<tr><td><code>Content-Type</code></td><td>as duas</td><td>Formato do corpo que está <em>nesta</em> mensagem. Um POST sem <code>application/json</code> recebe 415.</td></tr>
+<tr><td><code>Accept</code></td><td>requisição</td><td>Formato que o cliente quer <em>receber</em>.</td></tr>
+<tr><td><code>Authorization</code></td><td>requisição</td><td><code>Bearer</code> seguido do token. Ausente numa rota protegida: 401.</td></tr>
+<tr><td><code>Location</code></td><td>resposta</td><td>Numa resposta 201, a URI do recurso recém-criado.</td></tr>
+</table>
+<p>O ServiceHub também devolve <code>X-Request-Id</code> em toda resposta, um identificador para rastrear a requisição nos logs (Semana 15).</p>
+
+<h3>Negociação de conteúdo</h3>
+<p>O mesmo recurso pode ter várias representações: JSON, XML, PDF, em português ou em inglês. Na <strong>negociação de conteúdo</strong>, o cliente diz o que aceita e o servidor escolhe uma representação e declara qual mandou.</p>
+<pre>GET /v1/livros/42                    →   200 OK
+Accept: application/json                 Content-Type: application/json
+Accept-Language: pt-BR                   Content-Language: pt-BR</pre>
+<p>Quando a negociação falha, há dois códigos diferentes, e é comum confundi-los:</p>
+<ul>
+  <li><strong>406 Not Acceptable:</strong> o servidor não tem nenhuma representação que o <code>Accept</code> do cliente aceite. O problema está no que o cliente quer <em>receber</em>.</li>
+  <li><strong>415 Unsupported Media Type:</strong> o corpo enviado está num formato que o servidor não lê. O problema está no que o cliente <em>mandou</em>.</li>
+</ul>
+<p>O ServiceHub só fala JSON. As respostas de sucesso saem como <code>application/json</code> e as de erro como <code>application/problem+json</code>.</p>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Sem estado: sessão e token <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O HTTP não lembra o pedido anterior. Cada requisição chega ao servidor como se fosse a primeira. Essa é a restrição <strong>sem estado</strong> (<em>stateless</em>) do REST, vista na Semana 01. Então como um usuário "continua logado"? O cliente reenvia uma prova de identidade em <em>todo</em> pedido. Há duas formas comuns de fazer isso:</p>
+<table>
+<thead><tr><th style="width:20%">Critério</th><th>Sessão com cookie</th><th>Token no header</th></tr></thead>
+<tr><td>O que viaja</td><td><code>Cookie: SESSIONID=a81f...</code> (só um identificador)</td><td><code>Authorization: Bearer eyJhbGciOi...</code></td></tr>
+<tr><td>Onde fica o estado</td><td>No servidor, numa tabela de sessões</td><td>Dentro do próprio token, assinado pelo servidor</td></tr>
+<tr><td>Várias instâncias</td><td>Precisam compartilhar as sessões</td><td>Qualquer uma confere a assinatura</td></tr>
+<tr><td>Ponto de atenção</td><td>O envio automático abre espaço para CSRF</td><td>Revogar antes de expirar é difícil</td></tr>
+</table>
+<p><strong>CSRF</strong> (<em>Cross-Site Request Forgery</em>) é quando um site malicioso faz o navegador enviar um pedido a outro site, e o navegador anexa o cookie da vítima sozinho. Com o token no header <code>Authorization</code>, o navegador não anexa nada automaticamente.</p>
+<p>Nenhuma das duas formas é "errada": sessão com cookie funciona bem para sites renderizados no servidor; para APIs consumidas por aplicativos e outros serviços, o token simplifica escalar. O ServiceHub usa token (JWT, Semana 09) e não guarda sessão.</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Recursos, coleções e sub-recursos <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um <strong>recurso</strong> é qualquer coisa do domínio que mereça um nome: um livro, um autor, a resenha de um livro, até o status de um pedido. A URI identifica o recurso; o JSON é só uma representação dele naquele momento. As URIs de uma API REST se organizam em três formas:</p>
+<ul>
+  <li><strong>Coleção</strong>, conjunto de recursos do mesmo tipo: <code>/livros</code>. GET lista; POST cria um item dentro dela.</li>
+  <li><strong>Item</strong>, um elemento identificado: <code>/livros/42</code>. GET lê, PUT substitui, PATCH altera parte, DELETE remove.</li>
+  <li><strong>Sub-recurso</strong>, que só existe no contexto do pai: <code>/livros/42/resenhas</code>.</li>
+</ul>
+<p>No ServiceHub: <code>/services</code> (coleção), <code>/services/12</code> (item), <code>/services/12/reviews</code> (avaliações daquele serviço) e <code>/service-requests/31/status</code> (o status daquela ordem).</p>
+
+<h3>Ações que parecem verbos</h3>
+<p>Aceitar, iniciar, concluir e cancelar uma ordem parecem ações, e a tentação é criar uma rota para cada uma. A saída REST é tratar o <strong>status como sub-recurso</strong>: a ação passa a ser uma alteração parcial do estado da ordem.</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Verbos na URI</h3>
+<pre>POST /acceptRequest?id=31
+POST /service-requests/31/cancel
+GET  /startOrder/31</pre>
+<p>Cada ação vira uma rota nova, e o método HTTP perde o significado.</p></div>
+<div class="card good"><h3 class="ch">Status como sub-recurso</h3>
+<pre>PATCH /service-requests/31/status
+Content-Type: application/json
+
+{ "status": "ACCEPTED" }</pre>
+<p>Uma rota só; o destino vai no corpo e a máquina de estados decide se vale.</p></div>
+</div>
+<div class="warn"><div class="label">Confusão comum</div><p>Aninhar demais, como em <code>/autores/3/livros/42/resenhas/7</code>, acopla o cliente à hierarquia: para ler uma resenha ele precisa saber o autor e o livro. Use sub-recurso quando a relação é de posse, e no máximo um nível. Se o item tem id próprio, prefira <code>/resenhas/7</code>. É por isso que o ServiceHub tem <code>GET /reviews/{id}</code>.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. O modelo de maturidade de Richardson <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leonard Richardson propôs uma escala para classificar o quanto uma API usa a Web a seu favor, e Martin Fowler a popularizou num artigo. É uma régua didática, não uma norma: cada nível acrescenta uma parte da interface uniforme do REST.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 200" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <g stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="10" y="150" width="160" height="42" rx="5" fill="#fff"/>
+    <rect x="180" y="110" width="160" height="82" rx="5" fill="#fff"/>
+    <rect x="350" y="70" width="160" height="122" rx="5" fill="#e7f5ef" stroke="#047857" stroke-width="2"/>
+    <rect x="520" y="30" width="170" height="162" rx="5" fill="#fff"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937" font-weight="700">
+    <text x="90" y="168">Nível 0</text><text x="260" y="128">Nível 1</text>
+    <text x="430" y="88" fill="#047857">Nível 2 · nossa meta</text><text x="605" y="48">Nível 3</text>
+  </g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10.5">
+    <text x="90" y="184">um ponto só: POST /api</text>
+    <text x="260" y="146">recursos com URI própria</text><text x="260" y="162">método sempre o mesmo</text>
+    <text x="430" y="106">recursos + verbos HTTP</text><text x="430" y="122">+ status codes corretos</text>
+    <text x="605" y="66">+ hipermídia (HATEOAS)</text><text x="605" y="82">links para as próximas ações</text>
+  </g>
+</svg>
+<figcaption>Cada degrau acrescenta uma parte da interface uniforme. O ServiceHub mira o nível 2.</figcaption>
+</figure>
+<p>O nível 3, chamado <strong>HATEOAS</strong> (<em>Hypermedia as the Engine of Application State</em>), é a parte menos adotada da interface uniforme. Pelo critério de Fielding, só ele seria REST de fato; na prática, a maioria das APIs ditas REST está no nível 2, e é esse o nosso alvo.</p>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. Modelagem do domínio <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Até aqui tratamos da forma: como a API conversa. Agora tratamos do conteúdo: o que o sistema permite. Essa parte a IA não sabe, porque é específica do seu negócio. As ideias desta seção vêm do <strong>DDD</strong> (<em>Domain-Driven Design</em>, projeto orientado ao domínio), uma abordagem que coloca o modelo do negócio no centro do software.</p>
+
+<h3>Domínio e subdomínios</h3>
+<p><strong>Domínio</strong> é a área de negócio que o software atende. Dentro dele há <strong>subdomínios</strong>, e nem todos merecem o mesmo esforço:</p>
+<table>
+<thead><tr><th style="width:16%">Tipo</th><th>O que é</th><th style="width:32%">No ServiceHub</th></tr></thead>
+<tr><td>Principal (<em>core</em>)</td><td>O que a empresa faz diferente dos concorrentes. Lógica complexa, feita em casa, com o melhor time.</td><td>A contratação e o ciclo de vida da ordem.</td></tr>
+<tr><td>De suporte</td><td>Necessário ao negócio, mas sem vantagem competitiva. Costuma ser simples, quase um cadastro.</td><td>Catálogo de serviços e avaliações.</td></tr>
+<tr><td>Genérico</td><td>Todo mundo resolve do mesmo jeito. Use solução pronta e testada.</td><td>Autenticação com JWT e senha com BCrypt.</td></tr>
+</table>
+<p>Exemplo genérico: num aplicativo de entrega de comida, o principal é casar pedido, restaurante e entregador com rapidez; o cardápio de cada restaurante é de suporte; o pagamento com cartão é genérico, resolvido por um provedor. A consequência prática é que o esforço de modelagem e de teste vai para o subdomínio principal. É ali também que a IA mais erra, porque a regra é específica do negócio; no genérico ela costuma acertar, porque o padrão é público.</p>
+
+<h3>Linguagem ubíqua</h3>
+<p><strong>Linguagem ubíqua</strong> é a linguagem do negócio, usada do mesmo jeito por especialistas, desenvolvedores, código, testes e documentação. Sem tradução no meio, não há o que se perder.</p>
+<table>
+<thead><tr><th style="width:20%">Termo do negócio</th><th style="width:34%">No código · no banco</th><th>Atenção</th></tr></thead>
+<tr><td>Serviço</td><td><code>ServiceOffering</code> · <code>services</code></td><td>O nome evita conflito com a anotação <code>@Service</code> do Spring.</td></tr>
+<tr><td>Ordem de serviço</td><td><code>ServiceRequest</code> · <code>service_requests</code></td><td>Não confundir com requisição HTTP.</td></tr>
+<tr><td>Cliente da ordem</td><td>campo <code>client</code> da ordem</td><td>Pode ser um PROVIDER contratando outro prestador.</td></tr>
+</table>
+<div class="warn"><div class="label">Confusão comum</div><p>"Cliente" tem dois sentidos no ServiceHub: o <strong>papel</strong> CLIENT de um usuário e o <strong>cliente de uma ordem</strong>, quem a abriu. Misturar os dois gera o erro de impedir um PROVIDER de contratar. Termo ambíguo vira código ambíguo. Um termo só precisa ter significado único dentro de um <strong>contexto delimitado</strong>, a fronteira em que aquele modelo vale.</p></div>
+
+<h3>Entidade, objeto de valor e invariante</h3>
+<div class="grid2">
+  <div class="card"><h3 class="ch">Entidade</h3><p>Tem <strong>identidade própria</strong>, que dura enquanto os dados mudam. Uma conta bancária continua a mesma quando o saldo muda; duas contas com o mesmo saldo não são a mesma conta. No ServiceHub: usuário, serviço, ordem, avaliação. Em Java, vira uma classe <code>@Entity</code> com <code>id</code>.</p></div>
+  <div class="card"><h3 class="ch">Objeto de valor</h3><p>Definido <strong>só pelos atributos</strong> e imutável: muda trocando por outro. R$ 150,00 é igual a qualquer outro R$ 150,00; o mesmo vale para um endereço ou um intervalo de datas. No ServiceHub: preço, e-mail, nota de 1 a 5. Em Java, cabe bem num <code>record</code>.</p></div>
+</div>
+<p>Uma <strong>invariante</strong> é uma condição que precisa ser verdadeira antes e depois de qualquer operação. Exemplo genérico: o saldo de uma conta sem limite nunca fica negativo; quem tenta quebrar a regra recebe um erro, e o dado não muda. As invariantes do ServiceHub estão no Mapa de Construção como regras RN01 a RN13. Algumas delas:</p>
+<table>
+<thead><tr><th style="width:9%">Regra</th><th>Enunciado</th><th style="width:14%">Resposta</th></tr></thead>
+<tr><td>RN01</td><td>E-mail é único, sem diferenciar maiúsculas.</td><td>409</td></tr>
+<tr><td>RN06</td><td>Ninguém contrata o próprio serviço; o serviço precisa estar ativo.</td><td>409</td></tr>
+<tr><td>RN07</td><td>O preço da ordem é o do serviço na criação e não muda depois.</td><td>—</td></tr>
+<tr><td>RN09</td><td>Só quem abriu a ordem avalia, só depois de COMPLETED, uma única vez.</td><td>403 · 409</td></tr>
+<tr><td>RN10</td><td>Usuário ou serviço com ordens ativas não pode ser excluído.</td><td>409</td></tr>
+</table>
+<p>A RN07 explica por que o corpo do <code>POST /service-requests</code> não traz preço: aceitar o preço vindo do cliente seria <strong>mass assignment</strong>, deixar o cliente definir um campo que só o servidor deveria definir. Congelar o preço na ordem garante que um reajuste amanhã não muda o que foi contratado hoje.</p>
+
+<h3>Quem pode fazer o quê</h3>
+<p>Cadastrar-se: qualquer pessoa, como CLIENT ou PROVIDER (RN03). Publicar serviço: PROVIDER, sempre em nome de quem está logado (RN04). Alterar ou desativar serviço: o dono ou um ADMIN (RN05). Abrir ordem: CLIENT ou PROVIDER, nunca no próprio serviço; ADMIN não abre ordens (RN06). Mudar status: depende do estado e do <strong>papel na ordem</strong> (RN08), que é diferente do papel do usuário: um PROVIDER pode ser o cliente de uma ordem. Avaliar: só quem abriu a ordem, depois de concluída (RN09).</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. A máquina de estados da ordem <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>máquina de estados</strong> é um modelo com um conjunto finito de estados, um estado inicial, eventos que levam de um estado a outro e estados <strong>terminais</strong>, de onde não se sai. A regra de ouro: <em>o que não está desenhado é proibido</em>. Desenhada (em geral com a notação de estados da UML), a regra fica explícita e testável; no código, vira uma tabela de dados, e não <code>if</code>s espalhados.</p>
+<p>Exemplo genérico, um pedido de loja virtual: CRIADO → PAGO → ENVIADO → ENTREGUE. CRIADO e PAGO também podem ir para CANCELADO; ENVIADO não, porque a mercadoria já saiu. Com <em>n</em> estados existem <em>n × n</em> pares possíveis; a máquina diz quais são válidos.</p>
+
+<h3>A vida de uma ordem de serviço</h3>
+<figure class="figure">
+<svg viewBox="0 0 700 190" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs>
+    <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+    <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b45309"/></marker>
+  </defs>
+  <circle cx="16" cy="55" r="7" fill="#1f2937"/>
+  <path d="M24 55 H44" stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#a4)"/>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4">
+    <rect x="48" y="30" width="120" height="50" rx="10"/><rect x="218" y="30" width="120" height="50" rx="10"/>
+    <rect x="388" y="30" width="120" height="50" rx="10"/>
+  </g>
+  <rect x="558" y="30" width="134" height="50" rx="10" fill="#e7f5ef" stroke="#047857" stroke-width="2"/>
+  <rect x="218" y="128" width="120" height="50" rx="10" fill="#fdf3e6" stroke="#b45309" stroke-width="2"/>
+  <g text-anchor="middle" fill="#1f2937" font-weight="700">
+    <text x="108" y="52">PENDING</text><text x="278" y="52">ACCEPTED</text><text x="448" y="52">IN_PROGRESS</text>
+    <text x="625" y="52" fill="#047857">COMPLETED</text><text x="278" y="150" fill="#b45309">CANCELLED</text>
+  </g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10">
+    <text x="108" y="68">aguarda o prestador</text><text x="278" y="68">aceita</text><text x="448" y="68">em execução</text>
+    <text x="625" y="68">terminal</text><text x="278" y="166">terminal</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#a4)"><path d="M169 55 H214"/><path d="M339 55 H384"/><path d="M509 55 H554"/></g>
+  <g font-size="10.5" fill="#1d4ed8" text-anchor="middle"><text x="192" y="24">aceitar</text><text x="362" y="24">iniciar</text><text x="532" y="24">concluir</text></g>
+  <g stroke="#b45309" stroke-width="1.6" fill="none" marker-end="url(#a5)"><path d="M108 81 V153 H214"/><path d="M278 81 V124"/></g>
+  <g font-size="10.5" fill="#b45309"><text x="114" y="146">cancelar</text><text x="284" y="106">cancelar</text></g>
+  <text x="520" y="150" text-anchor="middle" fill="#6b7280" font-size="10.5">qualquer seta fora do desenho → 409 Conflict</text>
+</svg>
+<figcaption>Máquina de estados da ordem de serviço do ServiceHub. COMPLETED e CANCELLED são terminais.</figcaption>
+</figure>
+
+<h3>A tabela de transições é a regra</h3>
+<table>
+<thead><tr><th style="width:20%">De</th><th style="width:20%">Para</th><th>Quem pode pedir</th></tr></thead>
+<tr><td>PENDING</td><td>ACCEPTED</td><td>Prestador dono do serviço</td></tr>
+<tr><td>PENDING</td><td>CANCELLED</td><td>Cliente da ordem ou prestador</td></tr>
+<tr><td>ACCEPTED</td><td>IN_PROGRESS</td><td>Prestador dono do serviço</td></tr>
+<tr><td>ACCEPTED</td><td>CANCELLED</td><td>Cliente da ordem ou prestador</td></tr>
+<tr><td>IN_PROGRESS</td><td>COMPLETED</td><td>Prestador dono do serviço</td></tr>
+<tr><td colspan="2">Qualquer outra combinação</td><td>409 Conflict, com <code>detail</code> explicando a transição recusada</td></tr>
+</table>
+<div class="grid2">
+  <div class="card bad"><h3 class="ch">409: fora da tabela</h3><p>O pedido não faz sentido no estado atual, por exemplo COMPLETED → PENDING. Vale até para ADMIN. O cliente da API deve <strong>corrigir o fluxo</strong>.</p></div>
+  <div class="card bad"><h3 class="ch">403: não é o seu papel</h3><p>A transição existe, mas não para você, por exemplo o cliente tentando aceitar a própria ordem. O cliente da API deve <strong>trocar de usuário</strong>. ADMIN pode qualquer transição válida.</p></div>
+</div>
+<p>Quem não participa da ordem recebe 403 <em>antes</em> de qualquer análise, para não revelar a um estranho em que estado ela está.</p>
+<p>O banco tem um <code>CHECK</code> que só aceita os cinco valores de status, mas não sabe <em>quem</em> pode ir de <em>qual</em> estado para <em>qual</em>. Essa regra vive na camada de serviço, e cada transição precisa de teste.</p>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+<h2>12. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Nesta semana a equipe ainda não escreve código. Mesmo assim vale ver como o desenho vira Java no projeto de referência. Os trechos são reais e foram resumidos.</p>
+
+<h3>A tabela de transições como dado</h3>
+<p>O enum <code>RequestStatus</code> guarda a máquina como um mapa de pares (de, para) para os atores que podem pedir (resumido):</p>
+<pre>public enum RequestStatus {
+    PENDING, ACCEPTED, IN_PROGRESS, COMPLETED, CANCELLED;
+
+    public enum Actor { CLIENT, PROVIDER, ADMIN }
+    private record Rule(RequestStatus from, RequestStatus to) { }
+
+    private static final Map&lt;Rule, Set&lt;Actor&gt;&gt; TRANSITIONS = Map.of(
+        new Rule(PENDING, ACCEPTED),     EnumSet.of(Actor.PROVIDER),
+        new Rule(PENDING, CANCELLED),    EnumSet.of(Actor.CLIENT, Actor.PROVIDER),
+        new Rule(ACCEPTED, IN_PROGRESS), EnumSet.of(Actor.PROVIDER),
+        new Rule(ACCEPTED, CANCELLED),   EnumSet.of(Actor.CLIENT, Actor.PROVIDER),
+        new Rule(IN_PROGRESS, COMPLETED), EnumSet.of(Actor.PROVIDER));
+
+    public boolean canTransitionTo(RequestStatus target) { ... }  // par existe?
+    public boolean allowedFor(RequestStatus target, Actor actor) {
+        ... // ADMIN pode qualquer par existente; os demais, só os da tabela
+    }
+}</pre>
+
+<h3>A ordem das verificações</h3>
+<p>Em <code>ServiceRequestService.changeStatus</code>, a ordem é: ordem inexistente → 404; quem chama não participa → 403; <code>canTransitionTo</code> falso → <code>InvalidStateTransitionException</code> (409); <code>allowedFor</code> falso → <code>AccessDeniedException</code> (403).</p>
+
+<p>E o controller devolve <code>ResponseEntity.created(URI.create("/api/v1/service-requests/" + body.id()))</code>, que gera o 201 com <code>Location</code>. O DTO de entrada <code>ServiceRequestCreateDTO</code> tem só três campos, <code>serviceId</code>, <code>scheduledAt</code> e <code>notes</code>: não existe campo de preço, de cliente nem de status para o cliente preencher (RN07 e mass assignment). A decisão está registrada no ADR-0006 do projeto; ADR é tema da Semana 03.</p>
+
+
+<h3>Como fica a entrega da equipe</h3>
+<p>Os dois documentos da semana são Markdown no repositório. No <code>docs/endpoints.md</code>, cada linha traz método, rota, quem pode, sucesso e cada erro, como na seção 6 do Mapa; um diagrama em que tudo responde 200 está errado. O diagrama de estados pode ser escrito em <strong>Mermaid</strong>, notação de diagramas em texto que o GitHub desenha ao exibir o arquivo (início do exemplo):</p>
+<pre>```mermaid
+stateDiagram-v2
+    [*] --&gt; PENDING
+    PENDING --&gt; ACCEPTED: prestador aceita
+    PENDING --&gt; CANCELLED: cliente ou prestador
+    ...as outras três setas da tabela...
+```</pre>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Nesta semana ainda não há código, e isso é proposital. Peça um CRUD à IA e ela gera um em segundos; peça a regra de quem aceita a ordem e ela inventa uma. A especificação é sua.</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>O que você faz nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>A equipe escreve, sem IA, a tabela de transições, a de "quem pode" e as invariantes.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>A equipe monta <code>docs/endpoints.md</code> e <code>docs/dominio.md</code>; a IA, no máximo, converte a tabela em Mermaid.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>A IA revisa os dois documentos contra o Mapa; você confere cada apontamento.</td></tr>
+<tr><td><strong>Provar</strong></td><td>Sem código, a prova é a tabela de casos esperados dos 5 × 5 pares de estados.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>faz os endpoints de uma API de ordens de serviço</pre><p>A IA não conhece as regras do ServiceHub: inventa transições, cria rotas com verbos, responde 200 para tudo e ainda gera código.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Dá contexto e versões, entrega o Mapa e os rascunhos, pede só revisão, diz o que conferir e o formato da resposta. Texto completo abaixo.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Cole o prompt abaixo junto com as seções 4, 5, 6 e 9 do Mapa de Construção e com os dois rascunhos da equipe.</p>
+<pre>Contexto: somos uma equipe de Engenharia de Software projetando a
+API ServiceHub (Java 21, Spring Boot 4.1, PostgreSQL 16). Ainda não
+há código: nesta etapa entregamos dois documentos Markdown no
+repositório, docs/endpoints.md (diagrama de endpoints) e
+docs/dominio.md (máquina de estados da ordem, tabela de transições,
+quem pode fazer o quê e invariantes). O contrato oficial é o Mapa de
+Construção, cujos trechos colamos abaixo.
+
+Objetivo: revisar os nossos dois documentos contra o Mapa.
+
+Restrições:
+- NÃO gere código Java, SQL nem configuração.
+- NÃO reescreva os documentos; aponte problemas e sugira a correção
+  de cada um em uma linha.
+- Use só o Mapa como fonte; o que não estiver lá é "não especificado".
+- Regras do projeto: todas as rotas em /api/v1; sem verbos na URI;
+  POST de criação responde 201 com Location; DELETE responde 204;
+  400 é erro de forma (validação), 409 é erro de estado (regra de
+  negócio ou transição inválida), 403 é papel ou dono errado;
+  nenhuma regra de negócio responde 500; não usamos 422.
+- Máquina de estados: PENDING→ACCEPTED, ACCEPTED→IN_PROGRESS,
+  IN_PROGRESS→COMPLETED (prestador); PENDING ou ACCEPTED→CANCELLED
+  (cliente da ordem ou prestador); ADMIN pode qualquer transição
+  válida; COMPLETED e CANCELLED são terminais; qualquer outra
+  combinação é 409; papel errado em transição válida é 403; quem não
+  participa da ordem recebe 403 antes da análise.
+
+Antes de revisar, mostre o seu plano (a lista de verificações, na
+ordem) e espere eu confirmar.
+
+Depois, responda em duas tabelas (uma por documento) com as colunas:
+item | o que está no nosso documento | o que diz o Mapa | correção.
+Confira, no mínimo: cada rota da seção 6 do Mapa está presente; cada
+rota tem quem pode, sucesso e todos os erros; as setas do diagrama de
+estados são exatamente as cinco da tabela; os estados terminais não
+têm saída; cada RN01–RN13 aparece em docs/dominio.md.
+
+Critério de aceite: a revisão cobre 100% das rotas do Mapa e as 25
+combinações de estado; cada apontamento cita a seção do Mapa; nenhum
+trecho de código na resposta.
+
+Trechos do Mapa:
+&lt;cole aqui as seções 4, 5, 6 e 9&gt;
+
+Nossos documentos:
+&lt;cole aqui docs/endpoints.md e docs/dominio.md&gt;</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li><strong>Status livre:</strong> aceitar qualquer status no PATCH, inclusive o cliente aceitar a própria ordem, ou permitir sair de COMPLETED.</li>
+  <li><strong>500 para tudo:</strong> "não encontrado" vira 500, o erro mais comum em APIs iniciantes e em código gerado por IA.</li>
+  <li><strong>Verbos na URI:</strong> <code>/acceptRequest</code>, <code>/cancelOrder</code>; a ação deveria ir no corpo do <code>PATCH /status</code>.</li>
+  <li><strong>Preço e dono no corpo:</strong> aceitar <code>totalPrice</code>, <code>clientId</code> ou <code>providerId</code> vindos do cliente, em vez de tirá-los do serviço e do token.</li>
+  <li>Gerar código quando o pedido era revisão, ou "concordar" sem conferir rota por rota.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Todas as rotas da seção 6 do Mapa estão no <code>docs/endpoints.md</code>, com prefixo <code>/api/v1</code>?</li>
+  <li>Todo POST de criação tem 201, todo DELETE tem 204, e nenhuma linha responde só 200?</li>
+  <li>409 aparece nas regras de estado e 403 nas de papel ou dono, sem trocar um pelo outro?</li>
+  <li>O diagrama de estados tem exatamente cinco setas, e COMPLETED e CANCELLED não têm saída?</li>
+  <li>As treze regras RN01–RN13 estão no <code>docs/dominio.md</code>?</li>
+</ul>
+<h3>Prova</h3>
+<p>Monte a tabela de casos esperados: para cada um dos 25 pares (de, para) e cada papel na ordem (cliente, prestador, ADMIN, terceiro), a resposta esperada (200, 403 ou 409). Ela está certa quando exatamente cinco pares respondem 200 para o prestador, dois respondem 200 para o cliente, e todo par com origem em COMPLETED ou CANCELLED responde 409 para quem participa da ordem. Essa tabela vira teste automatizado nas próximas semanas.</p>
+</section>
+
+<!-- 14 -->
+<section class="page" id="s14">
+<h2>14. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>URI</dt><dd>Identificador uniforme de um recurso; URL e URN são tipos de URI.</dd>
+  <dt>Método seguro</dt><dd>Método que não pede mudança de estado no servidor: GET, HEAD, OPTIONS.</dd>
+  <dt>Idempotente</dt><dd>Repetir o pedido deixa o servidor no mesmo estado que fazê-lo uma vez.</dd>
+  <dt>Negociação de conteúdo</dt><dd>Escolha da representação a partir do que o cliente aceita (<code>Accept</code>).</dd>
+  <dt>Stateless</dt><dd>O servidor não guarda sessão; cada pedido traz tudo o que é preciso.</dd>
+  <dt>CSRF</dt><dd>Ataque em que um site faz o navegador enviar um pedido com o cookie da vítima.</dd>
+  <dt>Sub-recurso</dt><dd>Recurso que só existe no contexto de outro, como <code>/services/12/reviews</code>.</dd>
+  <dt>HATEOAS</dt><dd>Respostas com links para as próximas ações; nível 3 de Richardson.</dd>
+  <dt>Subdomínio principal</dt><dd>Parte do negócio que o diferencia dos concorrentes e merece o maior esforço.</dd>
+  <dt>Linguagem ubíqua</dt><dd>Vocabulário do negócio usado igual por pessoas, código, testes e documentos.</dd>
+  <dt>Entidade</dt><dd>Objeto com identidade própria, que persiste enquanto os dados mudam.</dd>
+  <dt>Objeto de valor</dt><dd>Objeto imutável definido só pelos atributos, como um preço.</dd>
+  <dt>Invariante</dt><dd>Condição que precisa ser verdadeira antes e depois de qualquer operação.</dd>
+</dl>
+
+<!-- 15 -->
+<h2 id="s15">15. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Decomponha a URL <code>http://localhost:8090/api/v1/services?category=ELETRICA&amp;page=1#topo</code> em esquema, host, porta, caminho, query string e fragmento. Qual dessas partes o servidor nunca recebe?</li>
+  <li>Classifique cada operação como segura, idempotente (mas não segura) ou nenhuma das duas: (a) "defina o telefone como 62999990000"; (b) "transfira R$ 50 para a conta 7"; (c) "mostre o extrato"; (d) "apague a avaliação 4".</li>
+  <li>O primeiro <code>DELETE /api/v1/services/12</code> respondeu 204 e o segundo respondeu 404. Um colega diz que isso prova que o DELETE não é idempotente. Ele está certo? Justifique.</li>
+  <li>Indique o status code para cada caso no ServiceHub: (a) cadastro com e-mail já existente; (b) <code>POST /services</code> sem token; (c) um CLIENT tenta <code>POST /services</code>; (d) preço <code>-10</code> num serviço; (e) <code>GET /services/999</code> inexistente; (f) prestador pede COMPLETED numa ordem PENDING.</li>
+  <li>Um cliente envia um POST com <code>Content-Type: text/plain</code>. A API deve responder 406 ou 415? E se o cliente pedir <code>Accept: application/xml</code> numa API que só fala JSON?</li>
+  <li>Explique por que, com sessão guardada na memória do servidor, duas instâncias da API atrás de um balanceador podem "deslogar" o usuário. Como o token resolve isso?</li>
+  <li>Classifique a API abaixo no modelo de Richardson e reescreva-a no nível 2: <code>POST /api</code> com corpo <code>{"acao": "cancelarOrdem", "id": 31}</code>.</li>
+  <li>Classifique como entidade ou objeto de valor: (a) a ordem 31; (b) o valor R$ 150,00; (c) o e-mail <code>maria@x.com</code>; (d) o usuário Maria. Justifique uma delas.</li>
+  <li>Para cada pedido de mudança de status, diga a resposta (200, 403 ou 409) e por quê: (a) o cliente da ordem pede ACCEPTED numa ordem PENDING; (b) o prestador pede CANCELLED numa ordem IN_PROGRESS; (c) o ADMIN pede PENDING numa ordem COMPLETED; (d) um usuário que não participa da ordem pede CANCELLED numa ordem PENDING.</li>
+  <li>O corpo de um <code>POST /service-requests</code> chegou com <code>"totalPrice": 1.00</code>. O que a API deve fazer com esse campo, e qual regra do Mapa justifica?</li>
+  <li>Escreva um prompt pedindo à IA que gere, a partir da tabela de transições, a tabela de casos esperados dos 25 pares de estado para o papel "prestador". Inclua contexto, restrições e critério de aceite, e diga como você conferiria a resposta.</li>
+</ol>
+
+<!-- 16 -->
+<h2 id="s16">16. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>RODRIGUES, T. N. et al. <em>Integração de aplicações</em>. Grupo A, 2020. Capítulos "Geração de serviços com REST" e "Serviços web".</li>
+  <li>KHONONOV, V. <em>Aprenda Domain-Driven Design</em>. Alta Books, 2024. Capítulos 1 a 3 (subdomínios, linguagem ubíqua, contextos delimitados). Se der tempo para só uma leitura, que seja o capítulo 2.</li>
+  <li>PRESSMAN, R. S.; MAXIM, B. R. <em>Engenharia de software</em>. 9. ed. Grupo A, 2021. Capítulos 7 e 8.</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>FIELDING, R. T. <em>Architectural Styles and the Design of Network-based Software Architectures</em>. Tese (Doutorado), University of California, Irvine, 2000. Capítulo 5.</li>
+  <li>RFC 9110, <em>HTTP Semantics</em>: seções de métodos e de status codes. RFC 3986, <em>URI: Generic Syntax</em>.</li>
+  <li>RFC 9457, <em>Problem Details for HTTP APIs</em> (Semana 04). MDN Web Docs, guia de HTTP: <code>developer.mozilla.org/pt-BR/docs/Web/HTTP</code>. Documentação do Mermaid: <code>mermaid.js.org</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

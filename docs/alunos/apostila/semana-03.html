@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 03 — Spring Boot 4, setup e fluxo Git</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 03 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 03<br>Spring Boot 4, setup e fluxo Git</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Nesta semana o ServiceHub vira código. Antes de gerar o projeto, vale entender as ideias que o Spring usa o tempo todo: inversão de controle, anotações, pacotes e camadas. Depois vem o Spring Boot 4, com seus starters e sua configuração externa, e o primeiro endpoint, <code>GET /api/v1/info</code>. A segunda metade trata do processo: Git, GitHub Flow, Conventional Commits, versionamento e tags. Por fim, dois documentos que a IA não adivinha: o arquivo de contexto do projeto e o primeiro registro de decisão de arquitetura (ADR).</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">Biblioteca ou framework</a></li>
+      <li><a href="#s3">Anotações Java</a></li>
+      <li><a href="#s4">Pacotes e visibilidade</a></li>
+      <li><a href="#s5">Arquitetura em camadas</a></li>
+      <li><a href="#s6">O contêiner do Spring</a></li>
+      <li><a href="#s7">Configuração externa</a></li>
+      <li><a href="#s8">Starters e o Initializr</a></li>
+      <li><a href="#s9">Git: controle de versão distribuído</a></li>
+      <li><a href="#s10">GitHub Flow, commits e versões</a></li>
+      <li><a href="#s11">Contexto para a IA e ADRs</a></li>
+      <li><a href="#s12">Aplicação no ServiceHub</a></li>
+      <li><a href="#s13">Construindo com IA</a></li>
+      <li><a href="#s14">Glossário</a></li>
+      <li><a href="#s15">Exercícios</a></li>
+      <li><a href="#s16">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>explicar inversão de controle, o papel das anotações e como o Spring cria e injeta beans;</li>
+  <li>organizar o código em pacotes e camadas, com a visibilidade mais restrita possível;</li>
+  <li>gerar um projeto Spring Boot 4 com Java 21, escolher os starters certos e externalizar a configuração;</li>
+  <li>trabalhar com Git e GitHub Flow: branch, commit no padrão Conventional Commits, pull request e tag;</li>
+  <li>escrever o arquivo de contexto do projeto para a IA e um ADR no formato de Nygard.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. Biblioteca ou framework <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>biblioteca</strong> é código que você chama quando precisa. Um <strong>framework</strong> é uma estrutura pronta que chama o <em>seu</em> código na hora certa. Essa troca de quem está no comando se chama <strong>inversão de controle</strong> (<em>IoC</em>, de <em>Inversion of Control</em>), resumida no lema "não nos chame, nós chamamos você".</p>
+<table>
+<thead><tr><th style="width:22%">Aspecto</th><th>Biblioteca</th><th>Framework</th></tr></thead>
+<tr><td>Quem controla o fluxo</td><td>O seu programa</td><td>O framework</td></tr>
+<tr><td>Como você usa</td><td>Chama uma função ou cria um objeto</td><td>Escreve classes que ele encontra e executa</td></tr>
+<tr><td>Exemplo genérico</td><td><code>java.time</code> para calcular datas</td><td>Um servidor web que chama o seu método a cada requisição</td></tr>
+<tr><td>No ServiceHub</td><td>Jackson converte um objeto em JSON</td><td>O Spring chama <code>InfoController.info()</code> em <code>GET /api/v1/info</code></td></tr>
+</table>
+<p>O código que chama <code>info()</code> não está no projeto: está no Spring MVC. O preço é aprender as convenções do framework; o ganho é não reescrever servidor, roteamento e conversão de JSON.</p>
+
+<!-- 3 -->
+<h2 id="s3">3. Anotações Java <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>anotação</strong> é um metadado preso a uma classe, método, campo ou parâmetro, escrito com <code>@</code>. Ela não muda o código por si só: alguém precisa lê-la. Pode ser o compilador, uma ferramenta de build ou o framework, em tempo de execução, por <strong>reflexão</strong> (a capacidade de um programa Java inspecionar as próprias classes enquanto roda).</p>
+<p>Duas meta-anotações definem uma anotação nova: <code>@Target</code> diz onde ela pode ser usada, e <code>@Retention</code> diz até quando ela sobrevive.</p>
+<table>
+<thead><tr><th style="width:16%">Retenção</th><th>Onde a anotação existe</th><th style="width:26%">Exemplo</th></tr></thead>
+<tr><td>SOURCE</td><td>Só no código-fonte; o compilador descarta</td><td><code>@Override</code></td></tr>
+<tr><td>CLASS</td><td>No <code>.class</code>, mas não em execução (é o padrão)</td><td>uso de ferramentas</td></tr>
+<tr><td>RUNTIME</td><td>Em execução, lida por reflexão</td><td><code>@RestController</code></td></tr>
+</table>
+<pre>@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface Auditado {          // declara a anotação
+    String valor() default "";
+}
+
+@Auditado(valor = "pedidos")         // usa a anotação
+public class PedidoService { }</pre>
+<p>O Spring só enxerga <code>@RestController</code>, <code>@Service</code> ou <code>@GetMapping</code> porque elas têm retenção RUNTIME. Anotações também podem compor outras: <code>@RestController</code> é, ela mesma, anotada com <code>@Controller</code> e <code>@ResponseBody</code>.</p>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. Pacotes e visibilidade <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um <strong>pacote</strong> agrupa classes relacionadas e cria um espaço de nomes: <code>com.servicehub.controller.InfoController</code> não se confunde com outra <code>InfoController</code> de outro pacote. Por convenção, o nome começa pelo domínio invertido da organização, em minúsculas. Junto com os modificadores de acesso, o pacote decide quem pode usar o quê:</p>
+<table>
+<thead><tr><th style="width:26%">Modificador</th><th>Mesma classe</th><th>Mesmo pacote</th><th>Subclasse em outro pacote</th><th>Qualquer lugar</th></tr></thead>
+<tr><td><code>private</code></td><td>sim</td><td>não</td><td>não</td><td>não</td></tr>
+<tr><td>sem modificador (pacote)</td><td>sim</td><td>sim</td><td>não</td><td>não</td></tr>
+<tr><td><code>protected</code></td><td>sim</td><td>sim</td><td>sim</td><td>não</td></tr>
+<tr><td><code>public</code></td><td>sim</td><td>sim</td><td>sim</td><td>sim</td></tr>
+</table>
+<p>Regra prática: comece pelo acesso mais restrito e abra só quando precisar. No ServiceHub, o conjunto <code>SORTABLE</code> de cada controller não tem modificador: só o pacote <code>controller</code> o enxerga.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>O pacote também importa para o Spring. A varredura de componentes começa no pacote da classe anotada com <code>@SpringBootApplication</code> e desce pelos subpacotes. Uma classe colocada fora dessa árvore, por exemplo em <code>com.outra.coisa</code>, simplesmente não é encontrada, e o endpoint responde 404 sem nenhum erro na inicialização.</p></div>
+
+<!-- 5 -->
+<h2 id="s5">5. Arquitetura em camadas <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Separar o sistema em <strong>camadas</strong>, cada uma com uma responsabilidade, permite trocar ou testar uma parte sem mexer nas outras. Fowler descreve três camadas principais: apresentação, domínio e fonte de dados. Exemplo genérico, uma loja virtual: a tela do carrinho é apresentação, a regra do frete é domínio, a tabela de pedidos é fonte de dados.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 150" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4">
+    <rect x="10" y="30" width="190" height="80" rx="8"/><rect x="480" y="30" width="200" height="80" rx="8"/>
+  </g>
+  <rect x="250" y="30" width="180" height="80" rx="8" fill="#e7f5ef" stroke="#047857" stroke-width="2"/>
+  <g text-anchor="middle" font-weight="700" fill="#1f2937">
+    <text x="105" y="22" fill="#6b7280" font-size="10" font-weight="400">APRESENTAÇÃO</text>
+    <text x="340" y="22" fill="#6b7280" font-size="10" font-weight="400">DOMÍNIO</text>
+    <text x="580" y="22" fill="#6b7280" font-size="10" font-weight="400">FONTE DE DADOS</text>
+    <text x="105" y="58">controller</text><text x="340" y="58" fill="#047857">service</text><text x="580" y="58">repository</text>
+  </g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10.5">
+    <text x="105" y="78">recebe HTTP, valida a entrada,</text><text x="105" y="93">devolve JSON</text>
+    <text x="340" y="78">regras de negócio:</text><text x="340" y="93">quem pode contratar o quê</text>
+    <text x="580" y="78">lê e grava no banco</text><text x="580" y="93">(Spring Data JPA)</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="2" marker-end="url(#b1)"><path d="M201 70 H246"/><path d="M431 70 H476"/></g>
+  <text x="350" y="138" text-anchor="middle" fill="#1d4ed8" font-size="11">as dependências apontam num só sentido: o service não conhece HTTP; o repository não conhece regra</text>
+</svg>
+<figcaption>As três camadas do ServiceHub e o sentido das dependências.</figcaption>
+</figure>
+<p>A <strong>regra da dependência</strong> diz que as setas só apontam num sentido. O service não conhece status codes; o repository não decide regra de negócio. Na Arquitetura Limpa, de Robert C. Martin, a ideia vai além: as dependências apontam para as regras de negócio, e o framework e o banco são detalhes.</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Regra no controller</h3><p>"Ninguém contrata o próprio serviço" escrita no controller. Quando surgir um segundo ponto de entrada (uma fila, uma tarefa agendada), a regra precisa ser copiada, e uma das cópias vai ficar para trás.</p></div>
+<div class="card good"><h3 class="ch">Regra no service</h3><p>A regra mora no service. Qualquer ponto de entrada chama o mesmo método, e um teste de unidade verifica a regra sem subir HTTP.</p></div>
+</div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. O contêiner do Spring <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O Spring mantém um <strong>contêiner IoC</strong>, o <code>ApplicationContext</code>, que cria, liga e destrói objetos por você. Cada objeto gerenciado por ele se chama <strong>bean</strong>. É a inversão de controle aplicada à criação de objetos: você declara do que precisa; o contêiner decide quando e como criar.</p>
+<h3>Ciclo de vida de um bean</h3>
+<ol>
+  <li><strong>Varredura:</strong> na subida, o Spring procura classes anotadas nos subpacotes da aplicação.</li>
+  <li><strong>Criação:</strong> chama o construtor e injeta as dependências, que também são beans.</li>
+  <li><strong>Inicialização:</strong> roda métodos anotados com <code>@PostConstruct</code>, se houver.</li>
+  <li><strong>Uso:</strong> o bean atende todas as requisições enquanto a aplicação está no ar.</li>
+  <li><strong>Destruição:</strong> no desligamento, roda métodos com <code>@PreDestroy</code>.</li>
+</ol>
+<div class="warn"><div class="label">Confusão comum</div><p>Por padrão, o bean é <strong>singleton</strong>: uma única instância, compartilhada por todas as requisições ao mesmo tempo. Se dois clientes chamam o mesmo endpoint simultaneamente, existe um só <code>InfoController</code>. Por isso nunca se guarda dado de um usuário num campo do controller ou do service: outra requisição, em outra thread, pode ler ou sobrescrever.</p></div>
+
+<h3>Estereótipos: o papel de cada classe</h3>
+<p>Um <strong>estereótipo</strong> é uma anotação que transforma a classe em bean e declara a camada a que ela pertence. Todos derivam de <code>@Component</code>.</p>
+<table>
+<thead><tr><th style="width:24%">Anotação</th><th style="width:16%">Camada</th><th>O que acrescenta</th></tr></thead>
+<tr><td><code>@Component</code></td><td>qualquer</td><td>Só registra a classe como bean.</td></tr>
+<tr><td><code>@Service</code></td><td>domínio</td><td>Nada além do nome: documenta que ali mora regra de negócio.</td></tr>
+<tr><td><code>@Repository</code></td><td>dados</td><td>Traduz exceções do banco para a hierarquia <code>DataAccessException</code>.</td></tr>
+<tr><td><code>@RestController</code></td><td>apresentação</td><td><code>@Controller</code> + <code>@ResponseBody</code>: o retorno do método vira o corpo da resposta, em JSON.</td></tr>
+<tr><td><code>@Configuration</code> + <code>@Bean</code></td><td>configuração</td><td>Cria, por um método, beans de classes que não são suas.</td></tr>
+</table>
+<p>Usar <code>@Service</code> em vez de <code>@Component</code> não muda o comportamento, mas comunica intenção para quem lê e para a IA. No ServiceHub, os repositories são interfaces que estendem <code>JpaRepository</code>: o Spring Data gera a implementação sozinho (Semana 04).</p>
+
+<h3>Injeção de dependências pelo construtor</h3>
+<p><strong>Injeção de dependências</strong> é a classe receber de fora os objetos de que precisa, em vez de criá-los com <code>new</code>. Há três formas no Spring: pelo construtor, por <em>setter</em> e direto no campo. A recomendada é a primeira.</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">No campo</h3>
+<pre>@Service
+class PedidoService {
+  @Autowired
+  private PedidoRepository repo;
+}</pre>
+<p>Funciona, mas esconde a dependência, impede o <code>final</code> e obriga a subir o Spring para testar. Erro comum em tutoriais e em código gerado por IA.</p></div>
+<div class="card good"><h3 class="ch">No construtor</h3>
+<pre>@Service
+class PedidoService {
+  private final PedidoRepository repo;
+  PedidoService(PedidoRepository repo) {
+    this.repo = repo;
+  }
+}</pre>
+<p>O campo é <code>final</code>, o objeto nunca nasce incompleto, e o teste cria a classe com <code>new</code>, passando um dublê. Com um único construtor, <code>@Autowired</code> é dispensável. Muitas dependências no construtor sinalizam uma classe que faz coisas demais.</p></div>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Configuração externa <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O Spring Boot segue o princípio de <strong>convenção sobre configuração</strong>: olha o que está no <em>classpath</em> e configura o resto com padrões sensatos. Colocou o starter de web? Sobe um Tomcat embutido na porta 8080, com JSON pronto. Quer outro valor? Sobrescreva no <code>application.properties</code>.</p>
+<p>Mas o mesmo <code>.jar</code> roda no seu notebook, na integração contínua e em produção. O que muda entre esses ambientes (porta, endereço do banco, senhas) não pode estar compilado: fica em <strong>configuração externa</strong>, ideia que o guia <em>The Twelve-Factor App</em> chama de "configuração no ambiente". O padrão do Spring é ler uma variável de ambiente com um valor de desenvolvimento como reserva:</p>
+<pre>server.port=${SERVER_PORT:8080}
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5433/servicehub}
+#            ${VARIAVEL:padrao} → usa a variável; se não existir, o padrão de dev</pre>
+<table>
+<thead><tr><th style="width:20%">Conceito</th><th>Como funciona</th></tr></thead>
+<tr><td>Precedência</td><td>Uma variável de ambiente vence o valor escrito no arquivo. <code>SERVER_PORT=9090</code> sobe a API na 9090 sem recompilar.</td></tr>
+<tr><td>Perfis</td><td><code>application-prod.properties</code> só vale quando o perfil <code>prod</code> está ativo, por exemplo com <code>SPRING_PROFILES_ACTIVE=prod</code>. Ele acrescenta ou sobrescreve valores do arquivo principal.</td></tr>
+<tr><td>Segredos</td><td>Senha e chave nunca entram no Git. O arquivo <code>.env</code> fica no <code>.gitignore</code>; um <code>.env.example</code> sem valores reais é versionado para documentar as variáveis.</td></tr>
+</table>
+<div class="warn"><div class="label">Confusão comum</div><p>Dar padrão a um segredo, como <code>${JWT_SECRET:minhachave}</code>, parece prático, mas, se alguém esquecer de definir a variável em produção, a aplicação sobe com a chave que está no Git. Para segredos, o padrão deve ser vazio, e a aplicação deve se recusar a subir sem eles.</p></div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Starters e o Initializr <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um <strong>starter</strong> é uma dependência do Spring Boot que reúne a biblioteca de um recurso e a <strong>autoconfiguração</strong> dela. No Spring Boot 4, a autoconfiguração foi dividida em módulos por recurso, e cada recurso tem o seu starter:</p>
+<table>
+<thead><tr><th style="width:24%">Recurso</th><th>Starter no <code>pom.xml</code></th><th style="width:14%">Semana</th></tr></thead>
+<tr><td>Web (Spring MVC)</td><td><code>spring-boot-starter-webmvc</code></td><td>3</td></tr>
+<tr><td>JPA e Hibernate</td><td><code>spring-boot-starter-data-jpa</code></td><td>4</td></tr>
+<tr><td>Migrações</td><td><code>spring-boot-starter-flyway</code></td><td>4</td></tr>
+<tr><td>Validação</td><td><code>spring-boot-starter-validation</code></td><td>4</td></tr>
+<tr><td>Saúde e métricas</td><td><code>spring-boot-starter-actuator</code></td><td>4</td></tr>
+<tr><td>Segurança e JWT</td><td><code>spring-boot-starter-security</code>, <code>spring-boot-starter-oauth2-resource-server</code></td><td>8 e 9</td></tr>
+</table>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Só a biblioteca</h3>
+<pre>&lt;groupId&gt;org.flywaydb&lt;/groupId&gt;
+&lt;artifactId&gt;flyway-core&lt;/artifactId&gt;</pre>
+<p>A aplicação sobe, as migrações não rodam, e nenhum erro aparece.</p></div>
+<div class="card good"><h3 class="ch">Com o starter</h3>
+<pre>&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+&lt;artifactId&gt;spring-boot-starter-flyway&lt;/artifactId&gt;</pre>
+<p>A autoconfiguração entra junto e o Flyway roda na subida.</p></div>
+</div>
+<p>Regra para a vida toda do projeto: recurso que não ativa, sem log e sem erro? Procure primeiro o <code>spring-boot-starter-*</code> que está faltando.</p>
+
+<h3>O Spring Initializr, campo a campo</h3>
+<p>O <strong>Spring Initializr</strong> (<code>start.spring.io</code>) gera o esqueleto do projeto: <code>pom.xml</code>, Maven Wrapper, classe principal e teste de contexto.</p>
+<table>
+<thead><tr><th style="width:26%">Campo</th><th>Valor</th></tr></thead>
+<tr><td>Project · Language</td><td>Maven · Java</td></tr>
+<tr><td>Spring Boot</td><td>4.x estável mais recente (o projeto de referência usa 4.1.1)</td></tr>
+<tr><td>Group · Artifact</td><td><code>com.servicehub</code> · <code>servicehub-api</code></td></tr>
+<tr><td>Package name</td><td><code>com.servicehub</code> (corrija à mão)</td></tr>
+<tr><td>Packaging · Java</td><td>Jar · 21</td></tr>
+<tr><td>Dependências</td><td>Spring Web, Spring Boot DevTools e Lombok. O resto entra semana a semana.</td></tr>
+</table>
+<div class="warn"><div class="label">Confusão comum</div><p>O hífen de <code>servicehub-api</code> não é válido em nome de pacote Java, então o Initializr sugere <code>com.servicehub.servicehub_api</code>. Corrija o <em>Package name</em> para <code>com.servicehub</code> antes de gerar. Depois de gerado, confira no <code>pom.xml</code> que a versão do Boot começa com 4, que <code>java.version</code> é 21 e que a dependência web é o <code>spring-boot-starter-webmvc</code>.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Git: controle de versão distribuído <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um <strong>sistema de controle de versão</strong> guarda a história de cada mudança: quem fez, quando e por quê. No modelo <strong>centralizado</strong>, a história mora num servidor só, e quem está sem rede não registra nada. No modelo <strong>distribuído</strong>, como o Git, cada clone tem a história completa e funciona sem rede; a sincronização é feita depois.</p>
+<table>
+<thead><tr><th style="width:16%">Conceito</th><th>O que é</th></tr></thead>
+<tr><td>Commit</td><td>Uma fotografia do projeto, com autor, data, mensagem, um identificador (<em>hash</em>) e o commit anterior. A história é a corrente de commits.</td></tr>
+<tr><td>Branch</td><td>Um ponteiro móvel para um commit. Criar uma é barato: é uma linha de trabalho isolada, não uma cópia da pasta. O <code>.gitignore</code> lista o que nunca entra no repositório, como <code>target/</code> e o <code>.env</code>.</td></tr>
+<tr><td>Merge</td><td>Junta duas histórias. Se os dois lados mudaram as mesmas linhas, há <strong>conflito</strong>, e uma pessoa decide o resultado.</td></tr>
+<tr><td>Remoto</td><td>Outra cópia do repositório, como o <code>origin</code> no GitHub. <code>push</code> envia commits; <code>fetch</code> e <code>pull</code> trazem.</td></tr>
+<tr><td>Tag</td><td>Um nome fixo para um commit, como <code>etapa-1</code>. Diferente da branch, não se move.</td></tr>
+</table>
+
+<!-- 10 -->
+<h2 id="s10">10. GitHub Flow, commits e versões <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O <strong>GitHub Flow</strong> é um fluxo simples: a <code>main</code> está sempre funcionando; cada entrega nasce numa branch própria; a branch volta para a <code>main</code> por um <strong>pull request</strong> revisado.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 140" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+  <defs><marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <path d="M30 40 H670" stroke="#1d4ed8" stroke-width="3"/>
+  <path d="M150 40 C190 40 190 100 230 100 H470 C510 100 510 40 550 40" fill="none" stroke="#047857" stroke-width="2.5" marker-end="url(#b2)"/>
+  <g fill="#1d4ed8"><circle cx="60" cy="40" r="7"/><circle cx="150" cy="40" r="7"/><circle cx="550" cy="40" r="8"/><circle cx="640" cy="40" r="7"/></g>
+  <g fill="#047857"><circle cx="270" cy="100" r="7"/><circle cx="350" cy="100" r="7"/><circle cx="430" cy="100" r="7"/></g>
+  <g fill="#1f2937" font-weight="700"><text x="16" y="24">main</text><text x="225" y="128">feat/info-endpoint</text></g>
+  <g fill="#6b7280" font-size="10" text-anchor="middle">
+    <text x="270" y="88">commit</text><text x="350" y="88">commit</text><text x="430" y="88">commit</text>
+    <text x="150" y="24">cria a branch</text><text x="530" y="126">pull request + revisão</text>
+  </g>
+  <rect x="512" y="6" width="76" height="20" rx="4" fill="#e8eefc" stroke="#1d4ed8"/>
+  <text x="550" y="20" text-anchor="middle" fill="#1d4ed8" font-weight="700">tag etapa-1</text>
+  <text x="565" y="60" fill="#6b7280" font-size="10">merge</text>
+</svg>
+<figcaption>Uma entrega no GitHub Flow: branch, commits pequenos, pull request revisado, merge e tag.</figcaption>
+</figure>
+<p>Ninguém faz <code>push</code> direto na <code>main</code>: no GitHub, uma regra de proteção da branch pode exigir pull request e aprovação. Se a branch quebrou algo, a <code>main</code> continua de pé e o problema aparece na revisão. O pull request é o momento do movimento <strong>Revisar</strong>: um colega confere o código, inclusive o que a IA gerou, contra a especificação. Um bom pull request tem título no padrão de commits, explica o que muda e como testar, e só entra depois de aprovado.</p>
+
+<h3>Conventional Commits</h3>
+<p>A especificação <strong>Conventional Commits</strong> padroniza a mensagem: <code>tipo: assunto</code>, com um escopo opcional entre parênteses, como <code>docs(alunos): ...</code>. O assunto é curto e diz o que muda; se precisar de mais, o corpo do commit explica o porquê. Na disciplina, as mensagens são em português.</p>
+<table>
+<thead><tr><th style="width:10%">Tipo</th><th style="width:24%">Quando</th><th>Exemplo</th></tr></thead>
+<tr><td>feat</td><td>Nova funcionalidade</td><td><code>feat: prefixo /api/v1, endpoint de info e filtro X-Request-Id</code></td></tr>
+<tr><td>fix</td><td>Correção de bug</td><td><code>fix: 404 em vez de 500 para serviço inexistente</code></td></tr>
+<tr><td>test</td><td>Só testes</td><td><code>test: Testcontainers Postgres para os testes de contexto</code></td></tr>
+<tr><td>docs</td><td>Só documentação</td><td><code>docs: README, ADR-0001 e CLAUDE.md da fase 0</code></td></tr>
+<tr><td>chore</td><td>Build e configuração</td><td><code>chore: fixar Java 21</code></td></tr>
+</table>
+
+<h3>Versionamento semântico</h3>
+<p>No <strong>versionamento semântico</strong> (<em>SemVer</em>), a versão tem a forma <code>MAIOR.MENOR.CORREÇÃO</code>, e cada parte é uma promessa para quem usa a API:</p>
+<ul>
+  <li><strong>MAIOR</strong> sobe numa mudança incompatível, em que o cliente precisa se adaptar (commit com <code>BREAKING CHANGE</code> ou <code>feat!</code>): 1.4.2 → 2.0.0.</li>
+  <li><strong>MENOR</strong> sobe numa funcionalidade nova e compatível (<code>feat</code>): 1.4.2 → 1.5.0.</li>
+  <li><strong>CORREÇÃO</strong> sobe numa correção compatível (<code>fix</code>): 1.4.2 → 1.4.3.</li>
+</ul>
+<p>Numa API REST, remover um campo do JSON ou mudar o significado de um status é mudança MAIOR; é para isso que a rota carrega <code>/v1</code>, e uma quebra de contrato vira <code>/v2</code>. Versões <code>0.y.z</code> indicam desenvolvimento inicial, em que tudo pode mudar. O <code>0.0.1-SNAPSHOT</code> do <code>pom.xml</code> é isso, e <code>SNAPSHOT</code> é a convenção do Maven para versão em desenvolvimento.</p>
+<div class="note"><div class="label">Para lembrar</div><p>As tags da disciplina, <code>etapa-1</code>, <code>etapa-2</code> e assim por diante, marcam <strong>entregas</strong>, não versões semânticas. Use tag <strong>anotada</strong> (<code>git tag -a</code>), que guarda autor, data e mensagem, criada na <code>main</code> depois do merge. Na banca, a equipe apresenta a partir de uma tag, não "do que estava na minha máquina".</p></div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. Contexto para a IA e ADRs <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O assistente de IA começa cada sessão sem memória do projeto. O que não estiver escrito, ele chuta, normalmente com a versão mais comum na internet, que não é a nossa. Gerenciar esse contexto é trabalho de engenharia, e ele mora em dois documentos versionados no repositório.</p>
+<h3>CLAUDE.md ou AGENTS.md</h3>
+<p>É um arquivo Markdown na raiz do projeto com o que um assistente precisa saber antes de mexer no código. O <code>CLAUDE.md</code> é lido pelo Claude Code ao abrir o projeto; o <code>AGENTS.md</code> é uma convenção aberta, lida por outros assistentes de código. A equipe escolhe um nome e mantém um só. O conteúdo deve ser curto, verdadeiro e atualizado a cada bloco; cada "pegadinha" nasce de um erro real:</p>
+<pre># ServiceHub API
+## Stack
+Java 21 · Spring Boot 4.x · Maven Wrapper
+## Comandos
+mvnw.cmd clean install · mvnw.cmd spring-boot:run
+## Convenções
+- Rotas em /api/v1; POST responde 201 + Location
+- Pacotes em com.servicehub; DTOs novos são record
+- Commits em Conventional Commits, em português
+## Pegadinhas
+- Boot 4: recurso novo pede spring-boot-starter-&lt;recurso&gt;
+- @MockBean não existe mais: use @MockitoBean</pre>
+
+<h3>ADR: registro de decisão de arquitetura</h3>
+<p>Um <strong>ADR</strong> (<em>Architecture Decision Record</em>) é um texto curto que registra uma decisão de arquitetura, o contexto em que ela foi tomada e o que ela custa. Resolve um problema comum: meses depois ninguém lembra por que o sistema é assim, e a discussão recomeça do zero. O formato proposto por Michael Nygard tem cinco partes:</p>
+<table>
+<thead><tr><th style="width:20%">Seção</th><th>Responde</th></tr></thead>
+<tr><td>Título</td><td>Qual decisão, em poucas palavras, com número sequencial</td></tr>
+<tr><td>Status</td><td>Proposto, aceito ou substituído (por qual ADR)</td></tr>
+<tr><td>Contexto</td><td>Que problema e que forças existiam</td></tr>
+<tr><td>Decisão</td><td>O que foi escolhido, na voz ativa: "usaremos..."</td></tr>
+<tr><td>Consequências</td><td>O que melhora e o que piora, inclusive os custos</td></tr>
+</table>
+<p>Escreva um ADR quando a escolha é cara de desfazer ou não é óbvia para quem chega. Um ADR nunca se apaga: se a equipe mudar de ideia, um ADR novo substitui o antigo, e a história fica. Para a IA, o ADR também é contexto: ela para de sugerir o que a equipe já descartou. Exemplo genérico, fora do ServiceHub:</p>
+<pre># ADR-0003 — PostgreSQL em vez de banco de documentos
+Status: aceito
+## Contexto
+Pedidos, clientes e produtos se relacionam e precisam de integridade
+(um pedido não pode apontar para um cliente que não existe).
+## Decisão
+Usaremos PostgreSQL, com o schema versionado por migrações.
+## Consequências
++ Chaves estrangeiras e transações garantem a integridade.
+- Toda mudança de schema exige uma migração nova.</pre>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+<h2>12. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Trechos reais do projeto de referência; os cortes estão indicados.</p>
+<h3>A classe principal e os pacotes</h3>
+<p>A classe principal, <code>ServicehubApiApplication</code>, anotada com <code>@SpringBootApplication</code> e com o <code>main</code> que chama <code>SpringApplication.run</code>, fica no pacote raiz <code>com.servicehub</code>, para que a varredura encontre todos os subpacotes:</p>
+<pre>com.servicehub
+├── ServicehubApiApplication.java
+├── controller   rotas; delega ao service             (semana 3)
+├── model/dto    records de entrada e saída           (semana 3)
+├── service      regras de negócio                    (semana 4)
+├── repository   acesso ao banco                      (semana 4)
+├── model        entidades JPA                        (semana 4)
+├── exception    erros em ProblemDetail               (semana 4)
+├── config       filtros e OpenAPI
+└── security     JWT e permissões                     (semanas 8 e 9)</pre>
+
+<h3>O primeiro endpoint</h3>
+<p>Resumido, sem imports e sem as anotações OpenAPI da Semana 05:</p>
+<pre>@RestController
+@RequestMapping("/api/v1/info")
+public class InfoController {
+    private final String version;
+
+    public InfoController(ObjectProvider&lt;BuildProperties&gt; buildProperties) {
+        BuildProperties props = buildProperties.getIfAvailable();
+        this.version = props != null ? props.getVersion() : "dev";
+    }
+
+    @GetMapping
+    public InfoResponse info() {
+        return new InfoResponse("OK", version, "ServiceHub API operacional");
+    }
+}
+
+public record InfoResponse(String status, String version, String message) { }</pre>
+<p>Repare: injeção pelo construtor, rota versionada e um <code>record</code> como DTO, sem Lombok. Na sua primeira versão, a versão pode ser um texto fixo, como <code>"0.0.1-SNAPSHOT"</code>. O <code>application.properties</code> usa <code>${VARIAVEL:padrao}</code> como na seção 7, e o segredo do JWT tem padrão vazio: <code>${JWT_SECRET:}</code>.</p>
+
+
+<h3>Histórico e tags</h3>
+<p>Três commits reais do projeto (<code>git log --oneline</code>, em ordem cronológica):</p>
+<pre>a59709a chore: fixar Java 21 e remover migracao solta fora de db/migration
+ec38eae docs: README, ADR-0001 e CLAUDE.md da fase 0
+61011c0 feat: prefixo /api/v1, endpoint de info e filtro X-Request-Id</pre>
+<p>O projeto tem uma tag anotada por fase (de <code>fase-0-baseline</code> a <code>fase-6-ci-observabilidade</code>), sete ADRs em <code>docs/adr/</code> (como <code>0001-stack-e-versoes.md</code>) e um <code>CLAUDE.md</code> que cresceu fase a fase; a pegadinha dos starters está escrita nele.</p>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Nesta semana a IA escreve o primeiro código. Sem contexto, é comum vir Spring Boot 3, rota sem versão e classe com Lombok. Com o <code>CLAUDE.md</code> e as decisões da equipe escritas, o resultado muda. Os quatro movimentos:</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>O que você faz nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>Gere o projeto no Initializr, escreva o <code>CLAUDE.md</code> e a lista de decisões da equipe (stack e versões) antes de pedir código.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Peça o plano, confirme, e só então o <code>InfoController</code>, o <code>InfoResponse</code> e o texto do ADR-0001.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Boot 4 no pom? Starter webmvc? Pacote certo? Rota com <code>/api/v1</code>? Record em vez de Lombok? O ADR diz o que a equipe decidiu?</td></tr>
+<tr><td><strong>Provar</strong></td><td>O <code>curl</code> devolve 200 com o JSON esperado, e a mudança chega à <code>main</code> por pull request revisado, com a tag <code>etapa-1</code>.</td></tr>
+</table>
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>cria um projeto spring boot com um endpoint de status</pre><p>Sem versões, sem pacote, sem rota. A IA escolhe por você, em geral a versão mais comum nos exemplos da internet.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Diz versões e pacote, aponta o <code>CLAUDE.md</code>, fixa rota e formato da resposta, proíbe o que não queremos, pede plano antes e define o <code>curl</code> que prova. O texto completo está abaixo.</p></div>
+</div>
+<h3>O prompt desta semana</h3>
+<p>Este prompt continua o da Semana 02: os documentos <code>docs/endpoints.md</code> e <code>docs/dominio.md</code> já estão no repositório.</p>
+<pre>Contexto: somos uma equipe construindo a API ServiceHub. Geramos o
+projeto no start.spring.io: Maven, Java 21, Spring Boot 4.x,
+Group com.servicehub, Artifact servicehub-api, Package com.servicehub,
+dependências Spring Web, DevTools e Lombok. O CLAUDE.md na raiz tem
+stack, comandos e convenções. docs/endpoints.md e docs/dominio.md
+descrevem o contrato (todas as rotas em /api/v1).
+
+Objetivo:
+1. Conferir o pom.xml gerado e apontar qualquer divergência.
+2. Criar os pacotes controller, service, repository, model, model/dto,
+   exception, config e security dentro de com.servicehub.
+3. Criar InfoController (com.servicehub.controller) com
+   GET /api/v1/info devolvendo o record InfoResponse
+   (com.servicehub.model.dto) com os campos status, version e message:
+   {"status":"OK","version":"0.0.1-SNAPSHOT",
+    "message":"ServiceHub API operacional"}
+4. Escrever docs/adr/0001-stack-e-versoes.md no formato de Nygard
+   (título, status, contexto, decisão, consequências) a partir das
+   decisões da equipe listadas abaixo. Não acrescente decisões.
+
+Restrições:
+- Spring Boot 4.x e Java 21; nada de Boot 2 ou 3, nem javax.*.
+- Recurso novo só com o spring-boot-starter-&lt;recurso&gt;; web é o
+  spring-boot-starter-webmvc. Não adicione dependências agora.
+- Injeção pelo construtor; nada de @Autowired em campo.
+- DTO como record Java, sem Lombok.
+- Não crie entidades, repositórios, segurança nem banco nesta etapa.
+
+Antes de escrever código, mostre o plano: arquivos que vai criar ou
+alterar, com o caminho completo. Espere eu confirmar.
+
+Critério de aceite: mvnw.cmd spring-boot:run sobe sem erro, e
+curl -i http://localhost:8080/api/v1/info responde HTTP 200 com
+Content-Type application/json e o JSON acima.
+
+Decisões da equipe para o ADR-0001:
+&lt;cole aqui a lista: versões e o motivo de cada uma&gt;</pre>
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li><strong>Versões antigas:</strong> sugere Spring Boot 3 e Java 17, ou pacotes <code>javax.*</code>, porque viu mais exemplos assim.</li>
+  <li><strong>Biblioteca sem starter:</strong> <code>flyway-core</code> sozinho no pom; a migração não roda e nenhum erro aparece.</li>
+  <li><strong>APIs que saíram:</strong> <code>@MockBean</code> no lugar de <code>@MockitoBean</code>; Jackson 2 (<code>com.fasterxml.jackson</code>) onde o Boot 4 usa Jackson 3 (<code>tools.jackson</code>).</li>
+  <li><strong>Um commit para tudo:</strong> "update" com dezenas de arquivos, direto na <code>main</code>.</li>
+  <li><strong>ADR inventado:</strong> acrescenta decisões e motivos que a equipe não tomou.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li><code>spring-boot-starter-parent</code> 4.x e <code>java.version</code> 21 no <code>pom.xml</code>?</li>
+  <li>Classe principal em <code>com.servicehub</code>; controller em <code>com.servicehub.controller</code>?</li>
+  <li>Rota exatamente <code>/api/v1/info</code>, com <code>InfoResponse</code> como record?</li>
+  <li>Nenhum <code>@Autowired</code> em campo e nenhuma dependência nova sem pedido?</li>
+  <li>O ADR-0001 tem as cinco seções e só as decisões da equipe?</li>
+  <li>Commits pequenos, em Conventional Commits, numa branch, com pull request?</li>
+</ul>
+<h3>Prova</h3>
+<pre>mvnw.cmd spring-boot:run          # Windows (./mvnw no Linux e macOS)
+curl -i http://localhost:8080/api/v1/info
+# HTTP/1.1 200 ... Content-Type: application/json
+# {"status":"OK","version":"0.0.1-SNAPSHOT","message":"ServiceHub API operacional"}
+
+git switch -c feat/info-endpoint
+git add src/main/java/com/servicehub/controller/InfoController.java ...
+git commit -m "feat: endpoint GET /api/v1/info"
+git push -u origin feat/info-endpoint      # abre o pull request no GitHub
+# depois da revisão e do merge:
+git switch main &amp;&amp; git pull
+git tag -a etapa-1 -m "Etapa 1: setup do projeto" &amp;&amp; git push origin etapa-1</pre>
+<p>Use <code>git add</code> com o caminho dos arquivos, e não <code>git add .</code>, para não commitar <code>target/</code> ou um <code>.env</code> por engano. Se a porta 8080 estiver ocupada, defina <code>SERVER_PORT</code>.</p>
+</section>
+
+<!-- 14 -->
+<section class="page" id="s14">
+<h2>14. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Framework</dt><dd>Estrutura pronta que chama o seu código na hora certa.</dd>
+  <dt>Inversão de controle</dt><dd>O framework, e não o seu programa, controla o fluxo e a criação de objetos.</dd>
+  <dt>Anotação</dt><dd>Metadado preso ao código, lido pelo compilador, por ferramentas ou pelo framework.</dd>
+  <dt>Reflexão</dt><dd>Capacidade de um programa inspecionar as próprias classes em execução.</dd>
+  <dt>Pacote</dt><dd>Agrupamento de classes que cria um espaço de nomes e limita a visibilidade.</dd>
+  <dt>Bean</dt><dd>Objeto criado e gerenciado pelo contêiner do Spring; singleton por padrão.</dd>
+  <dt>Estereótipo</dt><dd>Anotação que registra a classe como bean e indica sua camada.</dd>
+  <dt>Starter</dt><dd>Dependência do Boot que reúne a biblioteca e a autoconfiguração de um recurso.</dd>
+  <dt>Perfil</dt><dd>Conjunto de configurações ativado por ambiente, como <code>prod</code>.</dd>
+  <dt>Commit</dt><dd>Fotografia do projeto com autor, mensagem e ligação ao commit anterior.</dd>
+  <dt>Branch</dt><dd>Ponteiro móvel para um commit; uma linha de trabalho isolada.</dd>
+  <dt>Pull request</dt><dd>Pedido de revisão e merge de uma branch na <code>main</code>.</dd>
+  <dt>Tag anotada</dt><dd>Nome fixo para um commit, com autor, data e mensagem.</dd>
+  <dt>SemVer</dt><dd>Versão MAIOR.MENOR.CORREÇÃO, em que cada parte indica o tipo de mudança.</dd>
+  <dt>ADR</dt><dd>Registro curto de uma decisão de arquitetura: contexto, decisão, consequências.</dd>
+</dl>
+
+<!-- 15 -->
+<h2 id="s15">15. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Explique com suas palavras a diferença entre biblioteca e framework e dê um exemplo de inversão de controle no ServiceHub.</li>
+  <li>Por que o Spring consegue ler <code>@RestController</code> em tempo de execução, mas não conseguiria ler uma anotação com <code>@Retention(RetentionPolicy.SOURCE)</code>?</li>
+  <li>Um colega criou <code>com.servicehub2.controller.PingController</code> e o endpoint responde 404, sem erro na inicialização. Qual é a causa provável e como corrigir?</li>
+  <li>Em qual camada você colocaria cada item, e por quê: (a) "ninguém contrata o próprio serviço"; (b) converter o JSON da requisição em DTO; (c) buscar os serviços ativos de uma categoria no banco?</li>
+  <li>O código abaixo tem um defeito grave numa API com vários usuários simultâneos. Qual é e por quê? <code>@Service class CarrinhoService { private List&lt;Item&gt; itensDoUsuario = new ArrayList&lt;&gt;(); }</code></li>
+  <li>Reescreva com injeção pelo construtor e diga duas vantagens: <code>@RestController class AvaliacaoController { @Autowired private ReviewService service; }</code></li>
+  <li>Com <code>server.port=${SERVER_PORT:8080}</code> no arquivo e a variável <code>SERVER_PORT=9090</code> definida no ambiente, em que porta a API sobe? E sem a variável?</li>
+  <li>Um colega adicionou <code>flyway-core</code> ao <code>pom.xml</code> e as migrações não rodam. O que você procura primeiro? Qual linha você acrescentaria ao <code>CLAUDE.md</code> para a IA não repetir o erro?</li>
+  <li>Escreva a mensagem de commit, em Conventional Commits, para: (a) corrigir um 500 que deveria ser 404; (b) adicionar o filtro de categoria na listagem de serviços; (c) atualizar o README.</li>
+  <li>A API está na versão 1.3.0. Qual é a próxima versão em cada caso: (a) corrigir um bug sem mudar o contrato; (b) adicionar um filtro novo, opcional; (c) renomear o campo <code>price</code> para <code>valor</code>?</li>
+  <li>Escreva um ADR curto, no formato de Nygard, para a decisão "rotas versionadas no caminho, em <code>/api/v1</code>".</li>
+  <li>Reescreva o prompt fraco "cria um projeto spring boot com um endpoint de status" seguindo o movimento Especificar, e liste três coisas que você conferiria na resposta.</li>
+</ol>
+
+<!-- 16 -->
+<h2 id="s16">16. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>SCHILDT, H. <em>Java para iniciantes</em>. 6. ed. Bookman. Capítulo 8 (pacotes e interfaces) e capítulo 12 (anotações).</li>
+  <li>FOWLER, M. <em>Padrões de arquitetura de aplicações corporativas</em>. Bookman, 2006. Capítulo 1 (camadas).</li>
+  <li>MARTIN, R. C. <em>Arquitetura limpa</em>. Alta Books, 2019. Capítulos 22 e 32.</li>
+  <li>MARTIN, R. C. <em>Código limpo</em>. Alta Books, 2009. Capítulos 2 e 3, úteis para revisar nomes e funções do código que a IA gera.</li>
+  <li>MONTEIRO, E. R. et al. <em>DevOps</em>. Grupo A, 2021. Capítulos "Tipos de controles de versão" e "Criação de branches e commits com o Git".</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>Documentação do Spring Boot: <code>docs.spring.io/spring-boot</code>. Conventional Commits: <code>conventionalcommits.org</code>. SemVer: <code>semver.org</code>. GitHub Flow: <code>docs.github.com</code>.</li>
+  <li>NYGARD, M. <em>Documenting Architecture Decisions</em>, 2011. <em>The Twelve-Factor App</em>, fator "Config": <code>12factor.net</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

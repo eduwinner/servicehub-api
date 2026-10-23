@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 12 — Docker Compose e ambientes</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 12 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 12<br>Docker Compose e ambientes</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Na semana passada a API ganhou uma imagem, mas subir o ambiente ainda exigia um <code>docker run</code> com várias opções e um banco que precisava existir antes. Nesta semana o ambiente inteiro (API, PostgreSQL e, quando você pedir, o pgAdmin) passa a ser descrito num arquivo versionado e sobe com um comando, na ordem certa, com os dados preservados e a configuração de cada ambiente vinda de fora do código. Você também vai entender por que o ServiceHub continua sendo um monólito, o que é um orquestrador e por que <code>down -v</code> merece respeito. A Semana 13 é a 2ª VA, que cobre o conteúdo desde a 1ª VA; das Semanas 11 e 12, priorize container × VM, camadas, tag e digest, imagem segura, rede e DNS, persistência, prontidão, configuração e segredo, monólito e microsserviços.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">Aplicações multi-container</a></li>
+      <li><a href="#s3">Monólito e microsserviços</a></li>
+      <li><a href="#s4">Compose e orquestradores</a></li>
+      <li><a href="#s5">Redes e DNS por nome de serviço</a></li>
+      <li><a href="#s6">Persistência de dados</a></li>
+      <li><a href="#s7">Iniciado não é pronto</a></li>
+      <li><a href="#s8">Configuração e segredos</a></li>
+      <li><a href="#s9">Paridade e perfis</a></li>
+      <li><a href="#s10">O Compose do ServiceHub</a></li>
+      <li><a href="#s11">Dados, pgAdmin e comandos</a></li>
+      <li><a href="#s12">Construindo com IA</a></li>
+      <li><a href="#s13">Glossário</a></li>
+      <li><a href="#s14">Exercícios</a></li>
+      <li><a href="#s15">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>explicar o que é uma aplicação multi-container e justificar por que o ServiceHub é um monólito modular, e não um conjunto de microsserviços;</li>
+  <li>diferenciar o Docker Compose de um orquestrador como o Kubernetes, e explicar redes, DNS por nome de serviço e as três formas de persistência (volume nomeado, bind mount e tmpfs);</li>
+  <li>distinguir inicialização de prontidão e usar <code>healthcheck</code> com <code>depends_on: condition: service_healthy</code>;</li>
+  <li>separar configuração de código e segredo de configuração, usando <code>.env</code>, <code>.env.example</code>, padrões <code>${VAR:-padrão}</code> e perfis do Spring;</li>
+  <li>escrever e revisar o <code>docker-compose.yml</code> da equipe e provar que a API responde na 8090 e que os dados sobrevivem a <code>down</code> e <code>up</code>.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. Aplicações multi-container <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma aplicação real é um conjunto de processos que precisam se encontrar, guardar dados e subir na ordem certa. Uma <strong>aplicação multi-container</strong> é formada por vários containers, cada um com um papel, que juntos entregam o sistema. Exemplo genérico: uma loja virtual com um container web, um de banco de dados e um de cache.</p>
+<ul>
+  <li><strong>Um processo por container.</strong> Cada container roda um processo principal; se ele para, o container para, e fica claro o que falhou.</li>
+  <li><strong>Ciclo de vida independente.</strong> Atualizar a API não exige recriar o banco: cada peça tem a sua imagem e a sua versão.</li>
+  <li><strong>Ligados por rede e volumes.</strong> Os containers conversam pela rede e guardam dados em volumes, declarados junto com eles.</li>
+</ul>
+<p>No ServiceHub, os serviços <code>api</code> e <code>postgres</code> sobem sempre; o <code>pgadmin</code>, só quando pedido.</p>
+<div class="warn"><div class="label">Erro comum em tutoriais</div><p>Colocar a aplicação e o banco no mesmo container, com um script que inicia os dois. Funciona na demonstração e quebra na primeira atualização: trocar a versão da API significa recriar o container e, junto, o banco.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. Monólito e microsserviços <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ter vários containers não significa ter microsserviços. São ideias diferentes. Um <strong>monólito</strong> é uma aplicação implantada como uma única unidade. Em <strong>microsserviços</strong>, a aplicação é dividida em serviços pequenos, implantados de forma independente, cada um dono dos seus dados.</p>
+<table>
+<thead><tr><th style="width:17%">Aspecto</th><th>Monólito</th><th>Microsserviços</th></tr></thead>
+<tr><td>Implantação</td><td>Um artefato, um deploy</td><td>Um deploy por serviço</td></tr>
+<tr><td>Dados</td><td>Um banco para a aplicação</td><td>Cada serviço com o seu banco</td></tr>
+<tr><td>Comunicação</td><td>Chamada de método, na memória</td><td>Chamadas pela rede: HTTP ou mensagens</td></tr>
+<tr><td>Consistência</td><td>Uma transação do banco resolve</td><td>Vira um problema de projeto entre serviços</td></tr>
+<tr><td>Operação</td><td>Poucos processos para observar</td><td>Muitos processos, rede e logs distribuídos</td></tr>
+<tr><td>Ponto forte</td><td>Simples de construir, testar e depurar</td><td>Escala e evolução independentes por equipe</td></tr>
+</table>
+<p>Nenhum estilo é melhor em absoluto: microsserviços trocam complexidade de código por complexidade de operação. Eles resolvem problemas de escala e de organização de muitas equipes, que um projeto de uma equipe pequena não tem.</p>
+<h3>O ServiceHub é um monólito modular, de propósito</h3>
+<div class="grid2">
+  <div class="card"><h3 class="ch">Um só artefato</h3><p>Um JAR, uma imagem, um deploy. Uma transação do banco garante regras como copiar o preço do serviço para a ordem no momento do pedido (RN06).</p></div>
+  <div class="card"><h3 class="ch">Módulos com fronteira</h3><p>Usuários, serviços, ordens e avaliações têm controller, service e repository próprios. A fronteira está no código, não na rede.</p></div>
+</div>
+<p>O container <code>postgres</code> é um <strong>serviço de apoio</strong>, não um pedaço do domínio: a API continua sendo uma unidade só. Um monólito bem dividido pode ser separado depois, se um dia for preciso.</p>
+<div class="warn"><div class="label">Erro comum em código gerado por IA</div><p>Propor um <code>user-service</code> e um <code>order-service</code> separados para um sistema deste porte, com o custo de rede, autenticação entre serviços e dados duplicados. Quem quiser defender outra arquitetura na banca deve registrar a decisão num ADR.</p></div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. Compose e orquestradores <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O <strong>Docker Compose</strong> é a ferramenta que lê um arquivo YAML declarativo, versionado no Git, com todos os containers de um ambiente e como eles se ligam, e sobe tudo com um comando. No Compose v2 ele é um subcomando do Docker: <code>docker compose</code>, com espaço. O antigo <code>docker-compose</code>, com hífen, ainda aparece em tutoriais.</p>
+<table>
+<thead><tr><th style="width:20%">Aspecto</th><th><code>docker run</code></th><th><code>docker compose</code></th></tr></thead>
+<tr><td>Configuração</td><td>Opções na linha de comando</td><td>Arquivo YAML versionado</td></tr>
+<tr><td>Vários containers</td><td>Um comando para cada</td><td>Um comando para todos</td></tr>
+<tr><td>Rede</td><td>Criada e ligada à mão</td><td>Criada automaticamente</td></tr>
+<tr><td>Ordem de subida</td><td>Você controla no olho</td><td><code>depends_on</code> declarado</td></tr>
+<tr><td>Reprodutibilidade</td><td>Depende de quem digita</td><td>Igual em qualquer máquina</td></tr>
+</table>
+<p><strong>Orquestrar</strong> é decidir onde cada container roda, quantas cópias (<strong>réplicas</strong>) existem, o que fazer quando um cai e como eles se encontram. O Compose orquestra numa única máquina. Um <strong>orquestrador</strong> de cluster, como o <strong>Kubernetes</strong>, faz isso num conjunto de máquinas: recria um container que caiu, em outra máquina se preciso, e mantém o número de réplicas declarado.</p>
+<table>
+<thead><tr><th style="width:20%">Aspecto</th><th>Docker Compose</th><th>Orquestrador (ex.: Kubernetes)</th></tr></thead>
+<tr><td>Onde roda</td><td>Uma máquina</td><td>Um cluster de várias máquinas</td></tr>
+<tr><td>Uso típico</td><td>Desenvolvimento, testes, CI, demonstração</td><td>Produção com alta disponibilidade</td></tr>
+<tr><td>Container caiu</td><td><code>restart</code> reinicia na mesma máquina</td><td>Recria, em outra máquina se preciso</td></tr>
+<tr><td>Escala</td><td>Manual, poucas réplicas</td><td>Réplicas declaradas; ajuste automático possível</td></tr>
+</table>
+<p>Os dois compartilham o <strong>estilo declarativo</strong>: você descreve o estado desejado, e a ferramenta trabalha para chegar nele. Nesta disciplina, Kubernetes é só conceito; o ServiceHub roda com Compose no desenvolvimento, no CI e na banca.</p>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. Redes e DNS por nome de serviço <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>rede bridge</strong> é uma rede virtual privada entre containers da mesma máquina. Numa rede criada pelo usuário (e o Compose sempre cria uma para o projeto), o Docker oferece um <strong>DNS interno</strong>: cada serviço é encontrado pelo seu nome. O IP de um container muda a cada recriação; o nome do serviço não muda. Por isso a configuração usa o nome.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 200" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+  <marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <rect x="262" y="10" width="432" height="180" rx="10" fill="#e7f5ef" stroke="#047857" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text x="472" y="30" text-anchor="middle" fill="#047857" font-weight="700">rede servicehub-net (dentro do Docker)</text>
+  <rect x="6" y="70" width="150" height="60" rx="8" fill="#fff" stroke="#6b7280" stroke-width="1.3"/>
+  <text x="81" y="94" text-anchor="middle" font-weight="700" fill="#1f2937">Seu computador</text>
+  <text x="81" y="112" text-anchor="middle" fill="#6b7280" font-size="10.5">navegador: localhost:8090</text>
+  <rect x="290" y="70" width="140" height="60" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="360" y="94" text-anchor="middle" font-weight="700" fill="#1f2937">api</text>
+  <text x="360" y="112" text-anchor="middle" fill="#6b7280" font-size="10.5">escuta na 8080</text>
+  <rect x="530" y="70" width="140" height="60" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="600" y="94" text-anchor="middle" font-weight="700" fill="#1f2937">postgres</text>
+  <text x="600" y="112" text-anchor="middle" fill="#6b7280" font-size="10.5">escuta na 5432</text>
+  <path d="M158 100 H286" stroke="#1d4ed8" stroke-width="2" marker-end="url(#c1)"/>
+  <text x="200" y="92" text-anchor="middle" fill="#1d4ed8" font-size="10.5">ports 8090:8080</text>
+  <path d="M432 100 H526" stroke="#047857" stroke-width="2" marker-end="url(#c2)"/>
+  <text x="479" y="92" text-anchor="middle" fill="#047857" font-size="10.5">postgres:5432</text>
+  <text x="479" y="152" text-anchor="middle" fill="#6b7280" font-size="10.5">o DNS do Docker transforma o nome</text>
+  <text x="479" y="166" text-anchor="middle" fill="#6b7280" font-size="10.5">"postgres" no IP atual do container</text>
+</svg>
+<figcaption>De fora, só se alcança o que foi publicado com <code>ports</code>; dentro da rede, os serviços se acham pelo nome e pela porta interna.</figcaption>
+</figure>
+<div class="warn"><div class="label">Confusão comum</div><p>Dentro de um container, <code>localhost</code> é o próprio container, não o seu computador. Uma API configurada com <code>localhost:5433</code> procura o banco dentro de si mesma e falha. Na rede do Compose, a URL certa é <code>jdbc:postgresql://postgres:5432/servicehub</code>: nome do serviço e porta <em>interna</em>. Publicar portas (<code>ports</code>) só é necessário para quem está fora da rede.</p></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. Persistência de dados <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O sistema de arquivos de um container (a camada gravável da Semana 11) some quando ele é removido. Para dados que precisam existir fora do container, o Docker oferece três mecanismos:</p>
+<table>
+<thead><tr><th style="width:15%">Tipo</th><th>Onde ficam os dados</th><th style="width:25%">Quando usar</th><th style="width:25%">Exemplo</th></tr></thead>
+<tr><td>Volume nomeado</td><td>Área gerenciada pelo Docker, identificada por um nome</td><td>Dados da aplicação, banco de dados</td><td><code>pg_data</code> no <code>postgres</code></td></tr>
+<tr><td>Bind mount</td><td>Uma pasta ou arquivo do computador hospedeiro, escolhido por você</td><td>Configuração e código em desenvolvimento</td><td><code>servers.json</code> do pgAdmin, somente leitura</td></tr>
+<tr><td>tmpfs</td><td>Memória do hospedeiro; some quando o container para</td><td>Dados temporários ou sensíveis</td><td>Cache descartável (o ServiceHub não usa)</td></tr>
+</table>
+<pre>volumes:
+  - pg_data:/var/lib/postgresql/data                         # volume nomeado
+  - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro  # bind mount, :ro = só leitura
+tmpfs:
+  - /tmp                                                     # tmpfs (exemplo genérico)</pre>
+<p>A diferença na sintaxe está à esquerda dos dois-pontos: um <strong>nome</strong> indica volume; um <strong>caminho</strong> (<code>./</code> ou absoluto) indica bind mount. Regra prática: banco em volume nomeado. Bind mount depende da estrutura de pastas de cada máquina, e no Windows e no macOS costuma ser mais lento.</p>
+<div class="warn"><div class="label">Erro comum em tutoriais</div><p>Bind mount de <code>./data</code> para o banco. Cria na pasta do projeto arquivos com dono e permissões estranhos, que atrapalham o Git e outros programas, e amarra o ambiente ao caminho de uma máquina.</p></div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Iniciado não é pronto <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Quando um container inicia, o processo começou, mas isso não quer dizer que ele já atende. O banco pode estar lendo arquivos; a API, aplicando migrações. Há três estados diferentes:</p>
+<table>
+<thead><tr><th style="width:16%">Estado</th><th>Pergunta</th><th style="width:36%">Se a resposta for não</th></tr></thead>
+<tr><td>Iniciado</td><td>O processo começou?</td><td>Nada a fazer ainda: ele está subindo.</td></tr>
+<tr><td>Vivo (<em>liveness</em>)</td><td>O processo ainda responde?</td><td>Reiniciar resolve.</td></tr>
+<tr><td>Pronto (<em>readiness</em>)</td><td>Consegue atender requisições agora?</td><td>Espere e não mande tráfego, mas não reinicie.</td></tr>
+</table>
+<div class="note"><div class="label">Analogia</div><p>Um restaurante abre as portas às 11h, mas a cozinha só serve depois de acender o forno. "Portas abertas" é iniciado; "cozinha servindo" é pronto. Quem chega às 11h01 e pede um prato precisa esperar, e ninguém resolve isso fechando o restaurante.</p></div>
+<p>Um <strong>healthcheck</strong> é um comando que o Docker executa de tempos em tempos para marcar o container como <code>starting</code>, <code>healthy</code> ou <code>unhealthy</code>. No Compose, o <code>depends_on</code> tem três condições: <code>service_started</code> (o padrão: só espera o container existir), <code>service_healthy</code> (espera o healthcheck passar) e <code>service_completed_successfully</code> (espera o container terminar com sucesso, útil para tarefas de preparação). Para um banco, a que importa é <code>service_healthy</code>.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 108" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+  <defs><marker id="c3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="4" y="22" width="118" height="56" rx="7"/><rect x="148" y="22" width="118" height="56" rx="7"/>
+    <rect x="436" y="22" width="118" height="56" rx="7"/><rect x="580" y="22" width="116" height="56" rx="7"/>
+  </g>
+  <rect x="292" y="22" width="118" height="56" rx="7" fill="#e7f5ef" stroke="#047857" stroke-width="1.6"/>
+  <g text-anchor="middle" font-weight="700" fill="#1f2937">
+    <text x="63" y="45">postgres inicia</text><text x="207" y="45">pg_isready</text><text x="351" y="45" fill="#047857">healthy</text>
+    <text x="495" y="45">api inicia</text><text x="638" y="45">Actuator UP</text>
+  </g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10">
+    <text x="63" y="63">banco ainda subindo</text><text x="207" y="63">a cada 10 s, até 5x</text><text x="351" y="63">condição liberada</text>
+    <text x="495" y="63">Flyway migra</text><text x="638" y="63">HEALTHCHECK da API</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#c3)"><path d="M123 50 H144"/><path d="M267 50 H288"/><path d="M411 50 H432"/><path d="M555 50 H576"/></g>
+  <text x="350" y="100" text-anchor="middle" fill="#b45309" font-size="10.5">sem condition: service_healthy, a API sobe junto com o banco e falha ao conectar</text>
+</svg>
+<figcaption>A ordem de subida do ServiceHub, com a saúde verificada em cada etapa.</figcaption>
+</figure>
+<p>Orquestradores como o Kubernetes separam as verificações de vida e de prontidão, e o Actuator do Spring Boot oferece grupos de saúde <code>liveness</code> e <code>readiness</code> para isso. No ServiceHub, o Compose usa o <code>/actuator/health</code> geral; os grupos ficam como conceito.</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Configuração e segredos <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A imagem é a mesma em todo lugar; o que muda entre ambientes vem de variáveis. Essa é a ideia de quatro fatores do <strong>Twelve-Factor App</strong>, a metodologia já vista na Semana 11:</p>
+<table>
+<thead><tr><th style="width:24%">Fator</th><th>O que diz</th><th style="width:34%">No ServiceHub</th></tr></thead>
+<tr><td>III · Configuração</td><td>Guarde a configuração no ambiente, não no código.</td><td>Variáveis com padrão de dev; <code>.env</code> fora do Git</td></tr>
+<tr><td>IV · Serviços de apoio</td><td>Banco, cache e fila são recursos anexados, trocáveis por configuração.</td><td><code>DB_URL</code> aponta para qualquer PostgreSQL</td></tr>
+<tr><td>X · Paridade dev/prod</td><td>Mantenha os ambientes o mais parecidos possível.</td><td>PostgreSQL 16 no Compose e nos testes</td></tr>
+<tr><td>XI · Logs</td><td>Logs como fluxo de eventos na saída padrão.</td><td>Console em JSON no perfil <code>prod</code></td></tr>
+</table>
+<p>Um <strong>serviço de apoio</strong> (<em>backing service</em>) é qualquer serviço que a aplicação usa pela rede. Trocar o PostgreSQL local por um gerenciado na nuvem deve exigir só outra <code>DB_URL</code>, sem mudar uma linha de código.</p>
+
+<h3>Configuração não é o mesmo que segredo</h3>
+<div class="grid2">
+  <div class="card"><h3 class="ch">Configuração comum</h3><p>Porta, perfil do Spring, endereço do banco, origens do CORS, validade do token. Muda entre ambientes, mas pode aparecer em log e em documentação.</p></div>
+  <div class="card"><h3 class="ch">Segredo</h3><p><code>DB_PASS</code>, <code>JWT_SECRET</code>, senha do admin inicial. Dá acesso a algo; se vazou, precisa ser trocado. Nunca no Git, nunca na imagem, nunca impresso em log.</p></div>
+</div>
+<p>Onde o segredo vive: no <code>.env</code> da sua máquina, nos <em>secrets</em> do repositório no CI e, em produção, nas variáveis protegidas ou no <strong>cofre de segredos</strong> do provedor (um serviço que guarda credenciais cifradas e controla quem pode lê-las). Um segredo que entrou no histórico do Git continua lá mesmo depois de apagado do arquivo; a única correção é trocar o valor.</p>
+
+<h3>O que vai para o Git</h3>
+<table>
+<thead><tr><th style="width:30%">Arquivo</th><th style="width:14%">Versionar?</th><th>O que contém</th></tr></thead>
+<tr><td><code>docker-compose.yml</code></td><td>Sim</td><td>Estrutura do ambiente e padrões de desenvolvimento</td></tr>
+<tr><td><code>.env.example</code></td><td>Sim</td><td>Todas as variáveis, com valores de exemplo</td></tr>
+<tr><td><code>.env</code></td><td><strong>Nunca</strong></td><td>Os valores reais da sua máquina ou do servidor</td></tr>
+<tr><td><code>application-prod.properties</code></td><td>Sim</td><td>Ajustes do perfil <code>prod</code>, sem nenhum segredo</td></tr>
+</table>
+<p>O <code>.env.example</code> é documentação executável: quem clona copia para <code>.env</code> e troca os valores. O <code>.env</code> fica no <code>.gitignore</code> e no <code>.dockerignore</code>. Trecho do <code>.env.example</code> do ServiceHub (resumido):</p>
+<pre># Porta do Postgres no seu computador (dentro do Docker é sempre 5432)
+DB_PORT=5433
+# Porta da API no seu computador (a bancada de testes usa 8090)
+API_PORT=8090
+# Segurança: troque fora da sala de aula. Mínimo de 32 caracteres; sem ele a API não sobe.
+JWT_SECRET=troque-por-um-segredo-proprio-com-32-caracteres-ou-mais</pre>
+
+<h3>Todo valor tem um padrão de desenvolvimento</h3>
+<p>O Compose lê automaticamente um arquivo <code>.env</code> na pasta do projeto e usa os valores para substituir as referências <code>${VAR}</code> do YAML (a <strong>interpolação</strong>). A forma <code>${VAR:-padrão}</code> usa o padrão quando a variável não existe ou está vazia; <code>${VAR:?mensagem}</code> faz o Compose parar com erro se ela faltar. O Spring tem a mesma ideia com outra sintaxe:</p>
+<div class="grid2">
+<div class="card"><h3 class="ch">docker-compose.yml</h3>
+<pre>POSTGRES_DB: ${DB_NAME:-servicehub}
+- "${API_PORT:-8090}:8080"</pre></div>
+<div class="card"><h3 class="ch">application.properties</h3>
+<pre>server.port=${SERVER_PORT:8080}
+servicehub.jwt.secret=${JWT_SECRET:}</pre></div>
+</div>
+<p>O Compose usa <code>:-</code>; o Spring, só os dois-pontos. Com padrões, o ambiente sobe num clone limpo, sem <code>.env</code>. No Spring, <code>JWT_SECRET</code> não tem padrão de propósito: sem ele, <code>JwtProperties</code> derruba a inicialização, para a API nunca rodar com segredo vazio. No Compose do projeto há um padrão de aula para ele, com a observação de trocá-lo em qualquer ambiente compartilhado.</p>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Paridade e perfis <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Paridade entre desenvolvimento e produção</h3>
+<p>Quanto mais o ambiente de desenvolvimento difere do de produção, mais erros só aparecem em produção. O Twelve-Factor descreve três distâncias a reduzir: de <strong>tempo</strong> (o código escrito hoje chega à produção em horas ou dias, não em meses), de <strong>pessoas</strong> (quem escreve o código acompanha a implantação) e de <strong>ferramentas</strong> (mesmo banco, mesma versão e mesmos serviços de apoio em todos os ambientes). A distância de ferramentas é a que o Docker mais ajuda a fechar.</p>
+<div class="warn"><div class="label">Erro comum em tutoriais</div><p>H2 em memória nos testes e PostgreSQL em produção. As migrações do ServiceHub usam SQL que só o PostgreSQL entende; com H2, os testes passariam ou falhariam por motivos que não existem em produção. O projeto usa <code>postgres:16-alpine</code> no Compose e nos testes com Testcontainers (ADR-0005).</p></div>
+
+<h3>Perfis do Spring Boot</h3>
+<p>Um <strong>perfil</strong> é um nome, como <code>dev</code> ou <code>prod</code>, que ativa um conjunto extra de configurações. O arquivo <code>application-{perfil}.properties</code> é lido por cima do <code>application.properties</code>, e o perfil ativo é escolhido pela variável <code>SPRING_PROFILES_ACTIVE</code>. A regra de precedência que basta para esta disciplina: <strong>variável de ambiente vence arquivo, e arquivo de perfil vence o arquivo base</strong>. Perfil ajusta comportamento (formato e nível de log, por exemplo); segredo continua vindo do ambiente.</p>
+<div class="grid2">
+<div class="card"><h3 class="ch">Texto livre (exemplo)</h3>
+<pre>14:32:07.112 INFO [a1b2c3]
+ServiceRequestService - ordem 42 aceita</pre>
+<p>Feito para pessoas lerem no terminal.</p></div>
+<div class="card"><h3 class="ch">Estruturado (simplificado)</h3>
+<pre>{"log.level": "INFO",
+ "message": "ordem 42 aceita",
+ "requestId": "a1b2c3"}</pre>
+<p>Feito para máquinas filtrarem: cada informação num campo com nome.</p></div>
+</div>
+<p>Uma ferramenta de logs busca todas as linhas de um <code>requestId</code>, ou só os erros, sem expressões regulares frágeis. O formato real usado pelo ServiceHub é o <strong>ECS</strong> (<em>Elastic Common Schema</em>), com mais campos que o exemplo. É configuração nativa do Spring Boot, sem dependência nova:</p>
+<pre># application-prod.properties (trecho)
+logging.structured.format.console=ecs
+logging.level.root=INFO
+logging.level.com.servicehub=INFO
+logging.level.org.hibernate.SQL=WARN</pre>
+<p>No Compose, <code>SPRING_PROFILES_ACTIVE</code> tem padrão <code>prod</code>: <code>docker compose up</code> já sobe com logs em JSON.</p>
+
+<h3>Override de desenvolvimento</h3>
+<p>Para depurar, um segundo arquivo Compose é <strong>mesclado</strong> ao primeiro: só os campos declarados mudam, e listas como <code>ports</code> são somadas às do arquivo base.</p>
+<pre># docker-compose.dev.yml
+services:
+  api:
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+    ports:
+      - "5005:5005"
+
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build</pre>
+<p>O perfil <code>dev</code> não tem arquivo próprio no projeto: vale o <code>application.properties</code> base, que já traz log em texto com o <code>requestId</code> e SQL em DEBUG. O <code>JAVA_TOOL_OPTIONS</code> liga a depuração remota (JDWP) na porta 5005, para a IDE se conectar e parar em breakpoints; <code>suspend=n</code> faz a API subir sem esperar o depurador.</p>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. O Compose do ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O arquivo começa direto por <code>services:</code>, sem a chave <code>version</code>, que o Compose v2 ignora. Os trechos abaixo são reais; o pgAdmin aparece na seção 11.</p>
+<h3>O serviço do banco</h3>
+<pre>services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: servicehub-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-servicehub}
+      POSTGRES_USER: ${DB_USER:-servicehub}
+      POSTGRES_PASSWORD: ${DB_PASS:-secret}
+      TZ: America/Sao_Paulo
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-servicehub} -d ${DB_NAME:-servicehub}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - servicehub-net
+    restart: unless-stopped</pre>
+<ul>
+  <li><code>postgres:16-alpine</code>: a mesma versão dos testes com Testcontainers (paridade).</li>
+  <li><code>POSTGRES_*</code>: a imagem oficial usa essas variáveis para criar banco, usuário e senha <em>na primeira inicialização</em> do volume.</li>
+  <li><code>"5433:5432"</code>: 5433 no seu computador, para não conflitar com um PostgreSQL instalado; 5432 dentro da rede.</li>
+  <li><code>pg_isready</code>: utilitário do PostgreSQL que responde se o servidor já aceita conexões; é o healthcheck do banco.</li>
+  <li><code>restart: unless-stopped</code>: o Docker reinicia o container se ele cair, a não ser que você o tenha parado.</li>
+</ul>
+<h3>O serviço da API</h3>
+<pre>  api:
+    build: .
+    image: servicehub-api:latest
+    container_name: servicehub-api
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-servicehub}
+      DB_USER: ${DB_USER:-servicehub}
+      DB_PASS: ${DB_PASS:-secret}
+      JWT_SECRET: ${JWT_SECRET:-troque-este-segredo-de-desenvolvimento-com-32-bytes}
+      # ... JWT_EXPIRATION_SECONDS, SERVICEHUB_ADMIN_*, CORS_ALLOWED_ORIGINS, TZ
+    ports:
+      - "${API_PORT:-8090}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - servicehub-net
+    restart: unless-stopped
+
+networks:
+  servicehub-net:
+    driver: bridge
+
+volumes:
+  pg_data:</pre>
+<p>(Resumido: as variáveis indicadas no comentário estão no arquivo real.)</p>
+<ul>
+  <li><code>build: .</code> usa o Dockerfile multi-stage da Semana 11; <code>image</code> dá nome à imagem construída.</li>
+  <li><code>env_file</code> com <code>required: false</code>: se houver <code>.env</code>, suas variáveis chegam ao container; se não houver, valem os padrões. Quando a mesma variável aparece nos dois, a de <code>environment</code> prevalece.</li>
+  <li><code>DB_URL</code> aponta para <code>postgres:5432</code>, nome do serviço e porta interna (seção 5).</li>
+  <li><code>"8090:8080"</code>: a porta que a bancada de testes e os critérios do Mapa esperam.</li>
+  <li><code>depends_on</code> com <code>condition: service_healthy</code>: a API só sobe com o banco pronto (seção 7). O HEALTHCHECK da própria imagem marca a API como <code>healthy</code> quando o Actuator responde <code>UP</code>.</li>
+  <li><code>networks</code> e <code>volumes</code> no fim declaram a rede e o volume nomeado usados pelos serviços.</li>
+</ul>
+<div class="note"><div class="label">O mesmo arquivo em três lugares</div><p>O pipeline de CI do projeto roda <code>docker compose up -d --build</code>, espera o container da API ficar <code>healthy</code> e faz um <code>curl</code> em <code>http://localhost:8090/api/v1/info</code>. O mesmo arquivo serve ao seu notebook, ao pipeline (Semana 14) e à banca.</p></div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. Dados, pgAdmin e comandos <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>down e down -v: uma letra de diferença</h3>
+<div class="grid2">
+  <div class="card good"><h3 class="ch">docker compose down</h3><p>Para e remove os containers e a rede. O volume <code>pg_data</code> fica: no próximo <code>up</code>, usuários, serviços e ordens continuam lá.</p></div>
+  <div class="card bad"><h3 class="ch">docker compose down -v</h3><p>Remove também os volumes nomeados. O banco é apagado, e o Flyway recria o schema do zero no próximo <code>up</code>. Use só quando quiser apagar os dados de propósito.</p></div>
+</div>
+<div class="warn"><div class="label">Armadilha clássica</div><p>As variáveis <code>POSTGRES_*</code> só valem na criação do volume. Se você muda <code>DB_PASS</code> no <code>.env</code> depois, a API passa a mandar a senha nova, mas o banco guardado no volume continua com a antiga, e a autenticação falha. Outra: volumes pertencem a um <strong>projeto</strong> Compose, cujo nome padrão é o da pasta; com outro nome de projeto (opção <code>-p</code>), o volume é outro e o banco parece "vazio".</p></div>
+
+<h3>pgAdmin no profile tools</h3>
+<p>Um <strong>profile</strong> do Compose marca serviços que só sobem quando pedidos. O pgAdmin, interface web para inspecionar o banco, é uma ferramenta de apoio: não deve pesar no ambiente de todo dia. Trecho do serviço (resumido):</p>
+<pre>  pgadmin:
+    image: dpage/pgadmin4
+    profiles: ["tools"]
+    environment:
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - "127.0.0.1:${PGADMIN_PORT:-8091}:80"</pre>
+<p>Com <code>docker compose --profile tools up -d</code>, o pgAdmin abre em <code>http://localhost:8091</code> em modo desktop, sem login, já com dois servidores cadastrados pelo <code>servers.json</code>: o banco do projeto (<code>postgres:5432</code>, pela rede do Compose) e o "banco do aluno" (<code>host.docker.internal:5433</code>). As senhas vêm de um arquivo <em>pgpass</em> que o próprio serviço grava ao iniciar. A porta fica presa a <code>127.0.0.1</code> porque o modo sem login só é aceitável na máquina local.</p>
+
+<h3>Os comandos do dia a dia</h3>
+<pre>docker compose up -d --build          # sobe tudo e reconstrói a imagem da API
+docker compose ps                     # estado de cada serviço, com (healthy)
+docker compose logs -f api            # log da API em tempo real
+docker compose exec api env           # variáveis que chegaram ao container
+docker compose exec postgres psql -U servicehub -d servicehub
+docker compose --profile tools up -d  # inclui o pgAdmin
+docker compose down                   # para tudo e mantém pg_data
+docker compose down -v                # para tudo e APAGA os dados</pre>
+<p>Algo não subiu? Comece por <code>ps</code> e <code>logs</code>. Variável errada? <code>exec api env</code> mostra o que o container recebeu. Porta 8090 ocupada? <code>API_PORT</code> no <code>.env</code> resolve sem editar o YAML.</p>
+</section>
+
+<!-- 12 -->
+<section class="page" id="s12">
+<h2>12. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um <code>docker-compose.yml</code> gerado por IA quase sempre "sobe". O problema é o que ele esconde: a API que sobe antes do banco e falha de vez em quando, a senha real versionada, o banco que some no primeiro <code>down -v</code>. Os quatro movimentos, nesta semana:</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>Nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>API só sobe com o banco <code>healthy</code>; todo valor com padrão de dev; <code>.env</code> opcional; volume nomeado; pgAdmin só no profile <code>tools</code>.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Pedir o plano (serviços, rede, volume, variáveis e seus padrões) antes do YAML.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Sem <code>version</code>, imagem com versão fixa, <code>DB_URL</code> com <code>postgres:5432</code>, <code>condition</code> presente, nenhuma senha real no YAML.</td></tr>
+<tr><td><strong>Provar</strong></td><td>Num clone limpo, sem <code>.env</code>: <code>up -d --build</code>, os dois serviços <code>(healthy)</code>, <code>/api/v1/info</code> na 8090 e dados vivos depois de <code>down</code> e <code>up</code>.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>faz um docker compose com
+spring boot e postgres</pre><p>Tende a vir com <code>version: '3.9'</code>, <code>postgres:latest</code>, <code>depends_on</code> sem condição, senha no YAML e <code>localhost</code> na URL do banco.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Parte do Dockerfile da semana anterior, fixa as versões, nomeia os serviços, exige healthcheck e <code>service_healthy</code>, diz como a configuração entra (<code>${VAR:-padrão}</code> e <code>.env</code> opcional), proíbe segredo no YAML, pede plano antes e define a prova: clone limpo, 8090 e dados que persistem.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Continua o da Semana 11: a API já tem o Dockerfile multi-stage com HEALTHCHECK. Troque o que estiver entre &lt;&gt;:</p>
+<pre>Contexto: somos uma equipe construindo a API ServiceHub em Java 21 e
+Spring Boot 4.1, com PostgreSQL 16 e Flyway. Na raiz do repositório já
+existe um Dockerfile multi-stage (runtime eclipse-temurin:21-jre-alpine,
+porta 8080, HEALTHCHECK em /actuator/health). A API lê do ambiente:
+DB_URL, DB_USER, DB_PASS, JWT_SECRET (obrigatória, mínimo de 32 bytes),
+JWT_EXPIRATION_SECONDS, SERVICEHUB_ADMIN_EMAIL, SERVICEHUB_ADMIN_PASSWORD,
+CORS_ALLOWED_ORIGINS e SPRING_PROFILES_ACTIVE. Existe
+application-prod.properties com logging.structured.format.console=ecs.
+Seguem o Dockerfile e o application.properties: &lt;cole aqui&gt;.
+
+Objetivo: criar docker-compose.yml e .env.example na raiz para subir API
+e banco com um comando.
+
+Restrições:
+1. Sem a chave "version". Serviços "postgres" e "api" numa rede bridge
+   nomeada servicehub-net.
+2. postgres: image postgres:16-alpine; POSTGRES_DB, POSTGRES_USER e
+   POSTGRES_PASSWORD vindos de ${DB_NAME:-servicehub}, ${DB_USER:-servicehub}
+   e ${DB_PASS:-secret}; porta "${DB_PORT:-5433}:5432"; volume nomeado
+   pg_data em /var/lib/postgresql/data; healthcheck com pg_isready
+   (interval 10s, timeout 5s, retries 5); restart unless-stopped.
+3. api: build . ; env_file .env com required: false; DB_URL
+   jdbc:postgresql://postgres:5432/${DB_NAME:-servicehub} (nunca localhost);
+   SPRING_PROFILES_ACTIVE com padrão prod; toda variável com padrão de
+   desenvolvimento ${VAR:-padrão}; porta "${API_PORT:-8090}:8080";
+   depends_on postgres com condition: service_healthy.
+4. Nenhuma senha ou segredo real no YAML: só padrões de desenvolvimento.
+   O .env.example lista TODAS as variáveis com valores de exemplo; .env
+   continua no .gitignore e no .dockerignore.
+5. NÃO use postgres:latest nem outra versão, docker-compose com hífen,
+   bind mount para os dados do banco, links nem container separado para
+   cada módulo da API. NÃO altere código Java, pom.xml nem o Dockerfile.
+
+Antes do YAML, apresente um plano curto: serviços, rede, volume, ordem de
+subida e a tabela de variáveis com seus padrões. Espere minha confirmação.
+Depois entregue os dois arquivos completos, comentados.
+
+Critério de aceite: num clone limpo, sem .env, docker compose up -d --build
+sobe os dois serviços; docker compose ps mostra ambos (healthy);
+GET http://localhost:8090/api/v1/info responde 200; um usuário cadastrado
+continua existindo depois de docker compose down e docker compose up -d.</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<table>
+<thead><tr><th>O que aparece no YAML gerado</th><th style="width:46%">O que o ServiceHub faz</th></tr></thead>
+<tr><td><code>version: '3.9'</code> no topo</td><td>Sem a chave: o Compose v2 a ignora</td></tr>
+<tr><td><code>postgres:latest</code> ou <code>postgres:15</code></td><td><code>postgres:16-alpine</code>, a versão dos testes</td></tr>
+<tr><td><code>depends_on</code> só com o nome do serviço</td><td>healthcheck e <code>condition: service_healthy</code></td></tr>
+<tr><td><code>DB_URL</code> com <code>localhost:5433</code> na API</td><td><code>postgres:5432</code>, nome e porta internos</td></tr>
+<tr><td><code>env_file: .env</code> obrigatório</td><td><code>required: false</code> e padrões <code>${VAR:-...}</code></td></tr>
+<tr><td>Senha real escrita no YAML versionado</td><td>Valores reais só no <code>.env</code>, fora do Git</td></tr>
+<tr><td><code>down -v</code> sugerido para "limpar"</td><td><code>down</code>; o <code>-v</code> só para apagar o banco</td></tr>
+</table>
+
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>O arquivo começa em <code>services:</code>, sem <code>version</code>?</li>
+  <li>A imagem do banco é <code>postgres:16-alpine</code> e os dados estão num volume nomeado?</li>
+  <li>O banco tem healthcheck e a API tem <code>depends_on</code> com <code>condition: service_healthy</code>?</li>
+  <li>A <code>DB_URL</code> da API usa <code>postgres:5432</code>?</li>
+  <li>Todo <code>${VAR}</code> tem padrão, e o ambiente sobe sem <code>.env</code>?</li>
+  <li>Nenhum valor real de senha ou segredo está no YAML ou no <code>.env.example</code>?</li>
+  <li>A porta publicada da API é 8090?</li>
+</ul>
+
+<h3>Prova</h3>
+<p>Faça num clone limpo do repositório, sem <code>.env</code>:</p>
+<pre>docker compose up -d --build
+docker compose ps                         # api e postgres (healthy)
+curl http://localhost:8090/api/v1/info    # no PowerShell, use curl.exe
+
+# cadastre um usuário pelo Swagger em http://localhost:8090/docs
+# (POST /api/v1/auth/register) e conte os usuários:
+docker compose exec postgres psql -U servicehub -d servicehub -c "select count(*) from users"
+
+docker compose down
+docker compose up -d
+docker compose exec postgres psql -U servicehub -d servicehub -c "select count(*) from users"
+# a contagem é a mesma: os dados persistiram no volume pg_data</pre>
+<p>Para ver a diferença, repita com <code>down -v</code>: a contagem volta a ter só o admin criado na inicialização. Registre no PR o pedido feito à IA, o que você corrigiu e a saída da prova.</p>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Serviço</dt><dd>No Compose, a definição de um container (imagem, variáveis, portas, volumes); seu nome vira nome de DNS na rede.</dd>
+  <dt>Monólito modular</dt><dd>Aplicação implantada como unidade única, com módulos de fronteira clara no código.</dd>
+  <dt>Microsserviços</dt><dd>Estilo em que a aplicação é dividida em serviços implantados de forma independente, cada um dono dos seus dados.</dd>
+  <dt>Orquestrador</dt><dd>Ferramenta que decide onde os containers rodam, quantas réplicas existem e o que fazer quando caem, num cluster.</dd>
+  <dt>Rede bridge</dt><dd>Rede virtual privada entre containers da mesma máquina, com DNS por nome de serviço.</dd>
+  <dt>Volume nomeado</dt><dd>Área de dados gerenciada pelo Docker, que sobrevive à remoção do container (diferente do bind mount, que monta uma pasta do hospedeiro).</dd>
+  <dt>Prontidão</dt><dd>Capacidade de atender requisições agora; diferente de apenas ter iniciado.</dd>
+  <dt>Healthcheck</dt><dd>Comando periódico que marca o container como starting, healthy ou unhealthy.</dd>
+  <dt>Serviço de apoio</dt><dd>Recurso usado pela rede (banco, fila, cache), trocável por configuração.</dd>
+  <dt>Segredo</dt><dd>Configuração que dá acesso a algo (senha, chave, token); se vazar, precisa ser trocada.</dd>
+  <dt>Perfil</dt><dd>Nome que ativa um conjunto extra de configurações no Spring Boot, como <code>prod</code>.</dd>
+</dl>
+
+<!-- 14 -->
+<h2 id="s14">14. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>O ServiceHub roda em dois containers. Isso faz dele uma arquitetura de microsserviços? Justifique com as definições de monólito, microsserviços e serviço de apoio, e cite uma situação em que valeria separar um módulo em serviço próprio.</li>
+  <li>Uma equipe configurou a API com <code>DB_URL=jdbc:postgresql://localhost:5433/servicehub</code> dentro do Compose, e a API não conecta. Explique o erro com o conceito de rede e DNS e corrija a URL.</li>
+  <li>Para cada caso, escolha volume nomeado, bind mount ou tmpfs e justifique: (a) os dados do PostgreSQL; (b) um arquivo de configuração do pgAdmin editado no repositório; (c) arquivos temporários que não podem ir para o disco.</li>
+  <li>A API sobe e cai com "Connection refused" uma vez em cada três tentativas, mas o <code>docker-compose.yml</code> tem <code>depends_on: [postgres]</code>. Explique a causa usando a diferença entre iniciado e pronto e mostre o trecho YAML que corrige.</li>
+  <li>Classifique como configuração comum ou segredo: <code>API_PORT</code>, <code>JWT_SECRET</code>, <code>SPRING_PROFILES_ACTIVE</code>, <code>DB_PASS</code>, <code>CORS_ALLOWED_ORIGINS</code>, <code>SERVICEHUB_ADMIN_PASSWORD</code>. Onde vive cada segredo no notebook, no CI e em produção?</li>
+  <li>Um colega trocou <code>DB_PASS</code> no <code>.env</code> e agora a API não autentica no banco. O que aconteceu? Dê duas formas de resolver e diga o custo de cada uma.</li>
+  <li>O que muda nos logs entre o Compose padrão e o override <code>docker-compose.dev.yml</code>? Por que essa diferença está em perfil, e não no código?</li>
+  <li>Revise o trecho gerado por IA e liste os problemas:
+<pre>version: '3.9'
+services:
+  db:
+    image: postgres:latest
+    environment: { POSTGRES_PASSWORD: SenhaReal@2026 }
+    volumes:
+      - ./data:/var/lib/postgresql/data
+  api:
+    build: .
+    environment: { DB_URL: "jdbc:postgresql://localhost:5432/servicehub" }
+    depends_on: [db]</pre></li>
+  <li>Escreva um prompt para pedir à IA que adicione o pgAdmin ao Compose da equipe só no profile <code>tools</code>, sem login, acessível apenas pela máquina local. Diga o que você conferiria na resposta.</li>
+</ol>
+
+<!-- 15 -->
+<h2 id="s15">15. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leitura disponível na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>MONTEIRO, E. R. et al. <em>DevOps</em>. Grupo A, 2021. Capítulos "Uso do Docker para microsserviços" e "Gerenciando o ciclo de vida de contêineres".</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li><em>The Twelve-Factor App</em>, fatores III (Configurações), IV (Serviços de apoio), X (Paridade entre desenvolvimento e produção) e XI (Logs): <code>12factor.net</code> (há versão em português).</li>
+  <li>Documentação oficial: Docker, <em>Compose file reference</em> (<code>docs.docker.com/reference/compose-file</code>); Spring Boot, <em>Externalized Configuration</em> e <em>Structured Logging</em> (<code>docs.spring.io/spring-boot</code>).</li>
+  <li>No repositório do ServiceHub: <code>docker-compose.yml</code>, <code>docker-compose.dev.yml</code>, <code>.env.example</code>, <code>docker/pgadmin/servers.json</code> e o ADR-0005.</li>
+</ul>
+</section>
+
+</body>
+</html>

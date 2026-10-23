@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 14 — Integração contínua, deploy e versionamento</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 14 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 14<br>Integração contínua, deploy e versionamento</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Até aqui a API rodou na sua máquina e no Compose. Nesta semana ela sai do localhost. Você vai entender o caminho que uma mudança percorre do commit até o usuário, por que uma máquina limpa deve provar cada push, como escolher onde hospedar e como trocar a versão em execução sem derrubar ninguém. Por fim, como evoluir o contrato público sem quebrar clientes que você não controla. Integração contínua aparece aqui em nível introdutório: o tema tem disciplina própria no 7º período.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">O ciclo de entrega</a></li>
+      <li><a href="#s3">Artefato: construa uma vez</a></li>
+      <li><a href="#s4">CI, entrega e implantação contínuas</a></li>
+      <li><a href="#s5">Ambientes</a></li>
+      <li><a href="#s6">Integração contínua: uma introdução</a></li>
+      <li><a href="#s7">Onde hospedar: IaaS, PaaS e container</a></li>
+      <li><a href="#s8">Estratégias de deploy</a></li>
+      <li><a href="#s9">Configuração e segredos na plataforma</a></li>
+      <li><a href="#s10">Compatibilidade e breaking changes</a></li>
+      <li><a href="#s11">Versionamento semântico</a></li>
+      <li><a href="#s12">Formas de versionar uma API</a></li>
+      <li><a href="#s13">Política de depreciação</a></li>
+      <li><a href="#s14">Aplicação no ServiceHub</a></li>
+      <li><a href="#s15">Construindo com IA</a></li>
+      <li><a href="#s16">Glossário</a></li>
+      <li><a href="#s17">Exercícios</a></li>
+      <li><a href="#s18">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>descrever o ciclo de entrega (commit, build, teste, artefato, deploy) e explicar por que o mesmo artefato deve ser promovido entre ambientes;</li>
+  <li>diferenciar integração contínua, entrega contínua e implantação contínua, e o papel de cada ambiente (desenvolvimento, homologação, produção);</li>
+  <li>ler um pipeline mínimo de integração contínua e dizer quando, onde e o que ele roda;</li>
+  <li>comparar IaaS, PaaS e container, e as estratégias de deploy recreate, rolling e blue-green;</li>
+  <li>classificar mudanças de contrato em compatíveis ou incompatíveis, aplicar versionamento semântico e propor uma política de depreciação.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. O ciclo de entrega <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Entrega</strong> é o caminho que uma mudança faz do código do desenvolvedor até o usuário. Qualquer que seja a linguagem ou a empresa, esse caminho tem sempre as mesmas etapas. Elas podem ser feitas à mão, por uma pessoa seguindo uma lista, ou por uma máquina. Quando uma máquina executa a sequência, chamamos essa sequência de <strong>pipeline</strong> (esteira).</p>
+
+<figure class="figure">
+<svg viewBox="0 0 700 150" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12">
+  <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4">
+    <rect x="6" y="30" width="112" height="56" rx="8"/><rect x="152" y="30" width="112" height="56" rx="8"/>
+    <rect x="298" y="30" width="112" height="56" rx="8"/><rect x="444" y="30" width="112" height="56" rx="8"/>
+  </g>
+  <rect x="590" y="30" width="104" height="56" rx="8" fill="#e7f5ef" stroke="#047857" stroke-width="1.4"/>
+  <g text-anchor="middle" fill="#1f2937">
+    <text x="62" y="54" font-weight="700">Commit</text><text x="62" y="72" fill="#6b7280" font-size="10.5">mudança no Git</text>
+    <text x="208" y="54" font-weight="700">Build</text><text x="208" y="72" fill="#6b7280" font-size="10.5">compila e empacota</text>
+    <text x="354" y="54" font-weight="700">Teste</text><text x="354" y="72" fill="#6b7280" font-size="10.5">prova automática</text>
+    <text x="500" y="54" font-weight="700">Artefato</text><text x="500" y="72" fill="#6b7280" font-size="10.5">imutável, versionado</text>
+    <text x="642" y="54" font-weight="700">Deploy</text><text x="642" y="72" fill="#6b7280" font-size="10.5">num ambiente</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="2" marker-end="url(#a1)"><path d="M120 58 H148"/><path d="M266 58 H294"/><path d="M412 58 H440"/><path d="M558 58 H586"/></g>
+  <path d="M354 88 V118" stroke="#b45309" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <text x="354" y="134" text-anchor="middle" fill="#b45309" font-size="11">falhou? a entrega para aqui e o autor é avisado</text>
+  <text x="350" y="20" text-anchor="middle" fill="#1d4ed8" font-size="11">pipeline: cada etapa só recebe o que a anterior aprovou</text>
+</svg>
+<figcaption>As cinco etapas de uma entrega. Automatizadas, formam o pipeline.</figcaption>
+</figure>
+
+<p>Exemplos fora do ServiceHub: num projeto Node, o build gera um diretório <code>dist/</code>; num projeto Java, um <code>.jar</code>. O teste pode ser unitário ou de integração, desde que rode sem intervenção humana. O artefato aprovado é guardado com um identificador único, e o deploy é a plataforma trocar a versão antiga pela nova.</p>
+<p>A regra do pipeline é simples: <strong>cada etapa só recebe o que a anterior aprovou</strong>. Se o teste falha, nada é empacotado nem publicado, e o problema aparece minutos depois do commit, quando o autor ainda lembra o que mudou e corrigir é barato. Sem essa regra, o defeito é descoberto dias depois, por um usuário.</p>
+<div class="note"><div class="label">Deploy não é release</div><p><strong>Deploy</strong> (implantação) é colocar uma versão para rodar num ambiente. <strong>Release</strong> (lançamento) é torná-la disponível para os usuários. Às vezes acontecem no mesmo instante; às vezes a versão nova já está implantada, mas uma funcionalidade só é liberada depois, para um grupo ou numa data combinada.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. Artefato: construa uma vez, implante muitas <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Artefato</strong> é o resultado empacotado do build: um <code>.jar</code>, uma imagem Docker, um pacote instalável. A propriedade mais importante de um artefato é ser <strong>imutável</strong>: depois de criado, ele não muda. O que muda de um ambiente para outro é apenas a <strong>configuração</strong> (endereço do banco, senhas, portas), que chega de fora, por variáveis de ambiente.</p>
+<div class="grid2">
+<div class="card good"><h3 class="ch">Promover o mesmo artefato</h3><p>Uma única imagem é construída, testada, aprovada em homologação e então levada para produção. O que foi testado é exatamente o que roda. Se algo der errado, você sabe qual commit gerou aquela imagem.</p></div>
+<div class="card bad"><h3 class="ch">Recompilar por ambiente</h3><p>Um build para homologação, outro para produção, cada um com configurações embutidas. Uma dependência pode ter mudado entre os dois builds: o que roda em produção nunca foi testado de verdade.</p></div>
+</div>
+<div class="note"><div class="label">Analogia</div><p>Um lote de remédio é numerado, rastreável e igual em todas as farmácias. Ninguém fabrica um lote diferente para cada cidade; o que muda é a prateleira em que ele é colocado. O artefato é o lote; o ambiente é a prateleira.</p></div>
+<p>Para rastrear, o artefato precisa de um identificador que aponte para o código de origem. O mais usado é o <strong>SHA do commit</strong>, o identificador único que o Git calcula para cada commit. Uma imagem chamada <code>minha-api:3f9c2e1</code> diz, sem ambiguidade, de qual commit ela saiu.</p>
+<p>Essa regra explica uma decisão das Semanas 11 e 12: a configuração do ServiceHub fica em variáveis de ambiente, nunca no código. Se a senha do banco estivesse dentro do <code>.jar</code>, cada ambiente exigiria um build diferente, e o princípio "construa uma vez" cairia.</p>
+
+<!-- 4 -->
+<h2 id="s4">4. Integração, entrega e implantação contínuas <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Três práticas aparecem com nomes parecidos e uma sigla compartilhada. Cada uma inclui a anterior e acrescenta um passo de automação.</p>
+<table>
+<thead><tr><th style="width:21%">Prática</th><th>O que garante</th><th style="width:20%">Quem publica</th><th style="width:22%">Pré-requisito</th></tr></thead>
+<tr><td><strong>Integração contínua</strong> (CI, <em>continuous integration</em>)</td><td>Cada mudança é integrada à branch principal com build e testes automáticos. O foco é manter o código integrado sempre funcionando.</td><td>Ninguém: CI não publica.</td><td>Testes automáticos confiáveis.</td></tr>
+<tr><td><strong>Entrega contínua</strong> (<em>continuous delivery</em>)</td><td>Todo commit aprovado gera um artefato pronto para produção, que pode ser publicado a qualquer momento.</td><td>Uma pessoa, com um clique.</td><td>CI e deploy automatizado.</td></tr>
+<tr><td><strong>Implantação contínua</strong> (<em>continuous deployment</em>)</td><td>Todo commit aprovado vai para produção sozinho, sem intervenção humana.</td><td>O próprio pipeline.</td><td>Entrega contínua, testes e monitoramento maduros.</td></tr>
+</table>
+<div class="warn"><div class="label">Confusão comum</div><p>A sigla <strong>CD</strong> serve tanto para entrega contínua quanto para implantação contínua. A diferença entre as duas é uma só: <em>quem aperta o botão final</em>. Na entrega contínua, uma pessoa decide quando publicar; na implantação contínua, o pipeline decide. E não existe implantação contínua sem integração contínua: publicar sozinho o que nunca foi testado é só automatizar o risco.</p></div>
+<p>Qual escolher depende do custo de um erro e da confiança nos testes. Uma API de pagamentos pode preferir entrega contínua, com uma pessoa aprovando o horário da publicação. Um site de conteúdo com boa cobertura de testes pode publicar sozinho a cada commit. Não há resposta única.</p>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. Ambientes: desenvolvimento, homologação e produção <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Ambiente</strong> é um conjunto de máquinas, banco e configuração em que uma versão roda com um propósito. Os três clássicos:</p>
+<table>
+<thead><tr><th style="width:20%">Ambiente</th><th>Para que serve</th><th style="width:20%">Quem usa</th><th style="width:25%">Dados</th></tr></thead>
+<tr><td>Desenvolvimento</td><td>Escrever, depurar e experimentar.</td><td>O desenvolvedor.</td><td>Fictícios e descartáveis.</td></tr>
+<tr><td>Homologação (<em>staging</em>)</td><td>Validar a versão candidata num ambiente igual ao de produção, antes de liberá-la.</td><td>Equipe, testadores, área de negócio.</td><td>Parecidos com os reais, sem dados pessoais expostos.</td></tr>
+<tr><td>Produção</td><td>Atender os usuários de verdade.</td><td>Usuários finais.</td><td>Reais, com backup.</td></tr>
+</table>
+<p><strong>Homologar</strong> é aprovar formalmente: em muitas empresas, o cliente ou a área de negócio testa a versão em homologação e dá o aceite antes da publicação. Para esse aceite valer, homologação precisa ser parecida com produção (mesmo banco, mesma versão do runtime, mesma imagem). Uma homologação com H2 em memória e produção com PostgreSQL não prova nada sobre produção. Essa é a <strong>paridade entre ambientes</strong> vista na Semana 12.</p>
+<div class="warn"><div class="label">Dados reais fora de produção</div><p>Copiar a base de produção para homologação "para testar com dados de verdade" expõe dados pessoais de clientes a quem não deveria vê-los. Além de técnico, é um problema de privacidade e de conformidade com a LGPD. Use dados fictícios ou anonimizados.</p></div>
+<p>No semestre, os papéis ficam assim: o Compose na sua máquina é o ambiente de desenvolvimento; o runner do CI, que sobe um PostgreSQL limpo e roda todos os testes, cumpre um papel parecido com o de homologação; a plataforma de hospedagem é a produção.</p>
+
+<!-- 6 -->
+<h2 id="s6">6. Integração contínua: uma introdução <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Por que existe</h3>
+<p>Quando cada pessoa trabalha semanas no próprio branch, o momento de juntar tudo vira um evento doloroso: conflitos, testes que passavam isoladamente e falham juntos, ninguém sabe qual mudança quebrou o quê. A integração contínua ataca o problema pela frequência: integrar <em>cedo e sempre</em>, em pedaços pequenos, e deixar que uma <strong>máquina limpa</strong> prove cada integração.</p>
+<p>"Funciona na minha máquina" não é prova. Na sua máquina há um banco que você criou à mão, uma variável que esqueceu de documentar, uma versão do Java diferente da do colega. O servidor de CI clona o repositório do zero, baixa as dependências declaradas, sobe o que o teste pede e roda tudo. Se falhar ali, falharia em qualquer lugar.</p>
+
+<h3>As práticas básicas</h3>
+<ul>
+  <li><strong>Integre cedo e sempre:</strong> branches curtos, mesclados na principal em horas ou poucos dias. Quanto maior a divergência, pior o merge.</li>
+  <li><strong>Build automatizado:</strong> um único comando constrói tudo do zero, sem passo manual.</li>
+  <li><strong>Testes dentro do build:</strong> o build só passa se os testes passam. Sem testes, o CI apenas prova que o código compila.</li>
+  <li><strong>Build quebrado é prioridade:</strong> principal vermelha para tudo; quem quebrou conserta ou desfaz a mudança antes de seguir.</li>
+</ul>
+<p>A ferramenta é o menos importante: sem essas práticas, um servidor de CI só gera relatórios que ninguém lê. Estratégias de branch, pipelines com vários estágios e ambientes dentro do pipeline são assunto da disciplina do 7º período.</p>
+
+<h3>Um pipeline mínimo</h3>
+<p>Existem vários serviços de CI. No GitHub, o serviço integrado se chama <strong>GitHub Actions</strong>: um arquivo YAML dentro do repositório, em <code>.github/workflows/</code>, descreve o que roda e quando. Como o arquivo está no repositório, o próprio pipeline é código: versionado, revisado em pull request, com histórico. Para esta disciplina, basta saber <em>ler</em> um pipeline mínimo respondendo a três perguntas:</p>
+<pre>on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - run: ./mvnw -B verify</pre>
+<table>
+<thead><tr><th style="width:16%">Pergunta</th><th style="width:34%">Onde está no arquivo</th><th>Resposta</th></tr></thead>
+<tr><td>Quando?</td><td><code>on:</code></td><td>A cada push na <code>main</code> e a cada pull request contra a <code>main</code>.</td></tr>
+<tr><td>Onde?</td><td><code>runs-on:</code></td><td>Numa máquina Linux limpa fornecida pelo GitHub (o <strong>runner</strong>), que já tem Docker.</td></tr>
+<tr><td>O quê?</td><td><code>steps:</code></td><td>Baixa o código, instala o Java 21 (distribuição Temurin, com cache das dependências Maven) e roda <code>./mvnw -B verify</code>, que compila e executa todos os testes. <code>-B</code> é o modo não interativo do Maven.</td></tr>
+</table>
+<p>O resultado aparece no pull request como um <strong>check</strong>: verde se o comando terminou com sucesso, vermelho se algum teste falhou. A equipe pode configurar o repositório para não aceitar merge enquanto o check estiver vermelho.</p>
+<div class="warn"><div class="label">Um CI que nunca ficou vermelho não foi provado</div><p>Se o pipeline nunca falhou, você não sabe se ele roda os testes de verdade. Ele pode estar pulando testes (<code>-DskipTests</code>), rodando o comando errado ou ignorando o código de saída. A prova é quebrar um teste de propósito e ver o check ficar vermelho.</p></div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Onde hospedar: IaaS, PaaS e container <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Depois de aprovado, o artefato precisa rodar em algum lugar acessível pela internet. A pergunta central é: <strong>quem cuida de quê?</strong></p>
+<table>
+<thead><tr><th style="width:20%">Modelo</th><th>Você cuida de</th><th>O provedor cuida de</th><th style="width:22%">Na prática</th></tr></thead>
+<tr><td><strong>IaaS</strong> (infraestrutura como serviço)</td><td>Sistema operacional, runtime, atualizações de segurança, rede da aplicação, backup.</td><td>Hardware, rede física e virtualização.</td><td>Uma máquina virtual na nuvem.</td></tr>
+<tr><td><strong>PaaS</strong> (plataforma como serviço)</td><td>Código e configuração.</td><td>Servidores, sistema, runtime, build, certificados e escala básica.</td><td>Ligar o repositório e publicar.</td></tr>
+<tr><td><strong>Container</strong></td><td>A imagem: aplicação mais runtime.</td><td>Depende de onde a imagem roda.</td><td>O mesmo Dockerfile em VM ou PaaS.</td></tr>
+</table>
+<p><strong>Runtime</strong> é o que a aplicação precisa para rodar; numa API Java, a JRE. A regra geral: quanto mais o provedor cuida, menos trabalho você tem e menos controle também. Numa IaaS você escolhe o kernel, abre portas no firewall e aplica patches; numa PaaS você nem vê a máquina. Na analogia comum, IaaS é alugar um terreno e construir; PaaS é alugar um apartamento mobiliado. (O SaaS, software pronto como serviço, não é tema desta disciplina.)</p>
+<div class="warn"><div class="label">Confusão comum</div><p>Container não é um terceiro modelo de hospedagem ao lado de IaaS e PaaS. É um <em>formato de empacotamento</em>. Uma imagem Docker roda numa máquina virtual (IaaS) ou numa plataforma que aceita Dockerfile (PaaS). O Dockerfile multi-stage é, por isso, o contrato de deploy da API: ele roda igual em qualquer uma das opções.</p></div>
+<p>Nesta disciplina usamos PaaS, porque o foco é a API e não a administração de servidores. Planos, limites e camadas gratuitas das plataformas mudam com frequência: consulte o site oficial antes de escolher e registre a escolha num ADR curto.</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Estratégias de deploy <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Estratégia de deploy</strong> é a forma de trocar a versão em execução pela nova. Cada uma equilibra simplicidade, tempo fora do ar e custo. Nos exemplos, <strong>instância</strong> é uma cópia da aplicação em execução; uma API com tráfego costuma ter várias, atrás de um balanceador de carga.</p>
+<table>
+<thead><tr><th style="width:15%">Estratégia</th><th>Como funciona</th><th style="width:20%">Fica fora do ar?</th><th style="width:27%">Custo e volta atrás</th></tr></thead>
+<tr><td><strong>Recreate</strong></td><td>Para todas as instâncias antigas e depois sobe as novas.</td><td>Sim, entre parar e subir.</td><td>Simples; voltar é refazer o deploy anterior.</td></tr>
+<tr><td><strong>Rolling</strong></td><td>Troca as instâncias aos poucos, uma ou algumas por vez.</td><td>Não, se houver mais de uma instância.</td><td>Duas versões convivem durante a troca.</td></tr>
+<tr><td><strong>Blue-green</strong></td><td>Sobe o ambiente novo inteiro ao lado do antigo e troca o tráfego de uma vez.</td><td>Não.</td><td>Recursos em dobro durante a troca; voltar é devolver o tráfego.</td></tr>
+</table>
+
+<figure class="figure">
+<svg viewBox="0 0 700 170" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12">
+  <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+  <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <rect x="10" y="62" width="110" height="46" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="65" y="83" text-anchor="middle" font-weight="700" fill="#1f2937">Usuários</text>
+  <text x="65" y="99" text-anchor="middle" fill="#6b7280" font-size="10.5">requisições</text>
+  <rect x="190" y="62" width="120" height="46" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="250" y="83" text-anchor="middle" font-weight="700" fill="#1f2937">Roteador</text>
+  <text x="250" y="99" text-anchor="middle" fill="#6b7280" font-size="10.5">balanceador</text>
+  <path d="M122 85 H186" stroke="#1d4ed8" stroke-width="2" marker-end="url(#a2)"/>
+  <rect x="420" y="14" width="200" height="54" rx="8" fill="#e8eefc" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="520" y="37" text-anchor="middle" font-weight="700" fill="#1d4ed8">Blue · versão atual</text>
+  <text x="520" y="55" text-anchor="middle" fill="#6b7280" font-size="10.5">fica de reserva após a troca</text>
+  <rect x="420" y="102" width="200" height="54" rx="8" fill="#e7f5ef" stroke="#047857" stroke-width="1.4"/>
+  <text x="520" y="125" text-anchor="middle" font-weight="700" fill="#047857">Green · versão nova</text>
+  <text x="520" y="143" text-anchor="middle" fill="#6b7280" font-size="10.5">recebe tráfego só depois do health UP</text>
+  <path d="M312 78 L416 44" stroke="#1d4ed8" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#a2)"/>
+  <path d="M312 92 L416 126" stroke="#047857" stroke-width="2.2" marker-end="url(#a3)"/>
+  <text x="352" y="48" fill="#1d4ed8" font-size="10.5">antes</text>
+  <text x="352" y="134" fill="#047857" font-size="10.5">depois</text>
+  <text x="650" y="90" text-anchor="middle" fill="#6b7280" font-size="10.5">mesmo</text>
+  <text x="650" y="104" text-anchor="middle" fill="#6b7280" font-size="10.5">banco</text>
+</svg>
+<figcaption>Blue-green: a versão nova sobe ao lado da atual; o roteador só troca o tráfego quando ela responde ao health check.</figcaption>
+</figure>
+<p>No blue-green, a blue fica parada por um tempo depois da troca: se aparecer problema, o tráfego volta para ela. Plataformas gerenciadas costumam aplicar a mesma ideia, só desviando o tráfego para a versão nova depois que ela responde ao health check. Há ainda o <strong>canary</strong>, em que a versão nova recebe primeiro só uma parte pequena do tráfego; fica como curiosidade.</p>
+<div class="warn"><div class="label">Ponto delicado: o banco</div><p>Rolling e blue-green só são seguros se a versão nova for compatível com o banco e com os clientes da versão antiga, porque as duas convivem por um tempo. Blue e green normalmente usam o mesmo banco: se a migração da green remove uma coluna que a blue ainda lê, a blue quebra, e a volta atrás deixa de existir. Por isso remoções de coluna se fazem em duas etapas: primeiro uma versão que para de usar a coluna; depois, numa entrega seguinte, a migração que a remove.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Configuração e segredos na plataforma <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O <em>Twelve-Factor App</em>, um conjunto de recomendações para aplicações em nuvem, tem como fator III: <strong>guardar a configuração no ambiente</strong>. Tudo o que muda entre ambientes (endereço do banco, credenciais, portas, chaves) vem de variáveis de ambiente; o código e o artefato são os mesmos. Um teste rápido: se você precisa recompilar para trocar a senha do banco, a configuração está no lugar errado.</p>
+<p>Um <strong>segredo</strong> é uma configuração que dá acesso a algo: senha de banco, chave de assinatura de tokens, credencial de serviço externo. Segredos têm regras próprias:</p>
+<ul>
+  <li><strong>Nunca no Git.</strong> Um segredo commitado continua no histórico mesmo depois de apagado do arquivo. Se isso acontecer, troque o segredo.</li>
+  <li><strong>No painel da plataforma</strong> ou num cofre de segredos (no GitHub, os <em>Secrets</em> do repositório). A plataforma injeta o valor como variável de ambiente no container.</li>
+  <li><strong>Um por ambiente.</strong> Produção não usa a mesma chave de desenvolvimento, nem a senha padrão de exemplo.</li>
+  <li><strong>Falhar cedo.</strong> Se um segredo obrigatório faltar, a aplicação deve se recusar a subir com uma mensagem clara. Um erro no deploy é melhor que uma API insegura.</li>
+</ul>
+<p>Na prática, o arquivo de configuração versionado só diz <em>de onde</em> vem o valor, por exemplo <code>jwt.secret=${JWT_SECRET:}</code>, e nunca o valor real, como <code>jwt.secret=minha-chave-123</code>. A seção 14 mostra como o ServiceHub faz isso.</p>
+<div class="warn"><div class="label">Formato da URL do banco</div><p style="text-align:left">Muitas plataformas entregam a URL do Postgres no formato <code>postgres://usuario:senha@host/banco</code>. O driver JDBC do Java espera <code>jdbc:postgresql://host:porta/banco</code>, com usuário e senha em variáveis separadas. Copiar a URL da plataforma sem converter é uma falha comum no primeiro deploy.</p></div>
+
+<!-- 10 -->
+<h2 id="s10">10. Compatibilidade e breaking changes <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Enquanto a API roda só na sua máquina, você pode renomear um campo e ajustar o front no mesmo commit. Depois do deploy, há clientes que você não controla: um aplicativo instalado no celular de alguém, o sistema de um parceiro, o front de outra equipe. Mudar o contrato passa a ter regra.</p>
+<p><strong>Breaking change</strong> (mudança incompatível) é qualquer mudança que obriga um cliente existente a mudar para continuar funcionando. <strong>Mudança compatível</strong> (<em>non-breaking</em>) é a que nenhum cliente percebe como quebra. A garantia que uma API pública precisa dar é a <strong>compatibilidade com o passado</strong> (<em>backward compatibility</em>): um cliente feito para a versão antiga continua funcionando com o servidor novo.</p>
+<p>Compatibilidade é responsabilidade dos dois lados. O servidor não remove nem muda o que existe. O cliente segue o princípio do <strong>leitor tolerante</strong>: ignora campos que não conhece e não depende da ordem deles. Com essas duas atitudes, acrescentar um campo não quebra ninguém.</p>
+<table>
+<thead><tr><th style="width:28%">Mudança</th><th>Exemplo numa API de pedidos</th><th style="width:15%">Efeito</th></tr></thead>
+<tr><td>Remover ou renomear campo</td><td><code>total</code> passa a se chamar <code>amount</code></td><td>Quebra</td></tr>
+<tr><td>Mudar o tipo de um campo</td><td><code>total</code> passa de número para texto</td><td>Quebra</td></tr>
+<tr><td>Novo campo obrigatório na entrada</td><td><code>POST /orders</code> passa a exigir <code>deliveryDate</code></td><td>Quebra</td></tr>
+<tr><td>Mudar status code ou regra</td><td><code>POST</code> devolve 200 em vez de 201; um campo opcional passa a ser validado</td><td>Quebra</td></tr>
+<tr><td>Novo valor de enum na resposta</td><td>Um status novo, <code>ON_HOLD</code></td><td>Pode quebrar</td></tr>
+<tr><td>Novo campo na resposta</td><td>Incluir <code>customerName</code> no JSON</td><td>Compatível</td></tr>
+<tr><td>Novo campo opcional na entrada</td><td><code>POST /orders</code> aceita <code>notes</code>, sem exigir</td><td>Compatível</td></tr>
+<tr><td>Novo endpoint</td><td><code>GET /orders/{id}/history</code></td><td>Compatível</td></tr>
+</table>
+<p>Um valor novo de enum quebra o cliente que faz <code>switch</code> sem caso padrão, ou que valida a resposta contra uma lista fixa. E "novo campo é compatível" só vale se o cliente ignora campos desconhecidos. Por isso essas expectativas devem estar escritas no contrato.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. Versionamento semântico <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O <strong>versionamento semântico</strong> (<em>Semantic Versioning</em>, descrito em <code>semver.org</code>) dá significado a cada número de uma versão no formato <code>MAJOR.MINOR.PATCH</code>:</p>
+<table>
+<thead><tr><th style="width:14%">Número</th><th style="width:22%">Exemplo</th><th>Quando sobe</th></tr></thead>
+<tr><td>MAJOR</td><td><code>1.9.0 → 2.0.0</code></td><td>Mudança incompatível: algum cliente vai quebrar se atualizar sem ajustar.</td></tr>
+<tr><td>MINOR</td><td><code>2.3.0 → 2.4.0</code></td><td>Funcionalidade nova, compatível com o que existia.</td></tr>
+<tr><td>PATCH</td><td><code>2.4.0 → 2.4.1</code></td><td>Correção de defeito, compatível.</td></tr>
+<tr><td>0.y.z</td><td><code>0.3.1</code></td><td>Desenvolvimento inicial: pela especificação, tudo pode mudar a qualquer momento.</td></tr>
+</table>
+<p>Quando um número sobe, os da direita voltam a zero: depois de <code>2.4.1</code>, uma funcionalidade nova gera <code>2.5.0</code>, e uma quebra gera <code>3.0.0</code>. Quem lê a versão sabe, sem abrir o changelog, se pode atualizar com segurança.</p>
+<p>Numa API web, o cliente só precisa enxergar o <strong>MAJOR</strong>: é ele que vira o <code>v1</code> da URL. MINOR e PATCH ficam na versão do artefato, como a tag Git <code>v1.4.0</code> que marca um release e a tag da imagem. Por isso a versão da API não precisa acompanhar a versão do <code>pom.xml</code>: o número da URL só muda quando o contrato quebra.</p>
+<p>As tags que você cria no repositório (<code>etapa-1</code>, <code>etapa-2</code>, … <code>etapa-final</code>) marcam entregas da disciplina, não versões semânticas. Numa API real, cada release teria uma tag no formato semântico.</p>
+
+<!-- 12 -->
+<h2 id="s12">12. Formas de versionar uma API <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Quando uma mudança incompatível é inevitável, a versão antiga e a nova precisam coexistir por um tempo, e o cliente precisa dizer qual quer. Há três formas comuns de dizer a versão:</p>
+<table>
+<thead><tr><th style="width:17%">Onde</th><th style="width:36%">Exemplo</th><th>Prós e contras</th></tr></thead>
+<tr><td>Na URI</td><td><code>GET /api/v1/products</code><br><code>GET /api/v2/products</code></td><td>Explícita, testável no navegador e no <code>curl</code>, fácil de rotear e de documentar. Repete o prefixo em toda rota.</td></tr>
+<tr><td>Num header próprio</td><td><code>GET /api/products</code><br><code>Accept-Version: 2</code></td><td>URL estável, mas a versão fica escondida: não dá para testar só com a barra do navegador. O header é uma convenção da API, não um padrão HTTP.</td></tr>
+<tr><td>No media type</td><td><code>GET /api/products</code><br><code>Accept: application/vnd.loja.v2+json</code></td><td>Usa a negociação de conteúdo do HTTP; é o mais fiel ao protocolo e o mais trabalhoso de usar e documentar. O prefixo <code>vnd.</code> indica um tipo específico de fornecedor (<em>vendor</em>); "loja" é só um exemplo.</td></tr>
+</table>
+<p>Escolha uma estratégia e mantenha. Em qualquer uma delas, a versão só muda quando o contrato quebra; acrescentar um campo ou um endpoint entra na versão atual. O ServiceHub versiona pela URI: todas as rotas vivem sob <code>/api/v1</code> desde o primeiro endpoint. A escolha foi pela simplicidade e porque a bancada de testes do professor chama rotas fixas. O <code>v1</code> é uma promessa: enquanto ele existir, quem o usa não quebra.</p>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+<h2>13. Política de depreciação <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Depreciar</strong> é anunciar que algo vai deixar de existir, com prazo, antes de remover. A <strong>política de depreciação</strong> é a regra pública que diz como e com quanta antecedência isso acontece. Sem política, cada remoção vira uma surpresa para quem consome a API.</p>
+<ol>
+  <li><strong>Anunciar.</strong> Changelog, documentação e aviso direto a quem consome a API, com a data de desligamento.</li>
+  <li><strong>Marcar.</strong> No OpenAPI, a operação recebe <code>deprecated: true</code>, e o Swagger UI a mostra riscada. Nas respostas, cabeçalhos avisam o cliente em tempo de execução (veja abaixo).</li>
+  <li><strong>Conviver.</strong> <code>v1</code> e <code>v2</code> ficam no ar pelo prazo anunciado. Os logs mostram quem ainda chama a versão antiga, para avisar diretamente.</li>
+  <li><strong>Remover.</strong> Só depois do prazo. A rota antiga pode passar a responder <code>410 Gone</code>, que significa "existiu e foi removido de propósito", diferente de <code>404 Not Found</code>.</li>
+</ol>
+<h3>Avisar na própria resposta</h3>
+<p>A <strong>RFC 8594</strong> define o cabeçalho <code>Sunset</code>, que informa a data e hora a partir da qual o recurso deve deixar de responder. A data segue o formato de datas do HTTP. Um exemplo, com data fictícia:</p>
+<pre>HTTP/1.1 200 OK
+Content-Type: application/json
+Sunset: Wed, 30 Jun 2027 23:59:59 GMT</pre>
+<p>Além da data de desligamento, existe a ideia de <strong>marcar a resposta como depreciada</strong>, para que o cliente saiba que deve migrar mesmo antes de haver data. Um cabeçalho chamado <code>Deprecation</code> é usado com esse propósito; nesta disciplina basta conhecer o conceito: depreciação diz "não use mais", sunset diz "a partir de quando deixa de existir".</p>
+<p>O prazo depende de quem consome: parceiros externos costumam precisar de meses para planejar a migração; o front da própria equipe pode migrar em dias. A política deve dizer o prazo mínimo e onde os avisos são publicados.</p>
+</section>
+
+<!-- 14 -->
+<section id="s14">
+<h2>14. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>O pipeline do projeto</h3>
+<p>O arquivo <code>.github/workflows/ci.yml</code> do ServiceHub tem dois jobs. O primeiro, <code>build-test</code>, é o pipeline mínimo da seção 6 com nomes nos passos (por exemplo, <code>name: Java 21 (Temurin)</code>) e o upload dos relatórios de cobertura e de teste. O segundo só existe para provar a imagem. Trecho real, resumido:</p>
+<pre>  docker:
+    name: Imagem Docker
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - uses: actions/checkout@v5
+      - name: docker build
+        run: docker build -t servicehub-api:${{ github.sha }} .
+      # (resumido: sobe o Compose, espera o container ficar healthy
+      #  num laço com limite de tentativas e chama /api/v1/info)</pre>
+<p>Três detalhes ligam o pipeline à teoria. Os testes usam PostgreSQL real via Testcontainers, não H2 (ADR-0005): o runner do GitHub já tem Docker, então o CI prova contra o mesmo banco da produção. O segundo job só roda se o primeiro passar (<code>needs: build-test</code>), aplicando a regra "cada etapa só recebe o que a anterior aprovou". E a imagem recebe como tag o SHA do commit, o identificador de artefato da seção 3.</p>
+<div class="warn"><div class="label">Erro comum: mvnw sem permissão</div><p>Quando o <code>mvnw</code> é commitado a partir do Windows, ele pode perder o bit de execução, e o runner Linux recusa <code>./mvnw</code> com "Permission denied". A correção é <code>git update-index --chmod=+x mvnw</code>. No projeto, <code>git ls-files -s mvnw</code> mostra o modo <code>100755</code>.</p></div>
+
+<h3>Um único sinal de saúde</h3>
+<p>O mesmo endpoint atravessa toda a cadeia de entrega. O Actuator responde em <code>/actuator/health</code>; o <code>Dockerfile</code> usa a rota no <code>HEALTHCHECK</code>; o CI espera o container ficar <em>healthy</em>; e na plataforma de deploy você informa o mesmo caminho como health check, para que ela só troque a versão quando a nova responder. Trecho real do <code>Dockerfile</code>:</p>
+<pre>HEALTHCHECK --interval=15s --timeout=5s --start-period=40s --retries=5 \
+  CMD wget -qO- http://localhost:8080/actuator/health | grep -q '"status":"UP"' || exit 1</pre>
+<p>Por isso a rota precisa ser pública. Em <code>security/SecurityConfig</code>:</p>
+<pre>.requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+.requestMatchers("/actuator/**").hasRole("ADMIN")</pre>
+<p>Se o health ficasse atrás de autenticação, o health check receberia 401 e o container nunca ficaria saudável.</p>
+
+<h3>As variáveis que a API lê</h3>
+<p>O <code>application.properties</code> segue o fator III: cada valor que muda por ambiente vem de uma variável, com um padrão de desenvolvimento depois dos dois-pontos. Trecho real, resumido:</p>
+<pre>server.port=${SERVER_PORT:8080}
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5433/servicehub}
+spring.datasource.password=${DB_PASS:secret}
+servicehub.jwt.secret=${JWT_SECRET:}</pre>
+<p>Em produção: <code>SPRING_PROFILES_ACTIVE=prod</code> (liga os logs em JSON, tema da Semana 15); <code>DB_URL</code>, <code>DB_USER</code> e <code>DB_PASS</code> do Postgres gerenciado, em formato JDBC; <code>JWT_SECRET</code> novo, com 32 bytes ou mais; <code>SERVICEHUB_ADMIN_EMAIL</code> e <code>SERVICEHUB_ADMIN_PASSWORD</code> de um admin real, nunca a senha de exemplo; <code>CORS_ALLOWED_ORIGINS</code> só com a URL do front publicado; e <code>SERVER_PORT</code>, se a plataforma indicar uma porta.</p>
+<p>A lista completa, com valores de exemplo, está no <code>.env.example</code> versionado; o <code>.env</code> real é ignorado pelo Git. O "falhar cedo" está em <code>security/JwtProperties</code>: o construtor do record lança <code>IllegalStateException</code> com a mensagem "Defina JWT_SECRET com pelo menos 32 bytes…" se o segredo estiver ausente ou curto, e a API não sobe.</p>
+
+<h3>Publicar numa PaaS, em quatro passos</h3>
+<p>(1) Conecte o repositório e escolha a branch <code>main</code>; (2) aponte o build para o <code>Dockerfile</code> da raiz, o mesmo que o CI constrói; (3) crie o Postgres gerenciado na plataforma (o Flyway aplica as migrações no primeiro start); (4) preencha as variáveis listadas acima e informe <code>/actuator/health</code> como health check. É no passo 4 que quase todo primeiro deploy falha. Está pronto quando <code>GET /api/v1/info</code> responde na URL pública e a bancada de testes completa o ciclo contra ela. Os nomes dos menus mudam de plataforma para plataforma; siga a documentação oficial da escolhida.</p>
+
+<h3>O contrato v1</h3>
+<p>Todo controller do projeto declara o prefixo, por exemplo <code>@RequestMapping("/api/v1/services")</code> em <code>ServiceOfferingController</code> e <code>@RequestMapping("/api/v1/service-requests")</code> em <code>ServiceRequestController</code>. O <code>OpenApiConfig</code> publica esse contrato num grupo próprio, com <code>.group("v1")</code> e <code>.pathsToMatch("/api/v1/**")</code>; a especificação fica em <code>/api-docs/v1</code>. Aplicando a seção 10 ao <code>ServiceRequestResponseDTO</code> real: acrescentar um campo como <code>providerName</code> é compatível e entra na v1; renomear <code>totalPrice</code> para <code>price</code> ou mudar seu tipo é breaking e pediria uma v2.</p>
+</section>
+
+<!-- 15 -->
+<section class="page" id="s15">
+<h2>15. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A IA vai escrever um arquivo pequeno, mas que decide se as mudanças futuras serão provadas. Um pipeline errado pode ficar verde por muito tempo porque não roda nada. Os quatro movimentos, aplicados ao CI:</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>Nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>A cada push e pull request na <code>main</code>, o pipeline roda <code>./mvnw -B verify</code> com Java 21 e PostgreSQL real e falha se um teste falhar.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Peça o plano (gatilhos, máquina, passos) antes do YAML, e o YAML mínimo, sem jobs extras.</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Versões das actions, gatilhos, nenhum segredo no arquivo, nada de H2 nem de <code>-DskipTests</code> para "acelerar".</td></tr>
+<tr><td><strong>Provar</strong></td><td>Quebre um teste de propósito num branch e abra um PR: o check tem de ficar vermelho. Corrija e veja voltar ao verde.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>cria um CI/CD pro meu projeto spring</pre><p>Sem versão do Java, comando de build nem escopo, volta um pipeline longo, com deploy, segredos inventados e actions antigas.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Diz o projeto, o escopo (só CI), os gatilhos, as versões das actions e o que é proibido; pede o plano antes e define como provar que o pipeline falha quando deve. É o prompt abaixo.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Continue de onde a Semana 12 parou (Dockerfile e Compose funcionando). Cole no assistente e ajuste ao seu repositório, se algo for diferente:</p>
+<pre style="break-inside:auto">Contexto: somos uma equipe construindo a API ServiceHub em Java 21 e
+Spring Boot 4.1, com Maven Wrapper (mvnw na raiz), PostgreSQL 16,
+migrações Flyway e testes de integração com Testcontainers 2
+(postgres:16-alpine). O repositório está no GitHub, branch main.
+Hoje os testes rodam localmente com: ./mvnw verify (Docker ligado).
+
+Objetivo: criar um pipeline MÍNIMO de integração contínua no GitHub
+Actions que compile e rode todos os testes a cada push na main e a
+cada pull request contra a main.
+
+Restrições:
+- Arquivo único: .github/workflows/ci.yml, com um único job.
+- Runner ubuntu-latest (já tem Docker, que o Testcontainers usa).
+- Usar exatamente actions/checkout@v5 e actions/setup-java@v5 com
+  distribution: temurin, java-version: '21' e cache: maven.
+- O único comando de build é: ./mvnw -B verify
+- NÃO usar H2 nem trocar o banco dos testes; NÃO usar -DskipTests,
+  -Dmaven.test.failure.ignore nem continue-on-error.
+- NÃO colocar segredo nem JWT_SECRET no YAML; NÃO incluir deploy.
+- Se o mvnw não tiver permissão de execução, me diga o comando git
+  para corrigir, em vez de trocar por "mvn".
+
+Antes do código: escreva um plano curto respondendo "quando roda,
+onde roda, o que roda" e liste o que pode fazer o pipeline ficar
+verde sem testar nada. Espere minha confirmação.
+
+Critério de aceite: o pull request mostra o check verde e um teste
+quebrado deixa o check vermelho.</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li><strong>Actions antigas:</strong> <code>checkout@v3</code> e <code>setup-java@v3</code>, copiadas de tutoriais antigos. O projeto usa <code>@v5</code> nas duas.</li>
+  <li><strong>Trocar o banco dos testes</strong> por H2 "para ficar mais rápido", o que quebra as migrações escritas para o PostgreSQL.</li>
+  <li><strong>Pular os testes</strong> com <code>-DskipTests</code> ou marcar o passo com <code>continue-on-error: true</code>: o check fica sempre verde.</li>
+  <li><strong>Segredo no YAML</strong> em vez de GitHub Secrets; <strong>pipeline completo</strong>, com deploy, quando só o CI foi pedido; trocar <code>./mvnw</code> por <code>mvn</code> quando o wrapper falha por permissão.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Os gatilhos são <code>push</code> e <code>pull_request</code>, ambos na <code>main</code>?</li>
+  <li>As actions estão em <code>@v5</code>, com Temurin e Java <code>'21'</code> entre aspas?</li>
+  <li>O comando é <code>./mvnw -B verify</code>, sem nenhuma opção que pule ou ignore testes?</li>
+  <li><code>git ls-files -s mvnw</code> mostra o modo <code>100755</code>?</li>
+  <li>Eu sei explicar, linha por linha, o que cada parte do YAML faz?</li>
+</ul>
+<h3>Prova</h3>
+<p>Crie um branch, altere a expectativa de um teste para um valor errado (por exemplo, esperar 200 onde a API devolve 201), faça push e abra um pull request contra a <code>main</code>. O check precisa ficar <strong>vermelho</strong>, e o log do job precisa mostrar o nome do teste que falhou. Desfaça a alteração, faça push no mesmo branch: o check volta ao <strong>verde</strong>. Guarde o link das duas execuções na aba Actions como evidência da entrega.</p>
+</section>
+
+<!-- 16 -->
+<section class="page" id="s16">
+<h2>16. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Pipeline</dt><dd>Sequência automatizada de etapas que leva uma mudança do commit ao deploy.</dd>
+  <dt>Artefato</dt><dd>Resultado imutável e versionado do build, como um <code>.jar</code> ou uma imagem Docker.</dd>
+  <dt>Deploy</dt><dd>Implantação: colocar uma versão para rodar num ambiente.</dd>
+  <dt>Release</dt><dd>Lançamento: tornar uma versão disponível para os usuários.</dd>
+  <dt>Integração contínua (CI)</dt><dd>Integrar cada mudança à branch principal com build e testes automáticos.</dd>
+  <dt>Entrega contínua</dt><dd>Todo commit aprovado gera um artefato pronto para produção; uma pessoa decide quando publicar.</dd>
+  <dt>Implantação contínua</dt><dd>Todo commit aprovado é publicado em produção pelo próprio pipeline.</dd>
+  <dt>Homologação</dt><dd>Ambiente igual ao de produção, usado para validar e aprovar a versão candidata.</dd>
+  <dt>Runner</dt><dd>Máquina que executa os jobs de um pipeline.</dd>
+  <dt>IaaS / PaaS</dt><dd>Infraestrutura como serviço (você administra a máquina) / plataforma como serviço (você entrega código e configuração).</dd>
+  <dt>Blue-green</dt><dd>Estratégia de deploy em que a versão nova sobe ao lado da atual e recebe o tráfego de uma vez.</dd>
+  <dt>Breaking change</dt><dd>Mudança que obriga um cliente existente a mudar para continuar funcionando.</dd>
+  <dt>Semver</dt><dd>Versionamento semântico: <code>MAJOR.MINOR.PATCH</code>, com significado para cada número.</dd>
+  <dt>Sunset</dt><dd>Cabeçalho HTTP (RFC 8594) que informa quando um recurso deixará de responder.</dd>
+</dl>
+
+<!-- 17 -->
+<h2 id="s17">17. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Explique, com suas palavras, a diferença entre entrega contínua e implantação contínua. Para uma API de pagamentos, qual você escolheria e por quê?</li>
+  <li>Uma equipe gera um <code>.jar</code> para homologação e, depois do aceite, faz outro build para produção com o arquivo de configuração de produção embutido. Que princípio foi quebrado? Que risco isso traz?</li>
+  <li>Leia o pipeline mínimo da seção 6 e responda: quando ele roda, onde roda e o que roda. O que acontece com o pull request se um teste de integração falhar?</li>
+  <li>Um colega diz: "nosso CI está ótimo, nunca ficou vermelho". Que perguntas você faria para saber se o pipeline realmente roda os testes?</li>
+  <li>Classifique como IaaS, PaaS ou nenhum dos dois, justificando: (a) uma máquina virtual em que você instala o Java; (b) uma plataforma que lê o seu repositório e publica pelo Dockerfile; (c) uma imagem Docker.</li>
+  <li>A versão nova de uma API remove a coluna <code>phone</code> da tabela de clientes, e o deploy é blue-green com banco compartilhado. O que pode dar errado durante a troca? Como dividir a mudança para torná-la segura?</li>
+  <li>Classifique cada mudança no <code>ServiceRequestResponseDTO</code> como compatível, incompatível ou "pode quebrar": (a) acrescentar <code>providerName</code>; (b) mudar <code>totalPrice</code> de número para texto; (c) acrescentar um sexto valor ao enum <code>RequestStatus</code>; (d) renomear <code>scheduledAt</code> para <code>scheduledFor</code>.</li>
+  <li>Uma biblioteca está na versão <code>3.7.2</code>. Qual é a próxima versão em cada caso: (a) corrige um defeito; (b) acrescenta um método novo; (c) remove um método público?</li>
+  <li>Compare o versionamento pela URI e pelo media type. Por que o ServiceHub escolheu a URI?</li>
+  <li>Escreva uma política de depreciação de cinco linhas para a <code>v1</code> do ServiceHub, citando onde o aviso é publicado, o prazo, os cabeçalhos e o status depois da remoção.</li>
+  <li>A API sobe na plataforma, mas o log mostra "Defina JWT_SECRET com pelo menos 32 bytes". Onde está o problema e como resolver sem alterar o código?</li>
+  <li>Reescreva o prompt fraco "cria um CI/CD pro meu projeto spring" para pedir apenas o pipeline mínimo, incluindo pelo menos três restrições e o critério de aceite.</li>
+</ol>
+
+<!-- 18 -->
+<h2 id="s18">18. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Para a 3ª VA, priorize os conceitos: ciclo de entrega, CI e as duas CDs, ambientes, modelos de hospedagem, estratégias de deploy, compatibilidade, semver e depreciação. Da sintaxe do workflow, basta saber ler o pipeline mínimo. Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>MONTEIRO, E. R. et al. <em>DevOps</em>. Grupo A, 2021. Capítulo "Integração e entrega contínuas" (leitura introdutória).</li>
+  <li>PRESSMAN, R. S.; MAXIM, B. R. <em>Engenharia de software</em>. 9. ed. Grupo A, 2021. Capítulo 22.</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>Semantic Versioning: <code>semver.org</code>.</li>
+  <li>RFC 8594, <em>The Sunset HTTP Header Field</em>: <code>rfc-editor.org/rfc/rfc8594</code>.</li>
+  <li>The Twelve-Factor App, fator III (Config): <code>12factor.net</code>.</li>
+  <li>Documentação oficial do GitHub Actions, guia de início rápido: <code>docs.github.com/actions</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

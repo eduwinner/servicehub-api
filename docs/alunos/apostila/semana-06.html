@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 06 — Checkpoint e revisão para a 1ª VA</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 06 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 06<br>Checkpoint e revisão para a 1ª VA</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Esta apostila fecha o primeiro bloco do semestre. Ela tem duas funções. A primeira é revisar, em tabelas e mapas, tudo o que as semanas 1 a 5 construíram: REST, semântica HTTP, camadas, injeção de dependência, ORM, transações, migrações, DTO, ProblemDetail e OpenAPI. A segunda é preparar o checkpoint do projeto, que é a tag <code>etapa-2</code> no repositório da equipe. A 1ª VA acontece na semana 7 e cobra o <em>porquê</em> de cada decisão, não o nome de cada anotação. Por isso a seção de exercícios é longa e no estilo da prova.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">Como revisar: o mapa das semanas 1 a 5</a></li>
+      <li><a href="#s3">REST e suas restrições</a></li>
+      <li><a href="#s4">Semântica HTTP: métodos e status</a></li>
+      <li><a href="#s5">O domínio: a máquina de estados</a></li>
+      <li><a href="#s6">IoC, injeção de dependência e camadas</a></li>
+      <li><a href="#s7">ORM e o ciclo de vida da entidade</a></li>
+      <li><a href="#s8">Transações</a></li>
+      <li><a href="#s9">Migrações com Flyway</a></li>
+      <li><a href="#s10">Por que não H2</a></li>
+      <li><a href="#s11">DTO, ProblemDetail e OpenAPI</a></li>
+      <li><a href="#s12">Quadro-resumo e onde cada conceito mora no código</a></li>
+      <li><a href="#s13">O checkpoint: o que precisa estar no repositório</a></li>
+      <li><a href="#s14">Construindo com IA</a></li>
+      <li><a href="#s15">Glossário</a></li>
+      <li><a href="#s16">Exercícios estilo prova</a></li>
+      <li><a href="#s17">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>escolher método, URI e status code para um cenário do ServiceHub e justificar a escolha numa frase;</li>
+  <li>explicar o papel de cada camada do Spring Boot e onde ficam as regras de negócio e a transação;</li>
+  <li>descrever o ciclo de vida de uma entidade JPA e prever o que vai ao banco num método <code>@Transactional</code>;</li>
+  <li>relacionar Flyway, <code>ddl-auto=validate</code>, DTO, ProblemDetail e OpenAPI ao problema que cada um resolve;</li>
+  <li>conferir o repositório da equipe contra o checklist do checkpoint e publicar a tag anotada <code>etapa-2</code>, verificada num clone limpo.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. Como revisar: o mapa das semanas 1 a 5 <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>As cinco primeiras semanas não são cinco assuntos soltos. Cada uma apoia a seguinte: o contrato da Semana 1 vira rotas HTTP na Semana 2; as rotas viram controladores na Semana 3; os controladores ganham banco, DTOs e erros padronizados na Semana 4; e os DTOs viram schemas do contrato OpenAPI na Semana 5. Quem estuda os temas isolados decora; quem enxerga a ligação entende.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 150" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4">
+    <rect x="4" y="18" width="120" height="78" rx="8"/><rect x="148" y="18" width="120" height="78" rx="8"/>
+    <rect x="292" y="18" width="120" height="78" rx="8"/><rect x="436" y="18" width="120" height="78" rx="8"/>
+    <rect x="580" y="18" width="116" height="78" rx="8"/>
+  </g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10"><text x="64" y="34">semana 1</text><text x="208" y="34">semana 2</text><text x="352" y="34">semana 3</text><text x="496" y="34">semana 4</text><text x="638" y="34">semana 5</text></g>
+  <g text-anchor="middle" fill="#1f2937" font-weight="700"><text x="64" y="54">APIs</text><text x="208" y="54">HTTP e REST</text><text x="352" y="54">Spring Boot</text><text x="496" y="54">Persistência</text><text x="638" y="54">Contrato</text></g>
+  <g text-anchor="middle" fill="#6b7280" font-size="9.6">
+    <text x="64" y="72">contrato, REST,</text><text x="64" y="86">JSON, método IA</text>
+    <text x="208" y="72">restrições, métodos,</text><text x="208" y="86">status, domínio</text>
+    <text x="352" y="72">IoC, DI,</text><text x="352" y="86">camadas, Git</text>
+    <text x="496" y="72">ORM, transação,</text><text x="496" y="86">Flyway, DTO, erros</text>
+    <text x="638" y="72">OpenAPI, schema,</text><text x="638" y="86">versionamento</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#m1)"><path d="M125 57 H144"/><path d="M269 57 H288"/><path d="M413 57 H432"/><path d="M557 57 H576"/></g>
+  <path d="M496 98 V122 H638 V100" fill="none" stroke="#047857" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#m1)"/>
+  <text x="567" y="138" text-anchor="middle" fill="#047857" font-size="10.5">o DTO da semana 4 vira schema no contrato</text>
+  <text x="200" y="130" text-anchor="middle" fill="#1d4ed8" font-size="10.5">Semana 7: 1ª VA (teoria + andamento do projeto)</text>
+</svg>
+<figcaption>Cada semana se apoia na anterior. As ligações entre colunas costumam virar questão de prova.</figcaption>
+</figure>
+
+<h3>O que a prova pede</h3>
+<p>A 1ª VA tem duas partes: a teoria das semanas 1 a 5 e a apresentação do andamento do projeto. Nas questões teóricas, uma resposta boa tem três elementos: <strong>o quê</strong> (o status, a camada, a anotação), <strong>por quê</strong> (o conceito que justifica) e <strong>onde</strong> (um caso do ServiceHub). Compare "409, conflito", que não mostra entendimento, com "409, porque o e-mail já existe (RN01): a requisição está bem formada, mas conflita com o estado atual do recurso".</p>
+<div class="note"><div class="label">Técnica de estudo</div><p>Use o quadro-resumo da seção 12: tampe a coluna do meio e explique cada linha em voz alta. Se você só lembra o nome da anotação e não o problema que ela resolve, ainda não entendeu o conceito.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. REST e suas restrições <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>REST</strong> é um estilo arquitetural definido por Roy Fielding na sua tese de doutorado, em 2000. Um estilo arquitetural não é uma biblioteca nem um protocolo: é um conjunto de <strong>restrições</strong>. Quem respeita as restrições ganha certas propriedades, como escalabilidade e independência entre cliente e servidor. Uma API <strong>RESTful</strong> é a que respeita essas restrições, e não simplesmente a que usa JSON.</p>
+<table>
+<thead><tr><th style="width:22%">Restrição</th><th>O que exige</th><th style="width:30%">O que se ganha</th></tr></thead>
+<tr><td>Cliente-servidor</td><td>Interface e dados separados por uma API.</td><td>Cada lado evolui sozinho.</td></tr>
+<tr><td>Sem estado</td><td>Cada requisição traz tudo de que precisa, inclusive a credencial (no ServiceHub, o token).</td><td>Qualquer instância atende qualquer requisição.</td></tr>
+<tr><td>Cache</td><td>A resposta diz se pode ser guardada e por quanto tempo.</td><td>Menos idas ao servidor.</td></tr>
+<tr><td>Interface uniforme</td><td>Recursos identificados por URI, manipulados por representações, com métodos e status padronizados.</td><td>Quem conhece HTTP já sabe usar a API.</td></tr>
+<tr><td>Sistema em camadas</td><td>O cliente não sabe se fala com o servidor final ou com um intermediário.</td><td>Balanceador, proxy e gateway no meio, sem mudar o cliente.</td></tr>
+<tr><td>Código sob demanda</td><td>Opcional: o servidor envia código executável.</td><td>Raramente usada em APIs.</td></tr>
+</table>
+
+<h3>A restrição mais cobrada: sem estado</h3>
+<p>Imagine uma loja virtual com duas instâncias da API atrás de um balanceador. Se a instância A guarda na memória "o usuário 7 está logado", a próxima requisição desse usuário pode cair na instância B, que não sabe de nada e o trata como desconhecido. A saída é cada requisição carregar a própria prova de identidade. No ServiceHub, essa prova é o token JWT enviado no cabeçalho <code>Authorization</code> (tema da Semana 09).</p>
+<div class="warn"><div class="label">Confusão comum</div><p>"Usa HTTP e JSON, então é REST." Uma API com <code>POST /getUser</code> ou <code>GET /deleteService?id=3</code> usa HTTP só como transporte: o verbo está na URI e o método perdeu o significado. Isso quebra a interface uniforme.</p></div>
+
+<h3>URIs: substantivos, não verbos</h3>
+<p>A URI identifica o recurso; o método diz a ação. Coleções vão no plural, em minúsculas, com hífen entre palavras (<code>/service-requests</code>); o identificador vem depois da coleção (<code>/services/12</code>); filtros, ordenação e paginação vão na query string; a versão aparece no caminho desde o primeiro endpoint (<code>/api/v1</code>). Uma mudança de estado específica, como a da ordem, vira um sub-recurso: <code>PATCH /api/v1/service-requests/31/status</code>.</p>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. Semântica HTTP: métodos e status <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma mensagem HTTP tem três partes que dizem coisas diferentes. O <strong>método</strong> diz a intenção; o <strong>status code</strong> diz o resultado; os <strong>cabeçalhos</strong> dizem o formato e os metadados. Dois cabeçalhos aparecem em quase toda prova: <code>Content-Type</code> descreve o corpo que está sendo enviado, e <code>Accept</code> pede o formato da resposta.</p>
+<div class="grid2">
+<div class="card"><h3 class="ch">Requisição</h3>
+<pre>POST /api/v1/services HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+
+{ "title": "Pintura", ... }</pre></div>
+<div class="card"><h3 class="ch">Resposta</h3>
+<pre>HTTP/1.1 201 Created
+Location: /api/v1/services/12
+Content-Type: application/json
+
+{ "id": 12, "title": "Pintura", ... }</pre></div>
+</div>
+
+<h3>Métodos: seguro e idempotente</h3>
+<p>Um método é <strong>seguro</strong> quando não altera o estado do servidor. É <strong>idempotente</strong> quando repetir a mesma chamada deixa o servidor no mesmo estado que uma chamada só, mesmo que a resposta mude. Essas propriedades importam porque clientes, proxies e bibliotecas repetem requisições automaticamente quando a rede falha: repetir um GET ou um PUT é inofensivo; repetir um POST pode criar dois registros.</p>
+<table>
+<thead><tr><th style="width:12%">Método</th><th>Exemplo no ServiceHub</th><th style="width:12%">Seguro</th><th style="width:16%">Idempotente</th></tr></thead>
+<tr><td>GET</td><td><code>GET /api/v1/services?page=0&amp;size=20</code></td><td>Sim</td><td>Sim</td></tr>
+<tr><td>POST</td><td><code>POST /api/v1/services</code> → 201 + Location</td><td>Não</td><td>Não</td></tr>
+<tr><td>PUT</td><td><code>PUT /api/v1/services/12</code> (substitui a representação)</td><td>Não</td><td>Sim</td></tr>
+<tr><td>PATCH</td><td><code>PATCH /api/v1/service-requests/31/status</code></td><td>Não</td><td>Não garantido</td></tr>
+<tr><td>DELETE</td><td><code>DELETE /api/v1/services/12</code> → 204</td><td>Não</td><td>Sim</td></tr>
+</table>
+<div class="note"><div class="label">Pergunta clássica</div><p>O segundo <code>DELETE</code> do mesmo serviço é idempotente mesmo respondendo diferente da primeira vez? Sim. Idempotência fala do estado final do servidor, e não da resposta. No ServiceHub o DELETE é exclusão lógica (ADR-0002): o registro continua no banco com <code>active=false</code>, e o estado final é o mesmo depois de uma ou de várias chamadas.</p></div>
+
+<h3>Status: cada cenário tem um só</h3>
+<p>As famílias de status respondem "de quem é a culpa". <strong>2xx</strong> é sucesso. <strong>3xx</strong> é redirecionamento. <strong>4xx</strong> é erro do cliente: ele pode corrigir o pedido e tentar de novo. <strong>5xx</strong> é erro do servidor e nunca é uma resposta planejada: um 500 significa que faltou tratar um caso.</p>
+<table>
+<thead><tr><th>Cenário no ServiceHub</th><th style="width:36%">Resposta</th></tr></thead>
+<tr><td>Serviço criado</td><td>201 Created + <code>Location</code></td></tr>
+<tr><td>Listagem de serviços</td><td>200 OK, página com <code>content</code></td></tr>
+<tr><td>Serviço desativado (exclusão lógica)</td><td>204 No Content</td></tr>
+<tr><td>Preço ausente no corpo</td><td>400 com <code>errors[]</code></td></tr>
+<tr><td><code>GET /api/v1/services/999</code></td><td>404 Not Found</td></tr>
+<tr><td>E-mail já cadastrado (RN01)</td><td>409 Conflict</td></tr>
+<tr><td>Ordem COMPLETED volta para ACCEPTED</td><td>409 <code>invalid-transition</code></td></tr>
+<tr><td>Corpo enviado como <code>text/plain</code></td><td>415 Unsupported Media Type</td></tr>
+</table>
+<div class="warn"><div class="label">A confusão mais comum da prova: 400 × 409</div><p><strong>400</strong> diz que o pedido está malformado: falta campo, o tipo está errado, o valor está fora do formato. <strong>409</strong> diz que o pedido é válido, mas conflita com o estado atual do recurso: o e-mail já existe, a transição não é permitida a partir do status atual. Teste mental: "se o banco estivesse vazio, este pedido daria certo?" Se sim, o problema é de estado, e a resposta é 409.</p></div>
+<p>Dois status voltam com força na Semana 08: <strong>401</strong> significa "não sei quem você é" (falta autenticação ou o token é inválido); <strong>403</strong> significa "sei quem você é, e você não pode fazer isto".</p>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. O domínio: a máquina de estados da ordem <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>máquina de estados</strong> descreve os estados possíveis de um objeto e as transições permitidas entre eles. Ela aparece em qualquer domínio com um processo: um pedido de compra (aguardando pagamento, pago, enviado, entregue), uma matrícula, um chamado de suporte. Modelar o processo como máquina de estados torna explícito o que é proibido, e o proibido vira regra testável.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 175" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+  <marker id="m3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b45309"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4">
+    <rect x="6" y="22" width="118" height="44" rx="8"/><rect x="190" y="22" width="118" height="44" rx="8"/>
+    <rect x="374" y="22" width="130" height="44" rx="8"/>
+  </g>
+  <rect x="570" y="22" width="124" height="44" rx="8" fill="#e7f5ef" stroke="#047857" stroke-width="1.4"/>
+  <rect x="98" y="118" width="130" height="44" rx="8" fill="#fdf3e6" stroke="#b45309" stroke-width="1.4"/>
+  <g text-anchor="middle" font-weight="700" fill="#1f2937">
+    <text x="65" y="49">PENDING</text><text x="249" y="49">ACCEPTED</text><text x="439" y="49">IN_PROGRESS</text>
+    <text x="632" y="49" fill="#047857">COMPLETED</text><text x="163" y="145" fill="#b45309">CANCELLED</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#m2)"><path d="M125 44 H186"/><path d="M309 44 H370"/><path d="M505 44 H566"/></g>
+  <g font-size="10" fill="#1d4ed8" text-anchor="middle"><text x="156" y="16">prestador aceita</text><text x="340" y="16">prestador inicia</text><text x="536" y="16">prestador conclui</text></g>
+  <g stroke="#b45309" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#m3)"><path d="M65 67 V140 H94"/><path d="M249 67 V140 H232"/></g>
+  <text x="450" y="128" fill="#b45309" font-size="10.5" text-anchor="middle">cancelamento: a partir de PENDING ou ACCEPTED,</text>
+  <text x="450" y="143" fill="#b45309" font-size="10.5" text-anchor="middle">pelo cliente ou pelo prestador</text>
+  <text x="632" y="84" fill="#047857" font-size="10" text-anchor="middle">libera a avaliação</text>
+</svg>
+<figcaption>Estados da ordem de serviço no Mapa de Construção (RN08). Qualquer seta que não está no desenho não existe.</figcaption>
+</figure>
+<p>A tabela de transições produz dois erros diferentes, e essa distinção cai em prova:</p>
+<table>
+<thead><tr><th style="width:42%">Situação</th><th style="width:14%">Status</th><th>Por quê</th></tr></thead>
+<tr><td>COMPLETED → ACCEPTED, pedido por qualquer um</td><td>409</td><td>A transição não existe na tabela, para ninguém. É conflito com o estado atual.</td></tr>
+<tr><td>PENDING → ACCEPTED, pedido pelo cliente</td><td>403</td><td>A transição existe, mas não pertence ao papel de quem pediu.</td></tr>
+</table>
+<div class="note"><div class="label">O que a IA não sabe sozinha</div><p>As regras vêm do Mapa, não do código gerado. Um assistente que nunca leu a seção 4 do Mapa vai inventar uma tabela plausível, por exemplo deixando o cliente concluir a ordem. A tabela de transições é o tipo de conhecimento de domínio que só a equipe pode especificar.</p></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. IoC, injeção de dependência e camadas <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Os termos</h3>
+<ul>
+  <li><strong>Inversão de controle (IoC):</strong> quem cria e liga os objetos é o framework, e não o seu código. Você declara as peças; o contêiner monta o sistema.</li>
+  <li><strong>Injeção de dependência (DI):</strong> a dependência chega de fora, de preferência pelo construtor.</li>
+  <li><strong>Bean:</strong> objeto criado e gerenciado pelo contêiner do Spring.</li>
+</ul>
+<p>Por que isso existe: uma classe que faz <code>new RepositorioPostgres()</code> por dentro fica presa àquela implementação. Uma classe que recebe o repositório pelo construtor depende só de um tipo, e o teste pode entregar um dublê no lugar do repositório real. No ServiceHub, os serviços recebem todas as dependências no construtor:</p>
+<pre>@Service
+@Transactional
+public class ServiceRequestService {
+    private final ServiceRequestRepository requestRepository;
+    private final CurrentUser currentUser;
+    // ... mais três dependências, todas recebidas no construtor (resumido)
+}</pre>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Injeção no campo</h3><pre>@Autowired
+private ServicoRepository repo;</pre><p>O campo não pode ser <code>final</code>, a dependência fica escondida e o teste sem Spring precisa de reflexão para preencher o campo.</p></div>
+<div class="card good"><h3 class="ch">Injeção pelo construtor</h3><pre>private final ServicoRepository repo;
+ServicoService(ServicoRepository repo) {
+  this.repo = repo;
+}</pre><p>Campos <code>final</code>, dependências explícitas na assinatura e teste com um simples <code>new ServicoService(dubleDoRepo)</code>.</p></div>
+</div>
+
+<h3>Camadas: cada uma tem um papel e um limite</h3>
+<table>
+<thead><tr><th style="width:14%">Camada</th><th style="width:24%">Anotações</th><th>Faz</th><th style="width:22%">Nunca</th></tr></thead>
+<tr><td>Controller</td><td><code>@RestController</code>, <code>@Valid</code></td><td>Rota, DTO, status code</td><td>Regra de negócio</td></tr>
+<tr><td>Service</td><td><code>@Service</code>, <code>@Transactional</code></td><td>Regras RN, monta o DTO de resposta</td><td>Devolver entidade JPA</td></tr>
+<tr><td>Repository</td><td><code>JpaRepository</code></td><td>Consultas parametrizadas</td><td>Decidir regra</td></tr>
+<tr><td>Entidade</td><td><code>@Entity</code>, <code>@Table</code></td><td>Espelha a tabela</td><td>Sair na resposta HTTP</td></tr>
+</table>
+<p>Pergunta típica: onde fica a regra "ninguém contrata o próprio serviço" (RN06)? No Service. Ela precisa do usuário atual e de dados do banco, e precisa valer para qualquer chamador, seja um controller, um teste ou uma tarefa agendada. Se estivesse no controller, outro ponto de entrada poderia pular a regra.</p>
+<div class="note"><div class="label">Para lembrar</div><p>Com <code>spring.jpa.open-in-view=false</code>, a sessão do banco fecha quando o método do Service termina. Por isso o DTO de resposta é montado dentro do método <code>@Transactional</code> do Service, e não no controller.</p></div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. ORM e o ciclo de vida da entidade <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>ORM</strong> (<em>Object-Relational Mapping</em>, mapeamento objeto-relacional) traduz entre o modelo de objetos do Java e o modelo relacional do banco. Os dois modelos pensam de forma diferente: objetos têm herança, identidade por referência e navegação de um objeto a outro; tabelas têm linhas, chaves e junções. Essa diferença tem nome, <strong>incompatibilidade de impedância objeto-relacional</strong>, e é o problema que o ORM resolve. Sem ele, cada consulta é SQL escrito à mão e cada linha é convertida em objeto campo a campo.</p>
+<p><strong>JPA</strong> (<em>Jakarta Persistence</em>) é a especificação, o contrato. <strong>Hibernate</strong> é a implementação que o Spring Boot usa. São coisas diferentes, como uma interface Java e a classe que a implementa.</p>
+<table>
+<thead><tr><th style="width:26%">No Java</th><th style="width:26%">No banco</th><th>No ServiceHub</th></tr></thead>
+<tr><td>Classe <code>@Entity</code></td><td>Tabela</td><td><code>ServiceOffering</code> ↔ <code>services</code></td></tr>
+<tr><td>Atributo</td><td>Coluna</td><td><code>price</code> ↔ <code>price NUMERIC</code></td></tr>
+<tr><td>Objeto</td><td>Linha</td><td>Um serviço publicado</td></tr>
+<tr><td>Referência a outro objeto</td><td>Chave estrangeira</td><td><code>provider</code> ↔ <code>provider_id</code></td></tr>
+<tr><td>Enum</td><td>Texto, com ou sem CHECK</td><td><code>@Enumerated(STRING)</code> ↔ <code>VARCHAR</code></td></tr>
+</table>
+<div class="warn"><div class="label">O custo do ORM</div><p>Navegar por referências sem cuidado gera o problema <strong>N+1</strong>: uma consulta para trazer N serviços e mais uma consulta por serviço para trazer o prestador de cada um. A ferramenta esconde o SQL, mas não o elimina.</p></div>
+
+<h3>Os quatro estados de uma entidade</h3>
+<figure class="figure">
+<svg viewBox="0 0 700 130" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="m4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4"><rect x="6" y="30" width="130" height="54" rx="8"/><rect x="520" y="30" width="130" height="54" rx="8"/><rect x="264" y="76" width="130" height="48" rx="8"/></g>
+  <rect x="264" y="4" width="130" height="54" rx="8" fill="#e7f5ef" stroke="#047857" stroke-width="1.6"/>
+  <g text-anchor="middle" font-weight="700" fill="#1f2937"><text x="71" y="54">Transient</text><text x="329" y="28" fill="#047857">Managed</text><text x="585" y="54">Detached</text><text x="329" y="97">Removed</text></g>
+  <g text-anchor="middle" fill="#6b7280" font-size="9.8"><text x="71" y="72">criada com new</text><text x="329" y="46">dentro da transação</text><text x="585" y="72">a transação acabou</text><text x="329" y="114">DELETE no commit</text></g>
+  <g stroke="#1d4ed8" stroke-width="1.8" fill="none" marker-end="url(#m4)"><path d="M137 48 L260 32"/><path d="M395 32 L516 48"/><path d="M329 59 V72"/></g>
+  <g font-size="10" fill="#1d4ed8" text-anchor="middle"><text x="190" y="30">save / persist</text><text x="462" y="30">fim da transação</text><text x="362" y="69">remove</text></g>
+</svg>
+<figcaption>Ciclo de vida da entidade JPA. Removed parte de managed; uma entidade detached precisa voltar a ser managed antes de ser removida.</figcaption>
+</figure>
+<p>O <strong>contexto de persistência</strong> é o "caderno" em que o Hibernate anota as entidades managed. No commit, ele compara cada entidade com o que leu do banco; o que mudou vira <code>UPDATE</code>. Esse mecanismo se chama <strong>dirty checking</strong>. Consequência prática: uma entidade managed alterada por um setter é gravada no commit mesmo sem chamar <code>save</code>. Fora da transação, a mesma alteração fica só no objeto em memória e se perde.</p>
+<p>No ServiceHub a exclusão é lógica, então o fluxo real de um DELETE é: <em>managed</em> → <code>setActive(false)</code> → <code>UPDATE</code> no commit. E, com <code>open-in-view=false</code>, acessar uma associação <em>lazy</em> numa entidade detached lança <code>LazyInitializationException</code>.</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Transações <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>transação</strong> agrupa operações no banco para que todas aconteçam ou nenhuma aconteça. O exemplo clássico é a transferência bancária: debitar de uma conta e creditar na outra. Se o sistema cair entre as duas operações, o dinheiro não pode sumir. As garantias de uma transação formam a sigla <strong>ACID</strong>:</p>
+<table>
+<thead><tr><th style="width:22%">Garantia</th><th>Significado</th></tr></thead>
+<tr><td>Atomicidade</td><td>Falhou uma parte, desfaz-se tudo.</td></tr>
+<tr><td>Consistência</td><td>As restrições do banco (NOT NULL, CHECK, FK) valem ao fim da transação.</td></tr>
+<tr><td>Isolamento</td><td>Transações simultâneas não enxergam o trabalho pela metade uma da outra.</td></tr>
+<tr><td>Durabilidade</td><td>O que foi confirmado não se perde, mesmo com queda do servidor.</td></tr>
+</table>
+<p>No ServiceHub, desativar um usuário também desativa os serviços dele (RN11). Se a segunda parte falhar, a primeira precisa ser desfeita: isso é atomicidade.</p>
+<table>
+<thead><tr><th style="width:24%"><code>@Transactional</code></th><th>Comportamento padrão no Spring</th></tr></thead>
+<tr><td>Onde colocar</td><td>No Service, onde a regra de negócio começa e termina. A unidade de trabalho é a regra, que pode tocar vários repositórios.</td></tr>
+<tr><td>Rollback</td><td>Em exceções não verificadas (<code>RuntimeException</code> e <code>Error</code>). Exceções verificadas não desfazem a transação, a menos que se configure <code>rollbackFor</code>.</td></tr>
+<tr><td><code>readOnly = true</code></td><td>Para consultas: avisa que não haverá escrita e dispensa o dirty checking.</td></tr>
+</table>
+<div class="warn"><div class="label">Pegadinha</div><p><code>@Transactional</code> funciona por meio de um proxy que o Spring coloca em volta do bean. Uma chamada de um método para outro <em>dentro da mesma classe</em> não passa pelo proxy, então a anotação do segundo método é ignorada.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Migrações com Flyway <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>migração</strong> é um script versionado que leva o schema do banco de uma versão para a próxima. A ideia vale para qualquer linguagem: o schema passa a ser código, guardado no Git, aplicado na mesma ordem em todas as máquinas. Sem migrações, cada colega tem um banco ligeiramente diferente, e o erro aparece só no ambiente de outra pessoa.</p>
+<p>O <strong>Flyway</strong> aplica os arquivos <code>V1__descricao.sql</code>, <code>V2__...</code> em ordem e registra cada um numa tabela de histórico, com um <strong>checksum</strong> (uma soma de verificação do conteúdo). No ServiceHub, o Flyway escreve o schema e o Hibernate só confere:</p>
+<pre>-- V5__Create_service_requests_table.sql (resumido)
+CREATE TABLE service_requests (
+    id           BIGSERIAL PRIMARY KEY,
+    service_id   BIGINT NOT NULL REFERENCES services(id),
+    client_id    BIGINT NOT NULL REFERENCES users(id),
+    status       VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+    total_price  NUMERIC(10,2) NOT NULL,
+    CONSTRAINT chk_status CHECK (status IN
+        ('PENDING','ACCEPTED','IN_PROGRESS','COMPLETED','CANCELLED'))
+);</pre>
+<pre># application.properties
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.open-in-view=false</pre>
+<table>
+<thead><tr><th style="width:30%">Regra</th><th>Por quê</th></tr></thead>
+<tr><td>Toda mudança de entidade vem com uma nova migração</td><td>Com <code>validate</code>, o Hibernate não cria nem altera nada: se faltar coluna, a aplicação não sobe, e o erro diz qual.</td></tr>
+<tr><td>Migração aplicada nunca é editada</td><td>O checksum muda e o Flyway recusa iniciar. Corrige-se com uma nova versão; no projeto de referência, a V6 removeu um índice redundante criado antes.</td></tr>
+<tr><td>CHECK no banco mesmo com enum no Java</td><td>O banco é a última linha de defesa contra qualquer cliente que escreva nele: um script, outro sistema, uma migração futura.</td></tr>
+</table>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. Por que não H2: Postgres, Flyway e Testcontainers <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>O <strong>H2</strong> é um banco em memória escrito em Java, muito usado em tutoriais porque dispensa instalação. O problema é que ele fala outro dialeto de SQL. As migrações do ServiceHub usam recursos do PostgreSQL, como <code>BIGSERIAL</code>, <code>NUMERIC(10,2)</code>, <code>CHECK (status IN (...))</code> e <code>ALTER TABLE ... DROP CONSTRAINT</code>. Com H2, ou o Flyway falha, ou é preciso desligá-lo e usar <code>ddl-auto=create-drop</code>, e aí o teste roda contra um schema que não existe em produção.</p>
+<table>
+<thead><tr><th style="width:18%">Critério</th><th>H2 em memória</th><th>Postgres 16 + Flyway</th></tr></thead>
+<tr><td>Migrações</td><td>Outro dialeto: tipos, CHECK e ALTER podem falhar ou se comportar diferente</td><td>As mesmas V1…Vn de produção</td></tr>
+<tr><td>Schema</td><td>Tentação de <code>create-drop</code> ou <code>update</code></td><td><code>ddl-auto=validate</code></td></tr>
+<tr><td>Erro de SQL</td><td>Aparece no deploy</td><td>Aparece no teste</td></tr>
+<tr><td>Nos testes</td><td>"Zero configuração"</td><td>Testcontainers com <code>postgres:16-alpine</code></td></tr>
+</table>
+<p>O <strong>Testcontainers</strong> é uma biblioteca que, durante o teste, sobe um container Docker real e o descarta no fim. No ServiceHub, uma classe de configuração entrega o container ao Spring, e a anotação <code>@ServiceConnection</code> preenche URL, usuário e senha do datasource. O Flyway então aplica as mesmas migrações de produção a cada execução:</p>
+<pre>@TestConfiguration(proxyBeanMethods = false)
+public class TestcontainersConfiguration {
+    @Bean
+    @ServiceConnection
+    PostgreSQLContainer postgresContainer() {
+        return new PostgreSQLContainer("postgres:16-alpine");
+    }
+}</pre>
+<p>O preço é ter o Docker ligado ao rodar os testes. A decisão e as consequências estão registradas no <strong>ADR-0005</strong> do projeto de referência (<code>docs/adr/0005-testcontainers-em-vez-de-h2.md</code>). Os testes de integração com banco são tema da Semana 10; por ora, basta saber justificar a escolha.</p>
+
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. DTO, ProblemDetail e OpenAPI <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>DTO: a forma dos dados na fronteira</h3>
+<p><strong>DTO</strong> (<em>Data Transfer Object</em>) é um objeto simples, sem regra, que carrega dados entre camadas ou sistemas. Martin Fowler descreve o padrão no catálogo de padrões de aplicações corporativas. Numa API, o DTO é o corpo que entra e o corpo que sai.</p>
+<table>
+<thead><tr><th style="width:18%">Aspecto</th><th>Entidade</th><th>DTO</th></tr></thead>
+<tr><td>Representa</td><td>Uma linha da tabela</td><td>Um caso de uso da API</td></tr>
+<tr><td>Muda quando</td><td>O banco muda</td><td>O contrato muda</td></tr>
+<tr><td>Campos</td><td>Todos, inclusive <code>passwordHash</code></td><td>Só os que o cliente pode ver ou enviar</td></tr>
+<tr><td>Validação</td><td>Restrições do banco</td><td>Bean Validation (<code>@NotBlank</code>, <code>@Size</code>)</td></tr>
+</table>
+<p>O DTO evita dois riscos: <strong>vazar</strong> dados internos na resposta e <strong>aceitar</strong> campos que o cliente não deveria definir, problema conhecido como <em>mass assignment</em> e aprofundado na Semana 08. No ServiceHub, o DTO de criação de ordem não tem <code>clientId</code>, <code>status</code> nem preço; a API define os três:</p>
+<pre>@Schema(description = "Abertura de ordem de serviço. Cliente, status e preço são definidos pela API.")
+public record ServiceRequestCreateDTO(
+        @NotNull(message = "O serviço é obrigatório") @Positive Long serviceId,
+        @Future(message = "A data agendada deve estar no futuro") LocalDateTime scheduledAt,
+        @Size(max = 1000) String notes) { }   // resumido</pre>
+
+<h3>ProblemDetail: todo erro no mesmo formato</h3>
+<p>A <strong>RFC 9457</strong> (<em>Problem Details for HTTP APIs</em>) define um formato JSON padrão para erros, com o tipo de mídia <code>application/problem+json</code>. O Spring tem suporte nativo pela classe <code>ProblemDetail</code>. O campo <code>type</code> é o identificador estável do erro: o cliente da API programa contra ele, e não contra o texto de <code>detail</code>, que pode mudar.</p>
+<div class="grid2">
+<div class="card"><h3 class="ch">Resposta 400</h3>
+<pre>{
+  "type": "urn:servicehub:problem:validation-error",
+  "title": "Dados inválidos",
+  "status": 400,
+  "detail": "Um ou mais campos estão inválidos.",
+  "instance": "/api/v1/services",
+  "errors": [
+    { "field": "price",
+      "message": "O preço é obrigatório" }
+  ]
+}</pre></div>
+<div class="card"><h3 class="ch">Um ponto central de tradução</h3>
+<p>O <code>GlobalExceptionHandler</code>, anotado com <code>@RestControllerAdvice</code>, converte:</p>
+<ul>
+<li><code>ResourceNotFoundException</code> → 404</li>
+<li><code>EmailAlreadyExistsException</code> → 409</li>
+<li><code>BusinessRuleException</code> → 409</li>
+<li>falha de <code>@Valid</code> → 400 com <code>errors</code></li>
+<li>qualquer outra → 500, sem stack trace</li>
+</ul></div>
+</div>
+<div class="warn"><div class="label">Erro comum em código gerado por IA</div><p>Lançar <code>RuntimeException("preço inválido")</code> para uma entrada errada. Ninguém trata essa exceção genérica, e o cliente recebe um 500 em vez de um 400 com o campo apontado.</p></div>
+
+<h3>OpenAPI: o contrato que se lê sem abrir o código</h3>
+<p>A <strong>OpenAPI</strong> é uma especificação para descrever APIs HTTP num documento JSON ou YAML: rotas, parâmetros, corpos, respostas e schemas. O <strong>Springdoc</strong> gera esse documento a partir do código; a linha 3.0.x é a que funciona com o Spring Boot 4. No projeto de referência, a interface Swagger UI fica em <code>/docs</code> e o documento em <code>/api-docs/v1</code>.</p>
+<table>
+<thead><tr><th style="width:26%">Anotação</th><th>Uso bem feito</th></tr></thead>
+<tr><td><code>@Tag</code>, <code>@Operation</code></td><td>Um <em>summary</em> que diz o que a rota faz no domínio ("Abrir ordem de serviço"), nunca "update resource".</td></tr>
+<tr><td><code>@ApiResponse</code></td><td>Um por status possível; os de erro com o schema <code>ProblemDetail</code>.</td></tr>
+<tr><td><code>@Schema</code> nos DTOs</td><td>Exemplos reais ("Instalação elétrica residencial"), não "string".</td></tr>
+</table>
+<p>Uma confusão frequente: no documento OpenAPI, o campo <code>openapi</code> é a versão da <em>especificação</em> usada; o campo <code>info.version</code> é a versão do <em>seu contrato</em>. Teste rápido de qualidade: alguém de fora consegue chamar a rota certa só lendo o Swagger?</p>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+<h2>12. Quadro-resumo e onde cada conceito mora no código <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<table>
+<thead><tr><th style="width:20%">Conceito</th><th>Problema que resolve</th><th style="width:32%">No ServiceHub</th></tr></thead>
+<tr><td>REST sem estado</td><td>Escalar sem amarrar o cliente a um servidor</td><td>Token em cada requisição</td></tr>
+<tr><td>IoC e DI</td><td>Classes acopladas e difíceis de testar</td><td>Construtor com campos <code>final</code></td></tr>
+<tr><td>Camadas</td><td>Regra espalhada por controller e SQL</td><td>Regras RN no Service</td></tr>
+<tr><td>ORM (JPA)</td><td>Converter linhas em objetos à mão</td><td><code>ServiceOffering</code> ↔ <code>services</code></td></tr>
+<tr><td>Transação</td><td>Metade da operação gravada</td><td><code>@Transactional</code> no Service</td></tr>
+<tr><td>Migração versionada</td><td>Bancos diferentes em cada máquina</td><td>Flyway V1…V9, <code>ddl-auto=validate</code></td></tr>
+<tr><td>Postgres nos testes</td><td>Teste verde e deploy quebrado</td><td>Testcontainers (ADR-0005)</td></tr>
+<tr><td>DTO</td><td>Vazar campos ou aceitar campos indevidos</td><td>Records de entrada e saída</td></tr>
+<tr><td>ProblemDetail</td><td>Cada erro num formato</td><td><code>GlobalExceptionHandler</code></td></tr>
+<tr><td>OpenAPI</td><td>Consumidor adivinhando o contrato</td><td><code>/docs</code> e <code>/api-docs/v1</code></td></tr>
+</table>
+<h3>Onde procurar no projeto de referência</h3>
+<p>Na apresentação do checkpoint você vai mostrar uma classe de cada camada. No projeto de referência, os conceitos revisados ficam em: <code>controller/ServiceOfferingController.java</code> (rotas, <code>@Valid</code>, 201 com <code>Location</code>, paginação); <code>service/ServiceRequestService.java</code> (RN06–RN08, <code>@Transactional</code>, injeção pelo construtor); <code>model/RequestStatus.java</code> (máquina de estados como dados, ADR-0006); <code>exception/GlobalExceptionHandler.java</code> e <code>exception/ProblemTypes.java</code> (ProblemDetail e as URNs do campo <code>type</code>); <code>src/main/resources/db/migration/</code> (V1…V9); <code>application.properties</code> (<code>validate</code>, <code>open-in-view=false</code>, paginação 20/100); e <code>docs/adr/</code> (decisões registradas). Use a mesma organização no repositório da equipe: quem avalia deve achar cada conceito sem pedir ajuda.</p>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+<h2>13. O checkpoint: o que precisa estar no repositório <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>No checkpoint vale o repositório, não a promessa. A avaliação parte do commit marcado pela tag <code>etapa-2</code>: o que não está nesse commit não foi entregue, mesmo que funcione na máquina de alguém. O checkpoint não é formalidade; é a chance de receber devolutiva antes da entrega final.</p>
+<table>
+<thead><tr><th style="width:24%">Item</th><th>O que precisa existir</th><th style="width:10%">Sem.</th></tr></thead>
+<tr><td>Banco por migração</td><td>Flyway com as tabelas do domínio; <code>ddl-auto=validate</code>.</td><td>4</td></tr>
+<tr><td>Um CRUD completo</td><td>Em <code>/api/v1</code>, em camadas, com DTOs; <code>POST</code> devolve 201 e <code>Location</code>.</td><td>4</td></tr>
+<tr><td>Listagem paginada</td><td><code>Pageable</code> com padrão de 20 itens e máximo de 100.</td><td>4</td></tr>
+<tr><td>Erros em ProblemDetail</td><td><code>@RestControllerAdvice</code> responde 400, 404 e 409 no mesmo formato.</td><td>4</td></tr>
+<tr><td>Contrato OpenAPI</td><td>Swagger UI com todas as rotas e os status de erro documentados.</td><td>5</td></tr>
+<tr><td>Prova e decisões</td><td>Um <code>@WebMvcTest</code> passando, <code>docs/dominio.md</code> e ao menos um ADR.</td><td>2–3</td></tr>
+<tr><td>README</td><td>Como subir o Postgres, como rodar a API e onde fica o Swagger.</td><td>3</td></tr>
+</table>
+
+<h3>A entrega é uma tag anotada</h3>
+<p>Uma <strong>tag</strong> é um nome fixo apontado para um commit. A tag <strong>anotada</strong> (<code>git tag -a</code>) é um objeto próprio no Git, com autor, data e mensagem; a tag leve é só um apelido. Para uma entrega, use a anotada: ela registra quem marcou e quando. Depois de marcar, a <code>main</code> continua evoluindo, e a avaliação olha exatamente o commit marcado.</p>
+<pre>git tag -a etapa-2 -m "Etapa 2: checkpoint da 1ª VA"
+git push origin etapa-2
+
+# teste final, em outra pasta
+git clone &lt;url-do-repo&gt; conferencia
+cd conferencia
+git checkout etapa-2
+./mvnw verify          # no Windows: mvnw.cmd verify</pre>
+<p>O <strong>clone limpo</strong> pega o clássico "na minha máquina funciona": um arquivo que nunca foi commitado, um segredo que só existe no seu <code>.env</code>, uma migração editada depois de aplicada no seu banco local. Se o <code>verify</code> passa numa pasta recém-clonada, com o Docker ligado, a entrega é reprodutível.</p>
+<h3>Antes de marcar</h3>
+<ul class="checklist">
+  <li>O README diz como subir o Postgres e a API.</li>
+  <li>Nenhum segredo commitado: <code>.env</code> está no <code>.gitignore</code>.</li>
+  <li>Nenhuma migração já aplicada foi editada.</li>
+  <li><code>./mvnw verify</code> passa num clone limpo.</li>
+  <li><code>git show etapa-2 --stat</code> mostra o commit esperado.</li>
+</ul>
+
+<h3>Roteiro da apresentação: 8 a 10 minutos</h3>
+<ol>
+  <li><strong>Contexto:</strong> domínio, papéis e a jornada do cliente e do prestador.</li>
+  <li><strong>Swagger:</strong> rotas e erros documentados.</li>
+  <li><strong>Ao vivo:</strong> uma chamada que dá 201, uma que dá 400 e uma que dá 404.</li>
+  <li><strong>Código:</strong> uma classe de cada camada.</li>
+  <li><strong>Decisão:</strong> um ADR, com problema, decisão e efeito. É a parte que a IA não faz pela equipe.</li>
+</ol>
+<div class="warn"><div class="label">Logística</div><p>Suba o banco e a API antes de começar. Erro de compilação ao vivo consome o tempo da equipe. Cada integrante deve conseguir falar de pelo menos uma etapa do roteiro.</p></div>
+<h3>Entrega da semana</h3>
+<ul>
+  <li>Tag <code>etapa-2</code> publicada no GitHub, num commit em que <code>./mvnw verify</code> passa.</li>
+  <li>README com: como subir o Postgres, como rodar a API e onde fica o Swagger.</li>
+  <li><code>docs/revisao.md</code> com as respostas dos exercícios 1 e 2 da seção 16, com uma frase de justificativa em cada item.</li>
+  <li>Um parágrafo: uma resposta errada da IA no estudo e como você descobriu o erro.</li>
+</ul>
+</section>
+
+<!-- 14 -->
+<section class="page" id="s14">
+<h2>14. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Nesta semana não há funcionalidade nova para construir. O assistente tem dois usos: <strong>estudar</strong> para a prova e <strong>revisar</strong> o repositório antes da tag. Nos dois casos, a regra é a mesma: a IA não responde por você. Na prova não há IA; ela serve para treinar o raciocínio, não para guardar as respostas.</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>Nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>Dê o escopo: semanas 1 a 5, o domínio ServiceHub, as regras do Mapa. Diga que quer perguntas, não respostas.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>"Crie 5 cenários do ServiceHub e pergunte o status HTTP. Só corrija depois que eu responder."</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Confira a correção da IA contra esta apostila, o Mapa e o seu código. Ela erra com a mesma confiança com que acerta.</td></tr>
+<tr><td><strong>Provar</strong></td><td>Divergência entre você e a IA vira teste: um <code>@WebMvcTest</code> que espera 400 ou 409 decide quem está certo.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>me dá um resumo de tudo que cai na prova de API</pre><p>A IA entrega um resumo genérico, que você lê sem pensar. Nada é treinado; e o resumo pode conter erros que você não tem como perceber.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Pede o papel de tutor, um tema de cada vez, cenários do ServiceHub, espera pela sua resposta antes de corrigir e cola as regras do Mapa para a IA não inventar outras. Veja o prompt completo abaixo.</p></div>
+</div>
+
+<h3>Prompt de tutor (para estudar)</h3>
+<pre style="break-inside:auto">Contexto: sou aluno de Engenharia de Software e faço na próxima semana
+a 1ª VA de Desenvolvimento de API Back-End. O projeto da disciplina é
+a API ServiceHub (Java 21, Spring Boot 4.1, PostgreSQL 16, Flyway,
+Springdoc 3.0.x). A prova cobre: restrições REST, métodos e status
+HTTP, IoC/DI e camadas, JPA (ciclo de vida da entidade, transações),
+Flyway, DTO, ProblemDetail (RFC 9457) e OpenAPI.
+
+Papel: seja meu tutor. NÃO me dê a resposta antes de eu tentar.
+
+Regras:
+1. Faça UMA pergunta por vez, sempre com um cenário do ServiceHub.
+2. Espere a minha resposta. Depois diga se está certa, o que faltou
+   e qual conceito a justifica, em no máximo 5 linhas.
+3. Se eu errar duas vezes no mesmo tema, explique com outro exemplo
+   e pergunte de novo.
+4. Use só estas regras de negócio e esta tabela de transições,
+   sem inventar outras:
+   &lt;cole aqui RN01 a RN13 e a seção 4 do Mapa de Construção&gt;
+5. Não use Spring Boot 2 ou 3, javax.*, springdoc 2.x nem H2.
+
+Comece pelo tema em que eu disser que estou mais fraco. Ao fim de
+10 perguntas, liste os temas em que errei e o que devo reler.</pre>
+
+<h3>O prompt desta semana: revisar o repositório sem alterar código</h3>
+<p>Use um assistente que enxerga o repositório da equipe, antes de criar a tag. O objetivo é um relatório, não uma correção: quem corrige é a equipe, para conseguir explicar a correção na apresentação.</p>
+<pre style="break-inside:auto">Contexto: somos uma equipe construindo a API ServiceHub (Java 21,
+Spring Boot 4.1 com starters por recurso, PostgreSQL 16, Flyway,
+Springdoc 3.0.x). Vamos marcar a tag anotada etapa-2 (checkpoint da
+1ª VA). O contrato oficial é o Mapa de Construção em docs/.
+
+Objetivo: verificar o repositório contra o checklist abaixo e dizer,
+item por item, o que está cumprido e o que falta.
+
+Restrições:
+- NÃO altere, crie nem apague nenhum arquivo. NÃO faça commit.
+- NÃO escreva código de correção; descreva o que falta em uma frase.
+- NÃO leia arquivos .env.
+- Para cada item, responda CUMPRE, NÃO CUMPRE ou NÃO SEI, citando o
+  arquivo (e a linha, se houver) que comprova. Sem evidência, a
+  resposta é NÃO SEI: não suponha.
+
+Checklist:
+1. Migrações Flyway em src/main/resources/db/migration com as tabelas
+   do domínio; spring.jpa.hibernate.ddl-auto=validate.
+2. Nenhuma migração foi editada depois do commit que a criou
+   (confira com git log de cada arquivo V*.sql).
+3. Um CRUD completo em /api/v1, em camadas (controller, service,
+   repository), com DTOs na entrada e na saída; nenhuma entidade
+   JPA no corpo da requisição ou da resposta.
+4. POST devolve 201 com o cabeçalho Location.
+5. Listagem paginada: padrão 20 itens, máximo 100.
+6. @RestControllerAdvice devolvendo 400 (com errors[]), 404 e 409 em
+   ProblemDetail; nenhum throw new RuntimeException para regra.
+7. OpenAPI: todas as rotas com @Operation e um @ApiResponse por
+   status, com schema ProblemDetail nos erros.
+8. Ao menos um @WebMvcTest; docs/dominio.md; ao menos um ADR.
+9. README com: subir o Postgres, rodar a API, endereço do Swagger.
+10. .env no .gitignore; nenhum segredo em arquivo versionado.
+11. Se houver teste com banco, ele usa PostgreSQL, nunca H2.
+
+Antes de verificar, descreva em até 5 linhas como vai checar cada
+item (plano). Depois responda numa tabela:
+item | situação | evidência | o que falta.
+
+Critério de aceite: os 11 itens respondidos com evidência ou NÃO SEI,
+e nenhum arquivo do repositório modificado.</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<table>
+<thead><tr><th style="width:38%">A IA sugere</th><th>No ServiceHub</th></tr></thead>
+<tr><td>"Use H2 para testar"</td><td>As migrações usam SQL do Postgres; Testcontainers (ADR-0005).</td></tr>
+<tr><td><code>ddl-auto=update</code></td><td>O schema é do Flyway; use <code>validate</code>.</td></tr>
+<tr><td>springdoc 2.x</td><td>Não funciona com o Boot 4; use a linha 3.0.x.</td></tr>
+<tr><td>Editar uma V3 já aplicada</td><td>O checksum falha; crie uma nova versão.</td></tr>
+<tr><td><code>@MockBean</code></td><td>Removido no Boot 4; use <code>@MockitoBean</code>.</td></tr>
+<tr><td><code>javax.persistence.*</code></td><td>Desde o Boot 3 o pacote é <code>jakarta.persistence.*</code>.</td></tr>
+<tr><td>"Corrigi os itens que faltavam"</td><td>Você pediu um relatório. Desfaça e corrija vocês mesmos.</td></tr>
+</table>
+<p>Quase todos esses erros vêm de exemplos antigos da internet. Diga sempre a versão do Spring Boot no contexto do pedido.</p>
+
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Cada correção que a IA fez nas suas respostas de estudo bate com esta apostila ou com o Mapa?</li>
+  <li>No relatório do repositório, cada CUMPRE tem um arquivo que você abriu e conferiu?</li>
+  <li>Os itens NÃO SEI foram verificados por alguém da equipe?</li>
+  <li>O <code>pom.xml</code> e o <code>application.properties</code> passam pela tabela de armadilhas acima?</li>
+  <li>Você guardou um caso em que a IA errou e como descobriu o erro? Ele entra na entrega.</li>
+</ul>
+<h3>Prova</h3>
+<p>Duas provas, uma para cada uso. Para a revisão: depois da conversa com o assistente, <code>git status</code> mostra a árvore limpa, sem nenhum arquivo modificado. Para a entrega: no clone limpo, <code>git checkout etapa-2</code> seguido de <code>./mvnw verify</code> termina com <code>BUILD SUCCESS</code>.</p>
+
+
+</section>
+
+<!-- 15 -->
+<section class="page" id="s15">
+<h2>15. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Restrição REST</dt><dd>Regra do estilo arquitetural de Fielding, como "sem estado" ou "interface uniforme".</dd>
+  <dt>Idempotente</dt><dd>Operação que, repetida, deixa o servidor no mesmo estado que uma execução só.</dd>
+  <dt>Método seguro</dt><dd>Método HTTP que não altera o estado do servidor, como GET.</dd>
+  <dt>Máquina de estados</dt><dd>Modelo com estados possíveis e transições permitidas entre eles.</dd>
+  <dt>IoC</dt><dd>Inversão de controle: o framework cria e liga os objetos.</dd>
+  <dt>ORM</dt><dd>Mapeamento entre objetos do programa e tabelas do banco relacional.</dd>
+  <dt>Contexto de persistência</dt><dd>Conjunto de entidades managed que o Hibernate acompanha numa transação.</dd>
+  <dt>Dirty checking</dt><dd>Detecção automática de alterações em entidades managed, gravadas no commit.</dd>
+  <dt>ACID</dt><dd>Atomicidade, consistência, isolamento e durabilidade: garantias de uma transação.</dd>
+  <dt>Rollback</dt><dd>Desfazer todas as operações de uma transação que falhou.</dd>
+  <dt>Migração</dt><dd>Script versionado que leva o schema de uma versão à próxima.</dd>
+  <dt>Checksum</dt><dd>Soma de verificação do conteúdo de um arquivo; detecta edição.</dd>
+  <dt>Testcontainers</dt><dd>Biblioteca que sobe containers Docker reais durante os testes.</dd>
+  <dt>DTO</dt><dd>Objeto sem regra que carrega dados na fronteira da API.</dd>
+  <dt>ProblemDetail</dt><dd>Formato padrão de erro em JSON definido pela RFC 9457.</dd>
+  <dt>Tag anotada</dt><dd>Marca do Git com autor, data e mensagem, apontada para um commit.</dd>
+</dl>
+
+<!-- 16 -->
+<h2 id="s16">16. Exercícios estilo prova <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Resolva sem consulta e com tempo marcado. Em cada resposta, diga o quê, o porquê e um caso do ServiceHub. Os exercícios 1 e 2 entram no <code>docs/revisao.md</code> da entrega.</p>
+<ol class="ex">
+  <li>Para cada cenário, dê o status code e uma frase que cite a regra ou o motivo: (a) <code>POST /api/v1/services</code> com <code>price = 0</code>; (b) um visitante pede <code>GET</code> de um serviço desativado; (c) o prestador muda uma ordem COMPLETED para IN_PROGRESS; (d) cadastro com <code>MARIA@X.COM</code> quando <code>maria@x.com</code> já existe; (e) <code>POST /api/v1/services</code> com <code>Content-Type: text/plain</code>; (f) <code>GET /api/v1/services?size=500</code>.</li>
+  <li>Ache pelo menos quatro problemas no código abaixo. Para cada um, diga o que está errado, o que o cliente da API sofre e como corrigir, indicando a camada.
+<pre>@RestController
+@RequestMapping("/servicos/criar")
+public class ServicoController {
+  @Autowired ServicoRepository repo;
+  @PostMapping
+  public Servico criar(@RequestBody Servico s) {
+    if (s.getPrice().signum() &lt;= 0)
+      throw new RuntimeException("preço inválido");
+    return repo.save(s);
+  }
+}</pre></li>
+  <li>Verdadeiro ou falso? Nas falsas, reescreva a frase para que fique verdadeira. (a) PUT é idempotente; POST não é. (b) 409 indica que o JSON enviado está malformado. (c) Com <code>ddl-auto=validate</code>, o Hibernate cria as colunas que faltam. (d) Uma migração já aplicada pode ser editada para corrigir um erro. (e) <code>@Transactional</code> desfaz a transação quando o método lança <code>RuntimeException</code>. (f) <code>info.version</code>, no OpenAPI, é a versão da especificação OpenAPI usada. (g) Guardar a sessão do usuário na memória do servidor respeita o REST.</li>
+  <li>Associe cada conceito (A: DTO, B: Flyway, C: ProblemDetail, D: injeção de dependência, E: transação, F: OpenAPI) ao problema que ele resolve: (1) o front-end precisa conhecer campos e status sem ler o código; (2) desativar o usuário e os serviços dele, tudo ou nada; (3) a resposta estava expondo <code>passwordHash</code>; (4) cada erro da API vinha num formato diferente; (5) bancos de colegas com colunas diferentes; (6) não dá para testar o Service sem um banco ligado.</li>
+  <li>Considere o método abaixo, num <code>@Service</code>. Responda usando os termos managed, detached, commit e rollback: (a) o título muda no banco? (b) e se o método não tivesse <code>@Transactional</code>? (c) e se, depois do <code>setTitle</code>, o método lançasse uma <code>RuntimeException</code>?
+<pre>@Transactional
+public void renomear(Long id, String titulo) {
+  ServiceOffering s = repo.findById(id).orElseThrow();
+  s.setTitle(titulo);
+  // não há repo.save(s)
+}</pre></li>
+  <li>Um cliente envia <code>DELETE /api/v1/services/12</code> duas vezes, por causa de uma falha de rede. A primeira resposta é 204. Explique por que o DELETE continua sendo idempotente, qualquer que seja a segunda resposta.</li>
+  <li>Uma equipe guarda o usuário logado numa variável de sessão na memória da API. Em produção, há duas instâncias atrás de um balanceador. Descreva o defeito que os usuários vão perceber e diga qual restrição REST foi violada.</li>
+  <li>Onde deve ficar a regra "ninguém contrata o próprio serviço" (RN06)? Justifique com dois argumentos e diga o status devolvido quando ela é violada.</li>
+  <li>JPA e Hibernate são a mesma coisa? Explique a relação entre os dois e cite o nome do problema que o ORM resolve.</li>
+  <li>O enum <code>RequestStatus</code> já impede, no Java, um status inválido. Por que a migração V5 ainda tem um <code>CHECK (status IN (...))</code>?</li>
+  <li>Um colega percebeu um erro de digitação no nome de uma coluna na <code>V3</code>, que já foi aplicada em todas as máquinas, e corrigiu o arquivo. O que acontece na próxima vez que a aplicação subir? Qual é o procedimento correto?</li>
+  <li>Um teste passa usando H2 e o deploy quebra no Postgres. O que o teste provou? Cite dois recursos de SQL das migrações do ServiceHub que motivam o uso de Testcontainers.</li>
+  <li>Um controller recebe a entidade <code>ServiceRequest</code> diretamente no <code>@RequestBody</code>. Que campos o cliente passaria a controlar? Que regras do Mapa ficam em risco?</li>
+  <li>Por que o cliente de uma API deve programar contra o campo <code>type</code> do ProblemDetail, e não contra o texto de <code>detail</code>?</li>
+  <li>Explique a diferença entre os cabeçalhos <code>Content-Type</code> e <code>Accept</code>. Qual status a API devolve quando não aceita o <code>Content-Type</code> enviado?</li>
+  <li>Projete método, URI e status de sucesso para: (a) o prestador aceitar a ordem 31; (b) listar, como prestador, as ordens PENDING, 20 por página; (c) o cliente avaliar a ordem 31 depois de concluída.</li>
+  <li>Por que a transação fica no Service, e não no Controller nem no Repository? Para que serve <code>readOnly = true</code>?</li>
+  <li>Cite três problemas que o teste no clone limpo (<code>git clone</code> + <code>git checkout etapa-2</code> + <code>./mvnw verify</code>) detecta e que passariam despercebidos na máquina de quem desenvolveu.</li>
+  <li>Escreva um prompt de tutor para estudar transações e o ciclo de vida da entidade. Ele deve ter contexto, a regra de não dar respostas antes da sua tentativa, cenários do ServiceHub e ao menos uma restrição de versão.</li>
+  <li>Um assistente respondeu: "para os testes, use H2 com <code>ddl-auto=update</code> e anote o mock com <code>@MockBean</code>". Aponte os três problemas dessa sugestão no ServiceHub e o que usar no lugar.</li>
+</ol>
+
+<!-- 17 -->
+<h2 id="s17">17. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Esta é uma semana de revisão: as leituras são as das semanas 1 a 5, disponíveis na Minha Biblioteca pelo acesso institucional. Se o tempo for curto, priorize os capítulos de <em>Integração de aplicações</em> e o capítulo 15 de Fowler.</p>
+<table>
+<thead><tr><th style="width:18%">Semana</th><th>Leitura</th></tr></thead>
+<tr><td>1 · APIs</td><td>RODRIGUES, T. N. et al. <em>Integração de aplicações</em>. Grupo A, 2020: "Tecnologias de integração entre sistemas e aplicações" e "SOAP" · SCHILDT, H. <em>Java para iniciantes</em>, cap. 1 · HORSTMANN, C. <em>Conceitos de computação com Java</em>, cap. 1 · RICHARDS, M.; FORD, N. <em>Fundamentos da arquitetura de software</em>, cap. 1</td></tr>
+<tr><td>2 · REST</td><td><em>Integração de aplicações</em>: "Geração de serviços com REST" e "Serviços web" · KHONONOV, V. <em>Aprenda Domain-Driven Design</em>, caps. 1–3 · PRESSMAN, R. S.; MAXIM, B. R. <em>Engenharia de software</em>, caps. 7–8</td></tr>
+<tr><td>3 · Spring</td><td>SCHILDT, caps. 8 e 12 · FOWLER, M. <em>Padrões de arquitetura de aplicações corporativas</em>, cap. 1 · MARTIN, R. C. <em>Arquitetura limpa</em>, caps. 22 e 32 · MONTEIRO, E. R. et al. <em>DevOps</em>: "Tipos de controles de versão" e "Criação de branches e commits com o Git" · MARTIN, R. C. <em>Código limpo</em>, caps. 2–3</td></tr>
+<tr><td>4 · JPA</td><td><em>Integração de aplicações</em>: "Servidores de aplicação JPA" · MACHADO, R. P. et al. <em>Desenvolvimento de software III</em>, cap. 4 · FOWLER, caps. 3 e 10 · SCHILDT, cap. 9 · <em>Código limpo</em>, cap. 7</td></tr>
+<tr><td>5 · Contrato</td><td><em>Integração de aplicações</em>: "Software de apoio" e "Conceito e uso de web service e APIs" · FOWLER, cap. 15 (Data Transfer Object)</td></tr>
+</table>
+<p>Referências abertas:</p>
+<ul>
+  <li>FIELDING, R. T. <em>Architectural Styles and the Design of Network-based Software Architectures</em>. Tese (Doutorado), University of California, Irvine, 2000. Capítulo 5.</li>
+  <li>RFC 9110, <em>HTTP Semantics</em> (métodos, propriedades seguro e idempotente, status codes): <code>rfc-editor.org/rfc/rfc9110</code>.</li>
+  <li>RFC 9457, <em>Problem Details for HTTP APIs</em>: <code>rfc-editor.org/rfc/rfc9457</code>.</li>
+  <li>Documentação oficial do Flyway, do Spring Boot (<code>docs.spring.io/spring-boot</code>) e do Testcontainers (<code>testcontainers.com</code>).</li>
+  <li>Mapa de Construção do ServiceHub, em <code>docs/alunos</code>: o contrato oficial. Releia antes da prova.</li>
+</ul>
+</section>
+
+</body>
+</html>

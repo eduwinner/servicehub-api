@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 04 — Persistência, Flyway e erros padronizados</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 04 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 04<br>Persistência, Flyway e erros padronizados</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Até aqui a API respondia, mas não guardava nada de forma confiável. Nesta semana ela ganha um banco de verdade. Você vai entender como objetos Java viram linhas de tabela, por que o schema do banco é versionado como código, o que uma transação garante e por que o cliente nunca deve receber a entidade. No fim, todos os erros da API passam a sair num único formato, o ProblemDetail. Leia antes ou depois da aula; os exercícios do fim ajudam a conferir o que ficou.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">Objetos não são tabelas</a></li>
+      <li><a href="#s3">JPA, Hibernate e Spring Data</a></li>
+      <li><a href="#s4">Ciclo de vida da entidade</a></li>
+      <li><a href="#s5">Mapeamentos e relacionamentos</a></li>
+      <li><a href="#s6">Transações e @Transactional</a></li>
+      <li><a href="#s7">Migrações com Flyway</a></li>
+      <li><a href="#s8">Repository e Data Mapper</a></li>
+      <li><a href="#s9">DTO: o que sai da API</a></li>
+      <li><a href="#s10">Exceções e ProblemDetail</a></li>
+      <li><a href="#s11">Paginação</a></li>
+      <li><a href="#s12">Health e o primeiro teste</a></li>
+      <li><a href="#s13">Aplicação no ServiceHub</a></li>
+      <li><a href="#s14">Construindo com IA</a></li>
+      <li><a href="#s15">Glossário</a></li>
+      <li><a href="#s16">Exercícios</a></li>
+      <li><a href="#s17">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>explicar a impedância objeto-relacional e o papel de um ORM, distinguindo JPA (especificação), Hibernate (implementação) e Spring Data JPA (repositórios);</li>
+  <li>descrever o ciclo de vida de uma entidade, o contexto de persistência e o efeito de LAZY, EAGER e do problema N+1;</li>
+  <li>usar transações com <code>@Transactional</code> e justificar <code>readOnly</code> e <code>open-in-view=false</code>;</li>
+  <li>versionar o schema com migrações Flyway, sabendo por que uma migração aplicada nunca é editada e por que o Hibernate só valida;</li>
+  <li>devolver DTOs paginados e padronizar os erros com <code>@RestControllerAdvice</code> e ProblemDetail, provando com um <code>@WebMvcTest</code>.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. Objetos não são tabelas <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um programa Java pensa em <strong>objetos</strong> que apontam uns para os outros na memória. Um banco relacional pensa em <strong>linhas</strong> e <strong>colunas</strong>, ligadas por chaves. Os dois modelos descrevem o mesmo mundo, mas com regras diferentes. Essa diferença tem nome: <strong>impedância objeto-relacional</strong> (<em>object-relational impedance mismatch</em>). O termo vem da engenharia elétrica, onde dois circuitos com impedâncias diferentes perdem energia ao se ligar.</p>
+
+<h3>Onde os dois modelos divergem</h3>
+<table>
+<thead><tr><th style="width:18%">Aspecto</th><th>Objetos (Java)</th><th>Relacional (SQL)</th></tr></thead>
+<tr><td>Identidade</td><td>Referência na memória; igualdade por <code>equals()</code></td><td>Chave primária</td></tr>
+<tr><td>Associação</td><td><code>livro.getAutor()</code> devolve um objeto <code>Autor</code></td><td>Coluna <code>autor_id</code> e um <code>JOIN</code></td></tr>
+<tr><td>Coleções</td><td>Uma lista dentro do objeto</td><td>Linhas em outra tabela apontando de volta</td></tr>
+<tr><td>Herança</td><td>Classe e subclasses</td><td>Não existe; precisa de uma estratégia de mapeamento</td></tr>
+<tr><td>Tipos</td><td><code>enum</code>, <code>BigDecimal</code>, <code>LocalDateTime</code></td><td><code>VARCHAR</code>, <code>NUMERIC</code>, <code>TIMESTAMP</code></td></tr>
+</table>
+
+<h3>O que um ORM faz</h3>
+<p>Sem ajuda, cada consulta exige escrever o SQL, executar pelo JDBC, ler o resultado coluna por coluna e montar o objeto à mão. Para gravar, o caminho inverso. Um <strong>ORM</strong> (<em>Object-Relational Mapping</em>, mapeamento objeto-relacional) automatiza essa tradução: você descreve uma vez como a classe corresponde à tabela, e ele gera o SQL de leitura e gravação.</p>
+<p style="text-align:left">Em vez de um laço que lê <code>rs.getLong("id")</code> e <code>rs.getString("titulo")</code> e preenche um <code>Livro</code> à mão, você anota a classe com <code>@Entity</code> e <code>@Table(name = "livros")</code>, e uma chamada como <code>repo.findAll()</code> devolve a lista pronta. Um nome de coluna errado deixa de ser descoberto só em execução, no meio de uma consulta.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>O ORM não elimina a impedância; ele só automatiza a tradução. Quem não entende as duas pontas cai em armadilhas como o N+1 (seção 5). E o ORM não dispensa saber SQL: as migrações desta semana são SQL puro.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. JPA, Hibernate e Spring Data <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Três nomes aparecem juntos e costumam ser confundidos. Eles ocupam camadas diferentes.</p>
+<ul>
+  <li><strong>JPA</strong> (Jakarta Persistence) é uma <em>especificação</em>: anotações (<code>@Entity</code>, <code>@Id</code>, <code>@Column</code>) e interfaces (<code>EntityManager</code>) no pacote <code>jakarta.persistence</code>. Como uma norma técnica de tomada, diz o formato, mas não fabrica nada.</li>
+  <li><strong>Hibernate</strong> é uma <em>implementação</em> da especificação: gera e executa o SQL. Outra implementação conhecida é o EclipseLink.</li>
+  <li><strong>Spring Data JPA</strong> fica uma camada acima: você declara uma interface de repositório e o Spring cria a implementação em tempo de execução.</li>
+</ul>
+<p>Por que separar especificação de implementação? Porque o código da aplicação depende só das anotações padronizadas. Em tese, trocar o Hibernate por outra implementação não exige reescrever as entidades. Na prática, quase todo projeto Spring usa o Hibernate, que já vem com o starter de JPA.</p>
+<div class="warn"><div class="label">Pegadinha de versão</div><p>Quando a especificação fazia parte do Java EE, o pacote se chamava <code>javax.persistence</code>. Depois que ela passou para a Eclipse Foundation, com o nome Jakarta EE, o pacote mudou para <code>jakarta.persistence</code>. Spring Boot 3 em diante só aceita <code>jakarta</code>. Tutoriais antigos e código gerado por IA ainda trazem <code>javax</code>: o projeto nem compila.</p></div>
+<p>No ServiceHub, o <code>pom.xml</code> tem <code>spring-boot-starter-data-jpa</code> (traz Hibernate e Spring Data), <code>spring-boot-starter-flyway</code> mais <code>flyway-database-postgresql</code> (migrações) e o driver do PostgreSQL 16. Lembre a pegadinha do Boot 4 vista na Semana 01: a biblioteca sem o starter não ativa a auto-configuração.</p>
+
+<!-- 4 -->
+<h2 id="s4">4. Ciclo de vida da entidade <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>entidade</strong> é uma classe anotada com <code>@Entity</code> cujas instâncias correspondem a linhas de uma tabela. Cada instância passa por quatro estados, e o estado define se as mudanças no objeto chegam ao banco.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 190" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="12">
+  <defs><marker id="b1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+  <marker id="b2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4">
+    <rect x="10" y="60" width="130" height="58" rx="8"/>
+    <rect x="285" y="60" width="130" height="58" rx="8" fill="#e7f5ef" stroke="#047857"/>
+    <rect x="560" y="18" width="130" height="58" rx="8"/>
+    <rect x="560" y="112" width="130" height="58" rx="8"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937">
+    <text x="75" y="84" font-weight="700">TRANSIENT</text><text x="75" y="102" fill="#6b7280" font-size="10.5">new Livro()</text>
+    <text x="350" y="84" font-weight="700" fill="#047857">MANAGED</text><text x="350" y="102" fill="#6b7280" font-size="10.5">vigiada pelo contexto</text>
+    <text x="625" y="42" font-weight="700">DETACHED</text><text x="625" y="60" fill="#6b7280" font-size="10.5">tem id, sem vigilância</text>
+    <text x="625" y="136" font-weight="700">REMOVED</text><text x="625" y="154" fill="#6b7280" font-size="10.5">vira DELETE no commit</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="1.8" fill="none" marker-end="url(#b1)">
+    <path d="M142 89 H281"/>
+    <path d="M417 78 L556 50"/>
+    <path d="M417 104 L556 136"/>
+  </g>
+  <path d="M560 62 C 500 10, 420 20, 380 56" fill="none" stroke="#047857" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#b2)"/>
+  <g font-size="10.5" fill="#1d4ed8" text-anchor="middle">
+    <text x="212" y="80">save() / persist()</text>
+    <text x="488" y="56">fim da transação</text>
+    <text x="490" y="138">delete()</text>
+  </g>
+  <text x="470" y="14" text-anchor="middle" fill="#047857" font-size="10.5">merge() reanexa</text>
+  <text x="212" y="140" text-anchor="middle" fill="#6b7280" font-size="10.5">findById() também devolve</text>
+  <text x="212" y="154" text-anchor="middle" fill="#6b7280" font-size="10.5">uma entidade MANAGED</text>
+</svg>
+<figcaption>Os quatro estados de uma entidade JPA. Só no estado MANAGED as alterações viram UPDATE automaticamente.</figcaption>
+</figure>
+<p>Em resumo: um objeto <strong>transient</strong> (na especificação, <em>new</em>) existe só na memória; um <strong>managed</strong> tem as mudanças detectadas e gravadas sozinhas no commit; um <strong>detached</strong> tem id, mas suas mudanças não chegam ao banco a menos que seja reanexado; um <strong>removed</strong> vira <code>DELETE</code> no commit.</p>
+
+<h3>Contexto de persistência e dirty checking</h3>
+<p>O <strong>contexto de persistência</strong> é o conjunto de entidades gerenciadas durante uma transação. Ele dá duas garantias. Primeiro, existe uma única instância por id: buscar o livro 7 duas vezes na mesma transação devolve o mesmo objeto, e a segunda busca nem vai ao banco. Segundo, o contexto guarda uma cópia do estado lido e, antes do commit, compara cada entidade com essa cópia. O que mudou vira <code>UPDATE</code>. Essa comparação se chama <strong>dirty checking</strong> (verificação de sujeira).</p>
+<pre>@Transactional
+public void renomear(Long id, String novoTitulo) {
+    Livro livro = repo.findById(id).orElseThrow();  // MANAGED
+    livro.setTitulo(novoTitulo);                    // só muda o objeto
+}   // commit: o Hibernate percebe a mudança e executa o UPDATE</pre>
+<div class="note"><div class="label">Ligação com o ServiceHub</div><p>A exclusão é lógica (ADR-0002): "apagar" um serviço é mudar <code>active</code> para <code>false</code> numa entidade gerenciada. É exatamente o que faz o <code>deleteService</code> do <code>ServiceOfferingService</code>: ele não chama <code>save()</code>, e o commit gera o <code>UPDATE</code>.</p></div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. Mapeamentos e relacionamentos <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Mapeando colunas</h3>
+<ul>
+  <li><code>@Entity</code> e <code>@Table(name = "livros")</code> marcam a classe e dizem a tabela.</li>
+  <li><code>@Id</code> com <code>@GeneratedValue(strategy = IDENTITY)</code>: chave gerada pelo banco, que combina com <code>BIGSERIAL</code> do Postgres.</li>
+  <li><code>@Column(name = "data_publicacao", nullable = false)</code> liga atributo e coluna quando os nomes diferem e declara restrições.</li>
+  <li><code>@Enumerated(EnumType.STRING)</code> grava o <em>nome</em> do enum (<code>"DISPONIVEL"</code>), e não sua posição.</li>
+</ul>
+<div class="warn"><div class="label">Por que nunca ORDINAL</div><p>Com <code>EnumType.ORDINAL</code> o banco guarda 0, 1, 2… Se alguém inserir um valor no meio do enum Java, todas as linhas já gravadas mudam de significado sem nenhum erro. O Mapa exige <code>EnumType.STRING</code>.</p></div>
+
+<h3>Relacionamentos e quando carregar</h3>
+<p>Um livro tem um autor; um autor tem muitos livros. No Java isso vira <code>@ManyToOne</code> de um lado e, se fizer sentido, <code>@OneToMany</code> do outro. O atributo <code>fetch</code> diz <em>quando</em> o objeto relacionado é buscado no banco:</p>
+<table>
+<thead><tr><th style="width:14%">Fetch</th><th>Quando carrega</th><th style="width:34%">Padrão do JPA em</th></tr></thead>
+<tr><td>LAZY</td><td>Só quando o código acessa o campo (o ORM coloca no lugar um objeto substituto, o <em>proxy</em>).</td><td><code>@OneToMany</code> e <code>@ManyToMany</code></td></tr>
+<tr><td>EAGER</td><td>Sempre, junto com a entidade.</td><td><code>@ManyToOne</code> e <code>@OneToOne</code></td></tr>
+</table>
+<p>EAGER parece cômodo, mas carrega o grafo inteiro em toda consulta, inclusive quando você não precisa. A prática recomendada é declarar <code>fetch = FetchType.LAZY</code> também nos <code>@ManyToOne</code> e decidir, consulta a consulta, quando trazer o relacionado junto. O preço do LAZY é a <code>LazyInitializationException</code>: acessar o campo depois que a transação fechou, quando já não há sessão para buscar o dado.</p>
+
+<h3>O problema N+1</h3>
+<p>Imagine listar 20 livros mostrando o nome do autor. Uma consulta traz os 20 livros. Depois, para cada livro, o acesso a <code>getAutor().getNome()</code> dispara mais uma consulta. Resultado: 1 + 20 idas ao banco, onde uma bastava.</p>
+<pre>select ... from livros limit 20
+select ... from autores where id = ?    -- livro 1
+select ... from autores where id = ?    -- livro 2
+...                                     -- mais 18 vezes</pre>
+<p>O N+1 não dá erro. A tela funciona, e só fica lenta quando a tabela cresce. Por isso a melhor ferramenta é o log do SQL gerado: conte os <code>SELECT</code>s. As duas soluções mais comuns trazem a associação na mesma consulta, com <code>JOIN</code>:</p>
+<div class="grid2">
+<div class="card"><h3 class="ch">@EntityGraph</h3>
+<pre>@EntityGraph(attributePaths = "autor")
+Page&lt;Livro&gt; findAll(Pageable p);</pre>
+<p>Declara, no método do repositório, quais associações vêm junto.</p></div>
+<div class="card"><h3 class="ch">JOIN FETCH</h3>
+<pre>@Query("select l from Livro l
+        join fetch l.autor")
+List&lt;Livro&gt; comAutor();</pre>
+<p>Escreve a junção na própria consulta JPQL.</p></div>
+</div>
+<p>No ServiceHub, o <code>ServiceOffering</code> tem <code>@ManyToOne(fetch = LAZY)</code> com o prestador (<code>User</code>), e o repositório usa <code>@EntityGraph(attributePaths = "provider")</code> na listagem, porque a resposta mostra <code>providerName</code>. A seção 13 mostra o código.</p>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. Transações e @Transactional <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Uma <strong>transação</strong> é um grupo de operações que o banco trata como uma unidade. O exemplo clássico é a transferência bancária: debitar a conta A e creditar a conta B. Se só a primeira acontecer, o dinheiro some. As garantias de uma transação são resumidas pela sigla <strong>ACID</strong>:</p>
+<table>
+<thead><tr><th style="width:20%">Garantia</th><th>O que significa</th></tr></thead>
+<tr><td><strong>A</strong>tomicidade</td><td>Tudo ou nada. Se algo falha no meio, o banco desfaz o que foi feito (<em>rollback</em>).</td></tr>
+<tr><td><strong>C</strong>onsistência</td><td>A transação leva o banco de um estado válido a outro: <code>NOT NULL</code>, <code>CHECK</code> e chaves estrangeiras continuam valendo.</td></tr>
+<tr><td><strong>I</strong>solamento</td><td>Transações simultâneas não enxergam o trabalho pela metade uma da outra, no grau definido pelo nível de isolamento (no Postgres, o padrão é <em>read committed</em>).</td></tr>
+<tr><td><strong>D</strong>urabilidade</td><td>Depois do <em>commit</em>, o dado sobrevive a uma queda do servidor.</td></tr>
+</table>
+
+<h3>Como o Spring aplica a transação</h3>
+<p>Com <code>@Transactional</code> num método, o Spring não muda o seu código: ele coloca um <strong>proxy</strong> (um objeto intermediário) na frente do bean. Quem chama o service fala, sem saber, com o proxy.</p>
+<p>O proxy abre a transação antes do método e, depois dele, faz <em>commit</em> ou <em>rollback</em>. A anotação fica no service, a camada que conhece a regra de negócio inteira, e não no controller nem no repositório.</p>
+<ul>
+  <li><strong>Rollback por padrão:</strong> exceções <em>unchecked</em> (<code>RuntimeException</code> e <code>Error</code>) desfazem a transação; exceções <em>checked</em>, por padrão, <em>não</em> desfazem. É mais um motivo para as exceções de negócio serem unchecked (seção 10).</li>
+  <li><strong>Autochamada não passa pelo proxy:</strong> se um método da classe chama outro método da mesma classe (<code>this.outro()</code>), a anotação do segundo é ignorada.</li>
+  <li><strong><code>readOnly = true</code>:</strong> nas leituras, avisa que nada será gravado. O Hibernate deixa de fazer o dirty checking e o <em>flush</em> no fim, o que poupa trabalho, e a intenção fica explícita no código.</li>
+</ul>
+
+<h3>open-in-view=false</h3>
+<p>Por padrão, o Spring Boot mantém a sessão do Hibernate aberta até a resposta HTTP ser escrita (<em>Open Session in View</em>) e avisa isso no log da subida. Parece conveniente: qualquer campo LAZY pode ser lido no controller ou na serialização para JSON. O custo é escondido: consultas disparadas fora do service, conexões presas por mais tempo e N+1 durante a serialização. Com <code>spring.jpa.open-in-view=false</code>, a sessão fecha junto com a transação. A regra passa a ser clara: <strong>o DTO é montado dentro do método transacional do service</strong>.</p>
+<p>No ServiceHub, desativar um usuário também desativa os serviços dele (RN11), no mesmo método <code>@Transactional</code>: se a segunda gravação falhar, a primeira é desfeita.</p>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Migrações com Flyway <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Sem controle, cada banco evolui à mão e diverge: "na minha máquina a coluna existe". Uma <strong>migração</strong> é um script que leva o schema de uma versão à seguinte. As migrações são aplicadas em ordem e registradas numa tabela de histórico. Assim, toda máquina, todo teste e todo container sobem o mesmo banco, na mesma sequência. O paralelo é com o Git: migração está para o banco como o commit está para o código.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 120" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="d1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="6" y="20" width="150" height="56" rx="7"/><rect x="186" y="20" width="150" height="56" rx="7"/>
+    <rect x="366" y="20" width="150" height="56" rx="7"/><rect x="546" y="20" width="148" height="56" rx="7" fill="#e7f5ef" stroke="#047857"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937" font-weight="700">
+    <text x="81" y="44">1. Ler a pasta</text><text x="261" y="44">2. Comparar</text><text x="441" y="44">3. Aplicar</text><text x="620" y="44" fill="#047857">4. Registrar</text>
+  </g>
+  <g text-anchor="middle" fill="#6b7280" font-size="10">
+    <text x="81" y="62">V1, V2, V3…</text><text x="261" y="62">versão e checksum</text><text x="441" y="62">só as pendentes, em ordem</text><text x="620" y="62">flyway_schema_history</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#d1)"><path d="M157 48 H182"/><path d="M337 48 H362"/><path d="M517 48 H542"/></g>
+  <text x="350" y="104" text-anchor="middle" fill="#b45309" font-size="10.5">checksum diferente de uma migração já aplicada: a validação falha e a aplicação não sobe</text>
+</svg>
+<figcaption>O que o Flyway faz a cada subida da aplicação.</figcaption>
+</figure>
+
+<h3>Nome e tipos</h3>
+<p>O nome segue a forma <code>V{versão}__{descrição}.sql</code>: V maiúsculo, versão crescente, <strong>dois</strong> sublinhados e uma descrição com sublinhados no lugar de espaços. Um sublinhado só, como em <code>V2_Create.sql</code>, faz o arquivo não ser reconhecido como migração.</p>
+<table>
+<thead><tr><th style="width:18%">Tipo</th><th style="width:28%">Exemplo</th><th>Quando roda</th></tr></thead>
+<tr><td>Versionada</td><td><code>V3__add_isbn.sql</code></td><td>Uma única vez, na ordem da versão. Usada para tabelas e colunas.</td></tr>
+<tr><td>Repetível</td><td><code>R__views.sql</code></td><td>De novo sempre que o conteúdo muda, depois das versionadas. Usada para views e funções.</td></tr>
+</table>
+
+<h3>Checksum: por que migração aplicada não se edita</h3>
+<p>Ao aplicar uma migração, o Flyway grava na <code>flyway_schema_history</code> a versão, a descrição e um <strong>checksum</strong>: um número calculado a partir do conteúdo do arquivo. Mudou um caractere, muda o checksum. Na subida seguinte, o Flyway recalcula e compara. Se a V2 foi editada depois de aplicada, a validação falha e a aplicação não sobe. Isso não é um defeito: é a proteção que impede bancos diferentes de terem "a mesma V2" com conteúdos diferentes. <strong>Errou? Crie uma versão nova</strong> que corrige.</p>
+
+<h3>ddl-auto=validate: o Hibernate só confere</h3>
+<p>O Hibernate sabe criar e alterar tabelas sozinho, conforme <code>spring.jpa.hibernate.ddl-auto</code>: <code>create</code> e <code>create-drop</code> apagam e recriam o schema a cada subida (protótipos descartáveis); <code>update</code> tenta alterar o schema para bater com as entidades, sem nunca remover colunas e sem gerar migração; <code>validate</code> só compara entidades e tabelas e impede a subida se algo não bate; <code>none</code> não faz nada. O ServiceHub usa <code>validate</code>.</p>
+<p>Com Flyway, quem cria e altera o schema é o Flyway; o Hibernate só valida. A combinação dá um sinal precoce e preciso: mudou a entidade e esqueceu a migração, a subida falha dizendo qual coluna falta.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>"Coloque <code>ddl-auto=update</code> para facilitar" é uma sugestão frequente em código gerado por IA. A aplicação sobe, mas o schema real deixa de ser descrito pelas migrações, e o próximo banco criado do zero (o do teste, o do colega, o de produção) fica diferente.</p></div>
+<p>Como as migrações usam SQL do Postgres (<code>BIGSERIAL</code>, <code>CHECK</code>, <code>ALTER TABLE ... DROP CONSTRAINT</code>), os testes do projeto também usam Postgres real, via Testcontainers, e não um banco em memória como o H2 (ADR-0005).</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+<h2>8. Repository e Data Mapper <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Martin Fowler catalogou formas de ligar objetos ao banco. A pergunta central é: <em>a entidade sabe se gravar, ou outra peça faz isso por ela?</em></p>
+<table>
+<thead><tr><th style="width:17%">Padrão</th><th>Ideia</th><th style="width:28%">Exemplo</th></tr></thead>
+<tr><td>Active Record</td><td>O próprio objeto tem <code>save()</code> e <code>find()</code>; dado, regra e SQL moram juntos. Comum em frameworks como Rails e Laravel.</td><td><code>livro.save()</code></td></tr>
+<tr><td>Data Mapper</td><td>Uma camada separada move dados entre objeto e tabela. A entidade não conhece o banco.</td><td>O Hibernate, por baixo do JPA</td></tr>
+<tr><td>Repository</td><td>Uma interface que parece uma coleção de objetos do domínio, com buscas na linguagem do negócio.</td><td><code>livroRepository.findByIsbn(...)</code></td></tr>
+</table>
+<p>No ServiceHub as duas ideias se somam: o service conversa com um Repository (a interface do Spring Data), e o Hibernate faz o papel de Data Mapper. A entidade <code>User</code> não tem uma linha de SQL. A vantagem aparece nos testes: para testar uma regra do service sem banco, troca-se o repositório por um dublê.</p>
+<h3>Repositórios do Spring Data</h3>
+<p>Você declara uma interface que estende <code>JpaRepository&lt;Entidade, TipoDoId&gt;</code> e ganha <code>save</code>, <code>findById</code>, <code>findAll</code>, <code>findAll(Pageable)</code> e <code>delete</code>. Métodos com nomes no padrão <code>findBy…</code>, <code>existsBy…</code> e <code>countBy…</code> viram consultas derivadas do nome. O que o nome não expressa bem vira <code>@Query</code> em JPQL, sempre com parâmetros (<code>:email</code>).</p>
+<div class="warn"><div class="label">Segurança</div><p>Nunca concatene texto do usuário numa consulta (<code>"... where titulo = '" + q + "'"</code>): é a porta da injeção de SQL.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. DTO: o que sai da API <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um <strong>DTO</strong> (<em>Data Transfer Object</em>, objeto de transferência de dados) só carrega dados entre processos, sem regra de negócio. Fowler o descreve para reduzir chamadas remotas; numa API REST ele tem um papel a mais: separar o <strong>contrato público</strong> do <strong>modelo interno</strong>. A entidade é detalhe de implementação; o DTO é contrato.</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Devolvendo a entidade</h3>
+<pre>@GetMapping("/{id}")
+public Conta buscar(@PathVariable Long id) {
+  return contaService.buscar(id);
+}</pre>
+<p>Sai tudo: hash de senha, saldo, campos internos. E todo campo novo da entidade vira campo público sem ninguém decidir.</p></div>
+<div class="card good"><h3 class="ch">Devolvendo um DTO</h3>
+<pre>public record ContaResponse(
+    String numero, String titular) {
+  static ContaResponse from(Conta c) {
+    return new ContaResponse(
+        c.getNumero(), c.getTitular());
+  }
+}</pre>
+<p>Sai só o que foi escolhido. A entidade pode mudar por dentro sem quebrar quem consome.</p></div>
+</div>
+<p>O DTO também protege na entrada. Se o controller aceitasse a entidade no corpo, o cliente poderia mandar <code>"role": "ADMIN"</code> ou <code>"active": true</code> e o ORM gravaria. Esse ataque se chama <strong>mass assignment</strong> (atribuição em massa). Com um DTO de entrada que simplesmente não tem esses campos, o problema não existe. Expor campos demais e aceitar campos demais são, juntos, o item API3 da lista OWASP de segurança de APIs, assunto da Semana 08.</p>
+<h3>Records como DTO</h3>
+<p style="text-align:left">O <code>record</code> do Java 21 é ótimo para DTO: é imutável, declara os campos numa linha e gera construtor, acessores, <code>equals</code>, <code>hashCode</code> e <code>toString</code>. O custo do DTO é o mapeamento entidade → DTO, que fica no service, dentro da transação (seção 6). Na criação, vale o contrato da Semana 02: <strong>201 Created</strong>, o DTO no corpo e o header <code>Location</code>, escrito <code>ResponseEntity.created(uri).body(dto)</code>.</p>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. Exceções e ProblemDetail <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>Checked e unchecked</h3>
+<p>Uma <strong>exceção</strong> é um objeto que interrompe o fluxo normal e sobe pela pilha de chamadas até alguém tratá-la. Em Java, o ramo da hierarquia decide se o compilador obriga a tratá-la:</p>
+<table>
+<thead><tr><th style="width:24%">Tipo</th><th style="width:22%">Compilador obriga?</th><th style="width:22%">Exemplo</th><th>Quando usar</th></tr></thead>
+<tr><td>Checked (<code>Exception</code>)</td><td>Sim: <code>try/catch</code> ou <code>throws</code></td><td><code>IOException</code></td><td>Falha externa que o chamador pode resolver.</td></tr>
+<tr><td>Unchecked (<code>RuntimeException</code>)</td><td>Não</td><td><code>IllegalArgumentException</code></td><td>Erro de programação ou regra de negócio violada.</td></tr>
+<tr><td><code>Error</code></td><td>Não, e não se trata</td><td><code>OutOfMemoryError</code></td><td>Falha da própria JVM.</td></tr>
+</table>
+<p>Numa API, as exceções de negócio costumam ser unchecked: sobem do service até um tratador global sem encher as assinaturas de <code>throws</code>, e desfazem a transação por padrão. O que <em>não</em> se faz é lançar <code>RuntimeException</code> crua: o tratador não sabe que status dar, e o cliente recebe 500 quando deveria receber 404 ou 409. Crie exceções com nome de domínio.</p>
+<div class="warn"><div class="label">Erro comum em código gerado</div><p><code>catch (Exception e) { }</code> vazio: engole o erro, a transação faz commit do que estiver pela metade e o bug some do log.</p></div>
+
+<h3>Um formato só: ProblemDetail (RFC 9457)</h3>
+<p>Se cada projeto inventa o seu JSON de erro, cada cliente precisa aprender um contrato novo. A <strong>RFC 9457</strong> (<em>Problem Details for HTTP APIs</em>, de 2023, que substitui a RFC 7807) padroniza esse formato, com o tipo de mídia <code>application/problem+json</code>:</p>
+<ul>
+  <li><code>type</code>: URI que identifica o tipo de problema. É estável, e o cliente decide por ele. Na ausência, vale <code>about:blank</code>.</li>
+  <li><code>title</code>: resumo curto para gente ler, igual em todas as ocorrências do mesmo tipo.</li>
+  <li><code>status</code>: o status HTTP, repetido no corpo; <code>detail</code>: a explicação desta ocorrência; <code>instance</code>: a URI desta ocorrência, em geral o caminho chamado.</li>
+</ul>
+<p>A RFC permite <strong>membros de extensão</strong>. O ServiceHub acrescenta <code>timestamp</code> em todos e <code>errors: [{field, message}]</code> nos erros de validação.</p>
+<pre>HTTP/1.1 404 Not Found
+Content-Type: application/problem+json
+
+{ "type": "urn:servicehub:problem:not-found",
+  "title": "Recurso não encontrado",
+  "status": 404,
+  "detail": "Serviço não encontrado: 99",
+  "instance": "/api/v1/services/99",
+  "timestamp": "2026-11-05T17:30:00Z" }</pre>
+
+<h3>Tratamento global com @RestControllerAdvice</h3>
+<p>Em vez de <code>try/catch</code> em cada controller, uma única classe anotada com <code>@RestControllerAdvice</code> traduz exceções em respostas. Cada método <code>@ExceptionHandler(Tipo.class)</code> cuida de um tipo de exceção. O Spring já tem a classe <code>ProblemDetail</code> (desde o Spring Framework 6). Estendendo <code>ResponseEntityExceptionHandler</code>, os erros que o próprio Spring MVC detecta (JSON malformado, método não permitido, tipo de conteúdo não suportado) também saem no mesmo formato.</p>
+<table>
+<thead><tr><th style="width:48%">Situação no ServiceHub</th><th style="width:14%">Status</th><th>type</th></tr></thead>
+<tr><td><code>ResourceNotFoundException</code></td><td>404</td><td><code>…:not-found</code></td></tr>
+<tr><td><code>EmailAlreadyExistsException</code>, <code>BusinessRuleException</code></td><td>409</td><td><code>…:email-already-exists</code>, <code>…:business-rule</code></td></tr>
+<tr><td><code>@Valid</code> reprovou um DTO</td><td>400 + <code>errors</code></td><td><code>…:validation-error</code></td></tr>
+<tr><td>Qualquer outra exceção</td><td>500</td><td><code>…:internal-error</code>, sem stack trace</td></tr>
+</table>
+<p>O 500 nunca mostra stack trace nem mensagem interna (<code>server.error.include-stacktrace=never</code>). O erro real vai só para o log, e o <code>detail</code> pede ao cliente o <code>X-Request-Id</code> para o suporte localizar a ocorrência.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. Paginação <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Tabelas crescem. Uma listagem sem limite um dia devolve milhares de linhas, gasta memória no servidor e trava o cliente. <strong>Paginar</strong> é devolver um pedaço por vez. Há duas formas principais. Na paginação por <strong>offset</strong> (<code>?page=3&amp;size=20</code>), o SQL é <code>ORDER BY id LIMIT 20 OFFSET 60</code>: dá para pular para qualquer página, mas páginas distantes ficam lentas, porque o banco lê e descarta as linhas puladas, e inserções no meio podem repetir ou pular itens. Na paginação por <strong>keyset</strong> ou cursor (<code>?after=120&amp;size=20</code>), o SQL é <code>WHERE id &gt; 120 ORDER BY id LIMIT 20</code>: só existe "a próxima página", mas o custo é o mesmo em qualquer ponto e o resultado é estável.</p>
+<p>Keyset é a escolha para feeds de rolagem infinita e tabelas muito grandes. Para um catálogo, o offset é simples e suficiente; é o que o ServiceHub usa, com o <code>Pageable</code> do Spring Data. Para informar o total de páginas, o Spring Data faz um <code>COUNT</code> extra sozinho.</p>
+<h3>Pageable, teto e formato</h3>
+<p>O controller recebe um <code>Pageable</code> montado a partir de <code>page</code>, <code>size</code> e <code>sort</code> da query string, com padrões dados por <code>@PageableDefault</code>. O repositório devolve um <code>Page&lt;T&gt;</code>, e <code>page.map(...)</code> converte cada entidade no DTO. Duas propriedades fecham o contrato:</p>
+<pre>spring.data.web.pageable.max-page-size=100
+spring.data.web.pageable.serialization-mode=via-dto</pre>
+<ul>
+  <li><strong>Teto de 100:</strong> um <code>size=500</code> devolve 100 itens, nunca erro. O teto é regra de segurança, e não só de desempenho: sem ele, um único pedido pode puxar a tabela inteira e esgotar a memória.</li>
+  <li><strong><code>via-dto</code>:</strong> gera o JSON estável <code>{content, page{size, number, totalElements, totalPages}}</code>, em vez de serializar os detalhes internos da implementação de <code>Page</code>.</li>
+</ul>
+<div class="warn"><div class="label">Pegadinha</div><p>Não adicione <code>@EnableSpringDataWebSupport</code>. No Spring Boot essa anotação desliga a configuração automática de paginação, e o teto de 100 itens some sem aviso.</p></div>
+<p>Outro cuidado: <code>sort</code> aceita qualquer caminho de propriedade da entidade. Sem uma lista de campos permitidos, alguém poderia ordenar por <code>passwordHash</code>. O ServiceHub restringe com o <code>SortGuard</code>.</p>
+
+<!-- 12 -->
+<h2 id="s12">12. Health e o primeiro teste <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<h3>/actuator/health</h3>
+<p>O <strong>Actuator</strong> (starter <code>spring-boot-starter-actuator</code>) expõe endpoints de operação. O mais usado é <code>/actuator/health</code>, que responde <code>{"status":"UP"}</code> e inclui a conexão com o banco: com o Postgres fora do ar, vira <code>DOWN</code>. Ele será usado pelo <code>HEALTHCHECK</code> do Dockerfile (Semana 11), pelo Compose (Semana 12) e pelo CI (Semana 14).</p>
+<h3>@WebMvcTest: só a camada web</h3>
+<p>Um teste de <strong>fatia web</strong> sobe só o que atende HTTP: controllers, o <code>@RestControllerAdvice</code>, a conversão de JSON e a validação. Services e repositórios não são carregados; no lugar do service entra um dublê do Mockito. Sem banco, o teste roda em segundos e prova o contrato da borda: status, formato do erro, campo apontado.</p>
+<p>No Spring Boot 4, o dublê é declarado com <code>@MockitoBean</code> (o antigo <code>@MockBean</code> foi removido), e o pacote do <code>@WebMvcTest</code> mudou para <code>org.springframework.boot.webmvc.test.autoconfigure</code>.</p>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+<h2>13. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Os trechos abaixo são do código real do projeto. Cortes estão marcados como "resumido".</p>
+<h3>Migrações: corrigir para a frente</h3>
+<p>A <code>V2__Create_services_table.sql</code> do projeto nasceu sem <code>updated_at</code>, sem os <code>CHECK</code> e sem o <code>ON DELETE RESTRICT</code> do schema final. Nada foi corrigido editando a V2: a V4 trocou a chave estrangeira, a V6 removeu um índice redundante e a V9 alinhou tudo a <code>docs/alunos/servicehub_schema.sql</code>. A V3 se chama <code>Create_users_table</code> embora só acrescente colunas: migração aplicada não se renomeia.</p>
+<h3>A entidade</h3>
+<p><code>model/ServiceOffering.java</code> (resumido; o nome evita colidir com a anotação <code>@Service</code>):</p>
+<pre>@Data @Entity @Table(name = "services")
+public class ServiceOffering {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ServiceCategory category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "provider_id", nullable = false)
+    private User provider;
+    @Column(name = "is_active")
+    private boolean active = true;
+    // title, description, createdAt, updatedAt e callbacks omitidos
+}</pre>
+<p>Repare: <code>BigDecimal</code> para dinheiro (nunca <code>double</code>), <code>EnumType.STRING</code>, LAZY no prestador e <code>name = "is_active"</code> porque coluna e atributo têm nomes diferentes.</p>
+<h3>Repositório e service</h3>
+<p style="text-align:left">O <code>ServiceOfferingRepository</code> sobrescreve <code>findAll(Specification, Pageable)</code> com <code>@EntityGraph(attributePaths = "provider")</code>. No <code>ServiceOfferingService</code>, a classe toda é <code>@Transactional</code> e a busca é <code>@Transactional(readOnly = true)</code>; ela devolve <code>repository.findAll(spec, pageable).map(this::toResponseDTO)</code>, ou seja, o DTO é montado dentro da transação.</p>
+<p>O <code>toResponseDTO</code> lê <code>service.getProvider().getFullName()</code>. Com <code>open-in-view=false</code>, isso só funciona dentro do método transacional, e só não gera N+1 graças ao <code>@EntityGraph</code>. O SQL sai pelo logger <code>org.hibernate.SQL</code>, e não por <code>show-sql</code>, para cada linha levar o id da requisição.</p>
+<h3>Erros e teste</h3>
+<p style="text-align:left">O <code>GlobalExceptionHandler</code> estende <code>ResponseEntityExceptionHandler</code> e tem um <code>@ExceptionHandler</code> por exceção de domínio; os <code>type</code> ficam num lugar só, a classe <code>ProblemTypes</code>, como <code>URI.create("urn:servicehub:problem:not-found")</code>. O último handler, para <code>Exception</code>, registra o erro no log e responde 500 com o <code>detail</code> "Erro interno. Informe o X-Request-Id ao suporte." A decisão está na ADR-0004.</p>
+<p style="text-align:left">O teste de fatia web <code>ServiceOfferingControllerTest</code> é anotado com <code>@WebMvcTest(ServiceOfferingController.class)</code> e <code>@AutoConfigureMockMvc(addFilters = false)</code> (os filtros de segurança só chegam na Semana 08) e declara <code>@MockitoBean ServiceOfferingService service</code>. O caso <code>deveRetornar400QuandoPrecoZero</code> faz <code>POST /api/v1/services</code> com preço 0 e espera <code>status().isBadRequest()</code> e <code>jsonPath("$.errors[0].field").value("price")</code>. Outro caso envia a categoria <code>INVALIDA</code> e confere que o <code>detail</code> lista as categorias aceitas.</p>
+</section>
+
+<!-- 14 -->
+<section class="page" id="s14">
+<h2>14. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ul>
+  <li><strong>Especificar:</strong> entregue o trecho exato de <code>servicehub_schema.sql</code> e o contrato (rota, status, formato da página).</li>
+  <li><strong>Gerar:</strong> plano primeiro (arquivos, migração, colunas e tipos); depois o código, migração antes de Java.</li>
+  <li><strong>Revisar:</strong> leia o diff da migração antes do Java; confira coluna por coluna, <code>jakarta</code> e <code>EnumType.STRING</code>.</li>
+  <li><strong>Provar:</strong> a aplicação sobe com <code>validate</code> no Postgres do Compose e uma chamada real devolve a página do Mapa.</li>
+</ul>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>cria a entidade de serviços com JPA e o CRUD</pre><p>A IA escolhe colunas, tipos e versões. Costuma vir <code>ddl-auto=update</code> e a entidade na resposta.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Diz qual migração criar e a partir de que arquivo, proíbe editar as existentes, pede plano e termina com um aceite verificável. Está completo logo abaixo.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Ponto de partida: a <code>etapa-1</code> (com o <code>InfoController</code>) mais o primeiro passo da aula: starters de persistência no <code>pom.xml</code>, Postgres no Compose, <code>V1__Create_users_table.sql</code> e a entidade <code>User</code>.</p>
+<pre style="break-inside:auto">Contexto: API ServiceHub, Java 21, Spring Boot 4.1, pacote base
+com.servicehub; starters webmvc, data-jpa, flyway (+ flyway-database-
+postgresql), validation e actuator; PostgreSQL 16 no Compose em
+localhost:5433. Já existem V1__Create_users_table.sql e a entidade User.
+Schema final: docs/alunos/servicehub_schema.sql (anexo a tabela services).
+
+Objetivo: tabela services e listagem pública paginada GET /api/v1/services.
+
+Entregáveis:
+1. db/migration/V2__Create_services_table.sql igual à tabela services
+   do schema (tipos, NOT NULL, DEFAULT, CHECKs, FK RESTRICT, índices).
+2. Enum ServiceCategory com os 21 valores do CHECK, mesma grafia.
+3. Entidade ServiceOffering em com.servicehub.model.
+4. ServiceOfferingRepository com @EntityGraph no prestador (sem N+1).
+5. Record ServiceOfferingResponse: id, title, description, price,
+   category, active, providerId, providerName, createdAt, updatedAt.
+6. Service @Transactional(readOnly = true) que monta o record dentro
+   da transação; controller com @PageableDefault(size = 20).
+
+Restrições:
+- NÃO edite nem renomeie a V1. Só crie a V2. SQL do PostgreSQL.
+- ddl-auto continua validate (nunca update); open-in-view=false.
+- jakarta.persistence, nunca javax. @Enumerated(EnumType.STRING).
+- price é BigDecimal; @ManyToOne(fetch = LAZY) para o prestador.
+- O controller NUNCA devolve a entidade; só o record.
+- Paginação: max-page-size=100 e serialization-mode=via-dto nas
+  propriedades. NÃO use @EnableSpringDataWebSupport.
+- Sem endpoints de escrita neste passo.
+
+Antes do código, mostre um plano: arquivos, o SQL da V2 e o
+mapeamento coluna a coluna (coluna, tipo SQL, atributo, tipo Java).
+Espere minha aprovação.
+
+Critério de aceite: a aplicação sobe sem erro de validação do
+Hibernate, o log do Flyway mostra a versão 2 aplicada e
+GET /api/v1/services responde 200 com página vazia:
+{"content":[],"page":{"size":20,"number":0,
+ "totalElements":0,"totalPages":0}}</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li>Sugerir <code>ddl-auto=update</code> "para facilitar", ou editar a V1 em vez de criar uma versão nova.</li>
+  <li>Código de Boot antigo (<code>javax.persistence</code>, <code>@MockBean</code>, <code>flyway-core</code> sem starter) ou <code>@EnableSpringDataWebSupport</code>, que desliga o teto de 100.</li>
+  <li>Nome de coluna divergente da migração, às vezes com um espaço invisível (<code>" provider_id"</code>), <code>EnumType.ORDINAL</code> ou <code>double</code> no preço.</li>
+  <li>Controller devolvendo a entidade, sem paginação, ou DTO montado fora da transação.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>A V1 está intacta no <code>git diff</code>? Só a V2 é nova?</li>
+  <li>Cada coluna da V2 bate com o schema dos alunos e com um atributo da entidade?</li>
+  <li>O controller devolve o record, e não a entidade?</li>
+  <li>As três propriedades de paginação e o <code>open-in-view=false</code> estão no <code>application.properties</code>?</li>
+</ul>
+<h3>Prova</h3>
+<pre>docker compose up -d postgres
+mvnw.cmd spring-boot:run
+curl -i http://localhost:8080/api/v1/services
+curl -i "http://localhost:8080/api/v1/services?size=500"</pre>
+<p>Esperado: 200 com a página vazia do aceite e <code>"size":100</code> na segunda chamada; no <code>psql</code>, <code>flyway_schema_history</code> lista as duas migrações.</p>
+</section>
+
+<!-- 15 -->
+<section class="page" id="s15">
+<h2>15. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Impedância objeto-relacional</dt><dd>Diferença entre o modelo de objetos e o modelo relacional, que exige tradução.</dd>
+  <dt>ORM</dt><dd>Ferramenta que mapeia classes para tabelas e gera o SQL de leitura e gravação.</dd>
+  <dt>JPA</dt><dd>Jakarta Persistence: especificação de anotações e interfaces de persistência em Java.</dd>
+  <dt>Contexto de persistência</dt><dd>Conjunto de entidades gerenciadas numa transação, com uma instância por id.</dd>
+  <dt>Dirty checking</dt><dd>Comparação automática que transforma mudanças em entidades gerenciadas em <code>UPDATE</code>.</dd>
+  <dt>LAZY / EAGER</dt><dd>Estratégias de carga de uma associação: sob demanda ou sempre junto.</dd>
+  <dt>N+1</dt><dd>Uma consulta para a lista e mais uma para cada item, ao acessar associações LAZY.</dd>
+  <dt>Transação</dt><dd>Grupo de operações tratado como unidade, com as garantias ACID.</dd>
+  <dt>Migração</dt><dd>Script versionado que leva o schema de uma versão à seguinte.</dd>
+  <dt>Checksum</dt><dd>Número calculado do conteúdo de um arquivo; muda se o arquivo muda.</dd>
+  <dt>Repository</dt><dd>Interface que se comporta como coleção de objetos do domínio.</dd>
+  <dt>DTO</dt><dd>Objeto só com dados, que atravessa a fronteira da API no lugar da entidade.</dd>
+  <dt>Mass assignment</dt><dd>Ataque em que o cliente envia campos que não deveria poder definir.</dd>
+  <dt>ProblemDetail</dt><dd>Formato padronizado de erro HTTP da RFC 9457 (<code>application/problem+json</code>).</dd>
+</dl>
+
+<!-- 16 -->
+<h2 id="s16">16. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Explique a diferença entre JPA e Hibernate. Por que o código das entidades importa <code>jakarta.persistence</code> e não <code>org.hibernate</code>?</li>
+  <li>Num método <code>@Transactional</code>, o código busca um serviço com <code>findById</code>, muda o preço e termina sem chamar <code>save()</code>. O preço é gravado? Explique usando os termos "managed" e "dirty checking". E se o mesmo objeto fosse alterado depois do fim da transação?</li>
+  <li>Uma listagem de 50 ordens mostra o nome do cliente de cada uma, e o log mostra 51 <code>SELECT</code>s. Dê o nome do problema, a causa e duas formas de corrigi-lo.</li>
+  <li>Um colega editou a <code>V2__Create_services_table.sql</code>, já aplicada, para acrescentar a coluna <code>updated_at</code>. O que acontece na próxima subida e qual é a correção certa?</li>
+  <li>Compare <code>ddl-auto=update</code> e <code>ddl-auto=validate</code> num projeto com Flyway. Por que o ServiceHub usa <code>validate</code>?</li>
+  <li>O enum <code>Situacao</code> tem <code>DISPONIVEL, EMPRESTADO</code> e é mapeado com <code>EnumType.ORDINAL</code>. Alguém insere <code>RESERVADO</code> entre os dois. O que acontece com as linhas já gravadas?</li>
+  <li>Analise o código: <code>@GetMapping("/{id}") public User buscar(@PathVariable Long id) { return repo.findById(id).orElseThrow(() -&gt; new RuntimeException("não achei")); }</code>. Aponte três problemas em relação ao contrato do ServiceHub e reescreva em linhas gerais.</li>
+  <li>Por que, no ServiceHub, as exceções de negócio estendem <code>RuntimeException</code>? Relacione com o comportamento padrão de rollback do <code>@Transactional</code>.</li>
+  <li>Monte o corpo ProblemDetail que a API deve devolver para <code>POST /api/v1/services</code> com <code>"price": 0</code>. Indique status, <code>type</code> e o conteúdo de <code>errors</code>.</li>
+  <li>Um cliente pede <code>GET /api/v1/services?size=500</code>. O que a API responde e por que esse teto é uma regra de segurança? Que anotação, se adicionada, faria o teto sumir?</li>
+  <li>Escreva um prompt, seguindo o formato da seção 14, para pedir à IA a migração e a entidade da tabela <code>reviews</code>. Inclua pelo menos três restrições e um critério de aceite verificável.</li>
+</ol>
+
+<!-- 17 -->
+<h2 id="s17">17. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>RODRIGUES, T. N. et al. <em>Integração de aplicações</em>. Grupo A, 2020. Capítulo "Servidores de aplicação JPA".</li>
+  <li>MACHADO, R. P.; FRANCO, M. H. I.; BERTAGNOLLI, S. C. <em>Desenvolvimento de software III: programação de sistemas web orientada a objetos em Java</em>. Bookman (Tekne), 2016. Capítulo 4.</li>
+  <li>FOWLER, M. <em>Padrões de arquitetura de aplicações corporativas</em>. Bookman, 2006. Capítulos 3 (mapeamento para bancos de dados relacionais) e 10 (padrões de fonte de dados: Active Record e Data Mapper).</li>
+  <li>SCHILDT, H. <em>Java para iniciantes</em>. 6. ed. Bookman. Capítulo 9 (exceções).</li>
+  <li>MARTIN, R. C. <em>Código limpo</em>. Alta Books, 2009. Capítulo 7 (tratamento de erros).</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>IETF. RFC 9457: <em>Problem Details for HTTP APIs</em>. 2023. Leia até a seção 3 (os membros do objeto).</li>
+  <li>Documentação oficial do Spring Data JPA: <code>spring.io/projects/spring-data-jpa</code>.</li>
+  <li>Documentação oficial do Flyway: <code>flywaydb.org</code>.</li>
+  <li>Documentação oficial do Spring Boot, capítulos de acesso a dados e Actuator: <code>docs.spring.io/spring-boot</code>.</li>
+</ul>
+</section>
+
+</body>
+</html>

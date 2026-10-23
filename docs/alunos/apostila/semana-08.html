@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 08 — Segurança: validação, senhas e OWASP</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 08 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 08<br>Segurança: validação, senhas e OWASP</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Depois da 1ª VA, a API ganha defesas. Toda entrada é suspeita e todo id pode ser trocado por outro: um cliente curioso que muda <code>/service-requests/31</code> para <code>/32</code> não deveria ver a ordem de outra pessoa. Esta apostila apresenta o vocabulário da segurança (pilares, ameaças, autenticação e autorização, hash), as defesas na entrada (validação, senha com BCrypt, consulta parametrizada, escape de HTML), a política de mesma origem e o CORS, o OWASP API Security Top 10 e a cadeia de filtros do Spring Security 7. O login com JWT e os papéis ficam para a Semana 09.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">O vocabulário da segurança</a></li>
+      <li><a href="#s3">Autenticação e autorização</a></li>
+      <li><a href="#s4">Superfície de ataque e ameaças</a></li>
+      <li><a href="#s5">Codificação, criptografia e hash</a></li>
+      <li><a href="#s6">Validação de entrada</a></li>
+      <li><a href="#s7">Injeção de SQL</a></li>
+      <li><a href="#s8">XSS e escape de saída</a></li>
+      <li><a href="#s9">Mesma origem e CORS</a></li>
+      <li><a href="#s10">OWASP API Security Top 10</a></li>
+      <li><a href="#s11">A cadeia de filtros do Spring Security</a></li>
+      <li><a href="#s12">Aplicação no ServiceHub</a></li>
+      <li><a href="#s13">Construindo com IA</a></li>
+      <li><a href="#s14">Glossário</a></li>
+      <li><a href="#s15">Exercícios</a></li>
+      <li><a href="#s16">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>usar os pilares confidencialidade, integridade e disponibilidade e as quatro perguntas da modelagem de ameaças para analisar uma funcionalidade;</li>
+  <li>diferenciar codificação, criptografia e hash, e explicar por que a senha se guarda com um hash lento e com sal (BCrypt);</li>
+  <li>validar a entrada com lista branca e Bean Validation, devolvendo 400 em ProblemDetail com <code>errors[]</code>;</li>
+  <li>distinguir as defesas contra injeção de SQL, XSS e mass assignment, e explicar a política de mesma origem e o CORS;</li>
+  <li>relacionar os itens do OWASP API Security Top 10 ao código do ServiceHub e à cadeia de filtros do Spring Security 7.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. O vocabulário da segurança <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Antes de qualquer configuração, é preciso saber o que proteger, de quem e com qual ferramenta. Sem esse vocabulário, a configuração de segurança vira receita copiada, e receita copiada protege o domínio de outra pessoa.</p>
+<h3>Os três pilares: CID</h3>
+<p>A análise de segurança parte de três propriedades, conhecidas pela sigla <strong>CID</strong> (em inglês, <em>CIA triad</em>). Para cada dado ou funcionalidade, pergunte qual dos três pilares está em risco.</p>
+<table>
+<thead><tr><th style="width:18%">Pilar</th><th style="width:27%">Significa</th><th style="width:27%">Exemplo geral</th><th>No ServiceHub</th></tr></thead>
+<tr><td>Confidencialidade</td><td>Só quem tem permissão lê o dado.</td><td>O extrato do banco só aparece para o titular.</td><td>O hash da senha nunca sai na resposta; ninguém vê a ordem alheia.</td></tr>
+<tr><td>Integridade</td><td>O dado só muda por quem pode, do jeito previsto.</td><td>Ninguém altera o valor de uma transferência no caminho.</td><td>Só o prestador aceita a ordem; o preço é congelado na criação (RN07).</td></tr>
+<tr><td>Disponibilidade</td><td>O sistema responde quando o usuário legítimo precisa.</td><td>O site de vendas não cai num dia de promoção.</td><td>Página com no máximo 100 itens; healthcheck no container.</td></tr>
+</table>
+<p>Cada pilar tem um ataque típico: vazamento (confidencialidade), adulteração (integridade) e derrubada por excesso de requisições (disponibilidade).</p>
+
+<h3>Engenharia de segurança: requisito desde o início</h3>
+<p>Segurança é um atributo de qualidade, como desempenho: não se acrescenta no fim. A <strong>engenharia de segurança</strong> trata a segurança em todo o ciclo de vida do software. Nos <em>requisitos</em>, define-se quem pode o quê e o que é sigiloso. Na análise de <em>ameaças</em>, pergunta-se o que pode dar errado e quanto custa. No <em>projeto</em>, escolhem-se e registram-se as defesas. Nos <em>testes</em>, cada ataque imaginado vira um teste que o tenta. Corrigir uma falha de projeto depois do sistema pronto custa muito mais do que evitá-la no requisito.</p>
+<div class="note"><div class="label">No ServiceHub</div><p>As regras RN do Mapa são os requisitos de segurança; os ADRs registram as decisões; os testes de integração provam cada uma. A IA ajuda a escrever código e testes, mas não sabe quem é dono de quê no seu domínio: requisitos e ameaças dependem da equipe.</p></div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+<h2>3. Autenticação e autorização <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>São duas perguntas diferentes, feitas nesta ordem. <strong>Autenticação</strong> pergunta "quem é você?" e é respondida com algo que a pessoa sabe (senha), tem (um token, um celular) ou é (digital). <strong>Autorização</strong> pergunta "o que você pode fazer?" e só faz sentido depois de saber quem é.</p>
+<table>
+<thead><tr><th style="width:18%"></th><th>Autenticação</th><th>Autorização</th></tr></thead>
+<tr><td>Pergunta</td><td>Quem é você?</td><td>O que você pode fazer?</td></tr>
+<tr><td>Prova</td><td>Senha, token, digital</td><td>Papel, dono do recurso, regra de negócio</td></tr>
+<tr><td>Falhou</td><td>401 Unauthorized</td><td>403 Forbidden</td></tr>
+<tr><td>ServiceHub</td><td>Login com e-mail e senha; token nas demais chamadas</td><td>ADMIN lista usuários; só o dono edita o serviço</td></tr>
+</table>
+<div class="note"><div class="label">Analogia</div><p>No aeroporto, o documento de identidade prova quem você é (autenticação). O cartão de embarque diz em qual voo você pode entrar (autorização). Ter documento válido não dá direito a embarcar em qualquer avião.</p></div>
+<div class="warn"><div class="label">Nome confuso</div><p>O status 401 se chama "Unauthorized", mas significa <em>não autenticado</em>. É um nome histórico. Erro comum em código gerado por IA: devolver 403 quando o token está ausente, ou 401 quando falta permissão.</p></div>
+
+<!-- 4 -->
+<h2 id="s4">4. Superfície de ataque e modelagem de ameaças <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A <strong>superfície de ataque</strong> é o conjunto de pontos por onde um atacante pode enviar dados ou acionar o sistema. Numa API, cada rota, cada parâmetro de query, cada campo do corpo, cada cabeçalho e cada porta aberta fazem parte dela. Quanto menor a superfície, menos há para defender. No ServiceHub, ela é reduzida assim: rotas públicas são só as listadas no Mapa; o Actuator, exceto o <em>health</em>, é restrito a ADMIN; o banco não tem porta exposta em produção.</p>
+<p>A <strong>modelagem de ameaças</strong> é pensar no ataque antes de escrever a defesa. Um roteiro simples usa quatro perguntas:</p>
+<ol>
+  <li><strong>O que estamos construindo?</strong> Por exemplo: a consulta de uma ordem de serviço por id.</li>
+  <li><strong>O que pode dar errado?</strong> Um cliente pode ver a ordem de outro trocando o id.</li>
+  <li><strong>O que vamos fazer a respeito?</strong> Checar no Service se quem pede participa da ordem.</li>
+  <li><strong>Fizemos um bom trabalho?</strong> Um teste com dois usuários prova que o segundo recebe 403.</li>
+</ol>
+<p>Para a pergunta 2, um roteiro clássico é o <strong>STRIDE</strong>, sigla em inglês de seis categorias de ameaça: falsificação de identidade (usar o token roubado de outra pessoa), adulteração (mandar <code>"price": 1</code> ao abrir uma ordem), repúdio (negar que cancelou uma ordem, sem log que prove), vazamento de informação (stack trace com nomes de tabelas na resposta), negação de serviço (pedir <code>size=1000000</code>) e elevação de privilégio (cadastrar-se com <code>"role": "ADMIN"</code>). Cada categoria se liga a um dos pilares CID ou a uma das duas perguntas da seção 3.</p>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+<h2>5. Codificação, criptografia e hash <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Três técnicas transformam dados, e só duas protegem. Confundi-las é um dos erros mais caros em segurança.</p>
+<table>
+<thead><tr><th style="width:16%"></th><th>Codificação</th><th>Criptografia</th><th>Hash</th></tr></thead>
+<tr><td>Para quê</td><td>Representar o dado em outro formato</td><td>Esconder o dado de quem não tem a chave</td><td>Gerar uma impressão digital do dado</td></tr>
+<tr><td>Volta?</td><td>Sim, qualquer um, sem chave</td><td>Sim, com a chave certa</td><td>Não: é de mão única</td></tr>
+<tr><td>Protege?</td><td>Não</td><td>Sim, enquanto a chave for secreta</td><td>Sim, para conferir sem guardar o original</td></tr>
+<tr><td>Exemplos</td><td>Base64, URL encoding, UTF-8</td><td>AES, TLS (o S do HTTPS)</td><td>SHA-256; para senha, BCrypt</td></tr>
+<tr><td>ServiceHub</td><td>Partes do JWT (Semana 09)</td><td>HTTPS em produção</td><td><code>password_hash</code> na tabela <code>users</code></td></tr>
+</table>
+<p>A senha se guarda com hash. No cadastro, calcula-se o hash e grava-se só ele. No login, calcula-se o hash do que foi digitado e compara-se com o gravado. Ninguém, nem o administrador do banco, consegue ler a senha original.</p>
+<div class="warn"><div class="label">Erros comuns em tutoriais</div><p>"Criptografar a senha com Base64": Base64 é só codificação, e qualquer navegador a desfaz com <code>atob()</code>. Guardar a senha com criptografia reversível também é erro: se a chave vazar, vazam todas as senhas de uma vez.</p></div>
+
+<h3>Hash de senha: lento e com sal</h3>
+<p>Pense no ataque. O banco vaza. O atacante não "reverte" o hash, porque isso é impossível; ele chuta senhas comuns, calcula o hash de cada uma e compara. Com um hash rápido, como MD5 ou SHA-256, uma placa de vídeo testa um dicionário inteiro em pouco tempo. Duas defesas mudam o jogo:</p>
+<ul>
+  <li><strong>Sal:</strong> um valor aleatório, diferente para cada usuário, misturado à senha antes do hash. Duas pessoas com a senha <code>Senha123</code> ganham hashes diferentes, e tabelas de hashes pré-calculados deixam de servir.</li>
+  <li><strong>Lentidão com custo:</strong> o BCrypt repete o cálculo 2<sup>custo</sup> vezes. Cada +1 no custo dobra o tempo. Para um login, o atraso é de uma fração de segundo; para quem chuta milhões de senhas, o ataque fica inviável.</li>
+</ul>
+<pre>$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+└┬┘└┬┘└────────── sal (22) ─────────┘└──────── hash (31) ───────┘
+versão custo                     60 caracteres no total</pre>
+<p>O sal e o custo ficam dentro do próprio hash: não há coluna separada para eles. O <code>BCryptPasswordEncoder</code> do Spring usa custo 10 por padrão. Hash rápido é ótimo para conferir a integridade de arquivos e péssimo para senha: aqui, a lentidão é a defesa. A documentação do Spring Security também oferece Argon2, SCrypt e PBKDF2.</p>
+<div class="note"><div class="label">Limite do BCrypt</div><p>O BCrypt considera só os primeiros 72 bytes da senha. Por isso o cadastro limita a senha a 72 caracteres. Repare que o limite é em bytes: em UTF-8, uma letra acentuada ocupa mais de um byte.</p></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. Validação de entrada <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Três ideias distintas aparecem juntas nesta semana e costumam ser misturadas. <strong>Validar</strong> rejeita o que está errado (um e-mail sem arroba). <strong>Sanitizar</strong> neutraliza o que é perigoso (uma tag <code>&lt;script&gt;</code> numa descrição). E senha não se guarda: guarda-se o <strong>hash</strong>.</p>
+<h3>Lista branca, não lista negra</h3>
+<p>Validar é verificar tipo, tamanho, formato e intervalo na fronteira da API, antes de qualquer regra de negócio. Há dois jeitos de escrever a regra:</p>
+<table>
+<thead><tr><th style="width:16%"></th><th>Lista negra (bloqueia o ruim)</th><th>Lista branca (aceita só o bom)</th></tr></thead>
+<tr><td>Regra</td><td>Rejeita o que parece ataque</td><td>Aceita só o que está no formato esperado</td></tr>
+<tr><td>Exemplo</td><td>Proibir <code>"&lt;script&gt;"</code> e <code>"DROP"</code></td><td><code>role</code> ∈ {CLIENT, PROVIDER}; preço &gt; 0</td></tr>
+<tr><td>Falha quando</td><td>O atacante escreve de outro jeito: <code>&lt;ScRiPt&gt;</code>, <code>&lt;img onerror=…&gt;</code></td><td>A regra está errada, e aí o erro é visível</td></tr>
+<tr><td>Manutenção</td><td>Corrida sem fim contra novas variantes</td><td>Muda só quando o domínio muda</td></tr>
+</table>
+<p>Prefira a lista branca sempre que o conjunto válido for conhecido. Um CEP brasileiro tem oito dígitos: essa é a lista branca. Um e-mail mostra que nem sempre o formato é simples, e por isso usamos a validação pronta <code>@Email</code> em vez de inventar uma expressão regular. No ServiceHub, a lista branca aparece em três lugares: Bean Validation nos DTOs, enums (categoria, papel, status) e o <code>SortGuard</code> no <code>?sort=</code>.</p>
+
+<h3>Bean Validation: a regra mora no DTO</h3>
+<p>A <strong>Bean Validation</strong> (Jakarta Validation) é uma especificação que declara regras por anotações nos campos: <code>@NotBlank</code>, <code>@Email</code>, <code>@Size</code>, <code>@Pattern</code>, <code>@DecimalMin</code>, <code>@Future</code>. No Spring Boot 4 ela vem com o <code>spring-boot-starter-validation</code>. As anotações não fazem nada sozinhas: é o <code>@Valid</code> no parâmetro do controller que dispara a validação.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 92" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="v1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.4"><rect x="4" y="14" width="150" height="56" rx="8"/><rect x="186" y="14" width="150" height="56" rx="8"/><rect x="368" y="14" width="150" height="56" rx="8"/></g>
+  <rect x="550" y="14" width="146" height="56" rx="8" fill="#fdf3e6" stroke="#b45309" stroke-width="1.4"/>
+  <g text-anchor="middle" font-weight="700" fill="#1f2937"><text x="79" y="38">@Valid</text><text x="261" y="38">Falha</text><text x="443" y="38">Handler</text><text x="623" y="38" fill="#b45309">400</text></g>
+  <g text-anchor="middle" fill="#6b7280" font-size="9.8"><text x="79" y="56">dispara a validação</text><text x="261" y="56">MethodArgumentNotValid…</text><text x="443" y="56">monta o ProblemDetail</text><text x="623" y="56">errors: [{field, message}]</text></g>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#v1)"><path d="M155 42 H182"/><path d="M337 42 H364"/><path d="M519 42 H546"/></g>
+  <text x="350" y="88" text-anchor="middle" fill="#6b7280" font-size="10">o dado inválido nem chega ao Service</text>
+</svg>
+<figcaption>Do <code>@Valid</code> ao 400: o mesmo contrato de erro da Semana 04, agora com a lista <code>errors</code>.</figcaption>
+</figure>
+<pre>POST /api/v1/auth/register
+{ "email": "maria", "role": "ADMIN", ... }
+
+400 · application/problem+json
+{
+  "type": "urn:servicehub:problem:validation-error",
+  "title": "Dados inválidos",
+  "status": 400,
+  "errors": [
+    { "field": "email", "message": "E-mail inválido" },
+    { "field": "role",  "message": "O papel deve ser CLIENT ou PROVIDER" }
+  ]
+}   (resumido: o handler também envia detail, instance e timestamp)</pre>
+<p>O front-end usa <code>field</code> para marcar o campo certo no formulário, e por isso as mensagens são escritas para quem usa a API, em português.</p>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+<h2>7. Injeção de SQL e consulta parametrizada <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>Injeção</strong> acontece quando texto vindo do usuário é montado dentro de um comando (SQL, shell, LDAP) e passa a ser interpretado como parte do comando. O dado vira código.</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Concatenado: vulnerável</h3>
+<pre>String sql = "SELECT * FROM users"
+  + " WHERE email = '" + email + "'";
+// email = ' OR '1'='1
+// WHERE email = '' OR '1'='1'
+// devolve todos os usuários</pre></div>
+<div class="card good"><h3 class="ch">Parametrizado: seguro</h3>
+<pre>PreparedStatement ps = conn.prepareStatement(
+  "SELECT * FROM users WHERE email = ?");
+ps.setString(1, email);
+// comando e valor viajam separados:
+// o valor nunca é interpretado como SQL</pre></div>
+</div>
+<p>A defesa é separar código de dado. Escapar aspas à mão não é defesa confiável. No Spring Data, a consulta derivada (<code>findByEmail</code>), a <code>@Query</code> com <code>:parametro</code> e a <code>Specification</code> geram consultas parametrizadas. O risco volta quando alguém concatena texto numa <code>@Query</code> nativa ou em <code>createQuery</code>.</p>
+<div class="warn"><div class="label">Detalhe do LIKE</div><p>Mesmo parametrizado, no <code>LIKE</code> os caracteres <code>%</code> e <code>_</code> continuam sendo curingas. Uma busca por <code>%</code> traria tudo. Por isso, no ServiceHub, o filtro de título escapa <code>%</code> e <code>_</code> antes de montar o padrão.</p></div>
+
+<!-- 8 -->
+<h2 id="s8">8. XSS e escape de saída <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><strong>XSS</strong> (<em>Cross-Site Scripting</em>) é fazer o navegador da vítima executar um script do atacante. No tipo <strong>armazenado</strong>, o script fica gravado no banco e atinge todo mundo que abre a página: um prestador grava <code>&lt;script&gt;…&lt;/script&gt;</code> na descrição do serviço, a API guarda o texto como veio, o front-end insere o texto como HTML e o script roda no navegador de cada cliente, com a sessão dele. No tipo <strong>refletido</strong>, o script vem num link e a resposta o devolve na hora.</p>
+<p>A defesa clássica é o <strong>escape de saída</strong>: trocar <code>&lt; &gt; &amp; " '</code> por entidades HTML (<code>&amp;lt;</code>, <code>&amp;gt;</code>…), para o navegador <em>mostrar</em> o texto em vez de executá-lo. A regra geral é escapar na saída, conforme o contexto (HTML, atributo, JavaScript, URL); bibliotecas de front-end modernas já escapam por padrão. Como a API não sabe qual front-end vai exibir o texto, o ServiceHub escapa também ao gravar o texto livre: é <strong>defesa em profundidade</strong>, várias camadas independentes.</p>
+<table>
+<thead><tr><th style="width:50%">Entra</th><th>É gravado</th></tr></thead>
+<tr><td><code>&lt;b&gt;Pintura&lt;/b&gt;</code></td><td><code>&amp;lt;b&amp;gt;Pintura&amp;lt;/b&amp;gt;</code></td></tr>
+<tr><td><code>Instalação elétrica</code></td><td><code>Instalação elétrica</code> (acentos intactos)</td></tr>
+</table>
+<div class="warn"><div class="label">Escape que estraga acentos</div><p>Algumas bibliotecas de escape, muito citadas em tutoriais, trocam também as letras acentuadas por entidades: "é" vira <code>&amp;eacute;</code>. O texto fica ilegível para quem não renderiza HTML, como um aplicativo de celular. Com <code>HtmlUtils.htmlEscape(texto, "UTF-8")</code>, do Spring, só os cinco caracteres de marcação são trocados.</p></div>
+
+<h3>Cada defesa cobre um ataque diferente</h3>
+<table>
+<thead><tr><th style="width:18%">Defesa</th><th style="width:26%">Contra</th><th>No ServiceHub</th></tr></thead>
+<tr><td>Validar</td><td>Dado malformado</td><td>Bean Validation nos DTOs, 400 com <code>errors</code></td></tr>
+<tr><td>Sanitizar</td><td>XSS armazenado</td><td><code>TextSanitizer</code> no texto livre</td></tr>
+<tr><td>Parametrizar</td><td>Injeção de SQL</td><td>Spring Data e Specification; LIKE escapa <code>%</code> e <code>_</code></td></tr>
+<tr><td>Lista branca</td><td>Campo arbitrário</td><td><code>SortGuard</code> no <code>?sort=</code>; papéis fixos no cadastro</td></tr>
+</table>
+<p>Escapar HTML não impede injeção de SQL, e consulta parametrizada não impede XSS. Uma defesa não substitui a outra.</p>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Mesma origem e CORS <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A <strong>origem</strong> de uma página é a combinação de <strong>esquema + host + porta</strong>. Pela <strong>política de mesma origem</strong> (<em>same-origin policy</em>), o JavaScript de uma página só lê respostas da própria origem. Isso impede que um site malicioso aberto numa aba leia os dados de outro site em que você está logado.</p>
+<table>
+<thead><tr><th style="width:44%">Página em <code>http://localhost:5173</code> chama…</th><th style="width:18%">Mesma origem?</th><th>Por quê</th></tr></thead>
+<tr><td><code>http://localhost:5173/api</code></td><td>Sim</td><td>Tudo igual</td></tr>
+<tr><td><code>http://localhost:8090/api/v1</code></td><td>Não</td><td>Porta diferente</td></tr>
+<tr><td><code>https://localhost:5173</code></td><td>Não</td><td>Esquema diferente</td></tr>
+<tr><td><code>http://127.0.0.1:5173</code></td><td>Não</td><td>Host diferente, mesmo sendo a mesma máquina</td></tr>
+</table>
+<p><strong>CORS</strong> (<em>Cross-Origin Resource Sharing</em>) é o mecanismo pelo qual o servidor diz ao navegador: "esta outra origem pode ler minhas respostas". Quem aplica a regra é o <em>navegador</em>, não o servidor. Por isso <code>curl</code> e Postman não têm CORS, e por isso CORS não é autenticação: ele não impede ninguém de chamar a API, só controla o que o JavaScript de outra origem pode ler.</p>
+<h3>O preflight</h3>
+<p>Quando a requisição não é "simples", por exemplo quando leva JSON no corpo ou o cabeçalho <code>Authorization</code>, o navegador primeiro envia sozinho uma pergunta prévia, o <strong>preflight</strong>: um <code>OPTIONS</code> que diz a origem, o método e os cabeçalhos pretendidos.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 190" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+  <defs><marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+  <marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <rect x="40" y="6" width="180" height="30" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <rect x="480" y="6" width="180" height="30" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <text x="130" y="26" text-anchor="middle" font-weight="700" fill="#1f2937">Navegador (localhost:5173)</text>
+  <text x="570" y="26" text-anchor="middle" font-weight="700" fill="#1f2937">API (localhost:8090)</text>
+  <g stroke="#d1d5db" stroke-width="1.4" stroke-dasharray="4 4"><path d="M130 38 V184"/><path d="M570 38 V184"/></g>
+  <path d="M132 58 H566" stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#c1)"/>
+  <text x="350" y="52" text-anchor="middle" fill="#1d4ed8">1 · OPTIONS  Origin: http://localhost:5173 · Access-Control-Request-Method: POST</text>
+  <path d="M568 92 H134" stroke="#047857" stroke-width="1.8" marker-end="url(#c2)"/>
+  <text x="350" y="86" text-anchor="middle" fill="#047857">2 · 200  Access-Control-Allow-Origin / -Methods / -Headers · Max-Age</text>
+  <path d="M132 128 H566" stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#c1)"/>
+  <text x="350" y="122" text-anchor="middle" fill="#1d4ed8">3 · POST /api/v1/... com Content-Type: application/json e Authorization</text>
+  <path d="M568 162 H134" stroke="#047857" stroke-width="1.8" marker-end="url(#c2)"/>
+  <text x="350" y="156" text-anchor="middle" fill="#047857">4 · 201 + Location (exposto) → o JavaScript lê a resposta</text>
+  <text x="350" y="182" text-anchor="middle" fill="#6b7280" font-size="10">se o passo 2 não autorizar a origem, o navegador para ali e mostra erro de CORS no console</text>
+</svg>
+<figcaption>O fluxo do CORS com preflight entre a bancada de testes (5173) e a API (8090).</figcaption>
+</figure>
+<p>Duas consequências práticas. Primeira: o <code>OPTIONS</code> precisa estar liberado na cadeia de filtros sem exigir token, porque o navegador não envia <code>Authorization</code> no preflight. Segunda: cabeçalhos de resposta como <code>Location</code> e <code>X-Request-Id</code> só ficam visíveis ao JavaScript se o servidor os declarar como <em>expostos</em>. O Mapa exige que a API aceite a origem <code>http://localhost:5173</code>, onde roda a bancada de testes usada em sala.</p>
+<div class="warn"><div class="label">Erro comum</div><p>"Libere tudo com <code>*</code>." Com credenciais (<code>allowCredentials(true)</code>), o Spring recusa a combinação de origem <code>*</code>; e sem credenciais, <code>*</code> abre a API para qualquer site (OWASP API8). Use origens explícitas, vindas de variável de ambiente. E erro de CORS no console quase sempre é configuração do servidor, não bug no front-end.</p></div>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+<h2>10. OWASP API Security Top 10 <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A <strong>OWASP</strong> (<em>Open Worldwide Application Security Project</em>) é uma fundação sem fins lucrativos que cataloga as falhas de segurança mais frequentes. A lista específica para APIs, na edição de 2023, é diferente do Top 10 web tradicional: aqui o primeiro lugar é autorização por objeto, e não injeção. Note que três dos cinco primeiros itens são de autorização.</p>
+<table>
+<thead><tr><th style="width:36%">Item (nome oficial)</th><th>Em uma linha</th></tr></thead>
+<tr><td>API1 · Broken Object Level Authorization</td><td>Acessar o recurso de outro só trocando o id</td></tr>
+<tr><td>API2 · Broken Authentication</td><td>Login, senha ou token fracos, permitindo se passar por alguém</td></tr>
+<tr><td>API3 · Broken Object Property Level Authorization</td><td>Ler ou gravar campos que não deveria (inclui mass assignment e exposição excessiva de dados)</td></tr>
+<tr><td>API4 · Unrestricted Resource Consumption</td><td>Requisições sem limite de tamanho, quantidade ou frequência</td></tr>
+<tr><td>API5 · Broken Function Level Authorization</td><td>Usuário comum chamando operação administrativa</td></tr>
+<tr><td>API6 · Unrestricted Access to Sensitive Business Flows</td><td>Automatizar em massa um fluxo legítimo (comprar todo o estoque)</td></tr>
+<tr><td>API7 · Server Side Request Forgery</td><td>Fazer o servidor buscar uma URL escolhida pelo atacante</td></tr>
+<tr><td>API8 · Security Misconfiguration</td><td>Padrões abertos, CORS amplo, erros que vazam detalhes</td></tr>
+<tr><td>API9 · Improper Inventory Management</td><td>Versões antigas e rotas esquecidas ainda no ar</td></tr>
+<tr><td>API10 · Unsafe Consumption of APIs</td><td>Confiar cegamente no que outra API devolve</td></tr>
+</table>
+<h3>Seis itens que já atingem o ServiceHub</h3>
+<table>
+<thead><tr><th style="width:16%">Item</th><th>No ServiceHub, seria</th><th style="width:34%">Defesa</th></tr></thead>
+<tr><td>API1 · BOLA</td><td>Ver a ordem de outra pessoa trocando o id</td><td>Posse checada no Service (RN13)</td></tr>
+<tr><td>API2</td><td>Senha em texto puro, token sem validade</td><td>BCrypt; JWT com expiração (Semana 09)</td></tr>
+<tr><td>API3</td><td>Mandar <code>role</code> ou <code>provider</code> no corpo; ver o hash</td><td>DTOs de entrada e de saída</td></tr>
+<tr><td>API4</td><td>Pedir <code>size=1000000</code></td><td>Paginação com máximo de 100</td></tr>
+<tr><td>API5</td><td>CLIENT chamando rota de ADMIN</td><td><code>@PreAuthorize</code> no Service</td></tr>
+<tr><td>API8</td><td>CORS aberto, stack trace na resposta</td><td>Origens explícitas; <code>include-stacktrace=never</code></td></tr>
+</table>
+
+<h3>API1 · BOLA: o id vem do cliente, a posse vem do banco</h3>
+<p><strong>BOLA</strong> (<em>Broken Object Level Authorization</em>) é o primeiro item porque é fácil de cometer: basta um endpoint que busca pelo id recebido e devolve o que achou. Estar autenticado não é estar autorizado. O CRUD gerado por IA quase sempre sai assim:</p>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Vulnerável</h3>
+<pre>@GetMapping("/{id}")
+public ServiceRequest get(@PathVariable Long id) {
+  // qualquer usuário logado
+  // lê qualquer ordem
+  return repo.findById(id).orElseThrow();
+}</pre></div>
+<div class="card good"><h3 class="ch">Com checagem de posse</h3>
+<pre>ServiceRequest r = repo.findById(id)
+    .orElseThrow(...);   // 404
+actorFor(r, currentUser.get());
+// não participa da ordem → 403
+return toResponse(r);   // DTO</pre></div>
+</div>
+<p>A checagem fica no Service porque depende do banco (quem é o cliente da ordem, quem é o prestador do serviço) e precisa valer para qualquer rota que use a ordem.</p>
+
+<h3>API3 · Mass assignment: o corpo não escolhe dono nem papel</h3>
+<p><strong>Mass assignment</strong> acontece quando a biblioteca de JSON preenche automaticamente todos os campos de um objeto com o que vier no corpo. Se o corpo for a entidade JPA, o cliente pode definir <code>id</code>, <code>provider</code>, <code>active</code> e <code>role</code>. O atacante tenta:</p>
+<pre>POST /api/v1/services
+{ "title": "Pintura residencial", "price": 200.00, "category": "PINTURA",
+  "provider": { "id": 1 } }
+
+POST /api/v1/auth/register
+{ ..., "role": "ADMIN" }</pre>
+<p>A defesa é o DTO de entrada como lista branca dos campos que o cliente pode escolher. No ServiceHub, o DTO de serviço não tem <code>provider</code>: o campo não tem onde cair, e o prestador é sempre o usuário autenticado (RN04). No cadastro, <code>role</code> só aceita CLIENT ou PROVIDER, e qualquer outro valor dá 400 (RN03). Na saída, o DTO de usuário não tem hash (RN02). O papel só muda por <code>PATCH /api/v1/users/{id}/role</code>, uma rota de ADMIN.</p>
+
+<h3>Ordenação também é entrada: o SortGuard</h3>
+<p>O Spring Data aceita qualquer caminho de atributo no <code>?sort=</code>. Sem restrição, <code>sort=passwordHash</code> ordena usuários pelo hash: a resposta não mostra o hash, mas a ordem relativa já vaza informação. É um <strong>oráculo</strong>, um canal que responde perguntas que não deveriam ser feitas. E <code>sort=provider.passwordHash</code> cria uma junção com a tabela de usuários; um campo inexistente vira 500. A defesa é, de novo, uma lista branca por endpoint: campo fora da lista dá 400 com os campos aceitos.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. A cadeia de filtros do Spring Security 7 <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>No Spring Security, a segurança decide <em>antes</em> do seu código. Uma <strong>cadeia de filtros</strong> intercepta cada requisição; se ela barrar, o controller nem fica sabendo. Um <strong>filtro</strong> é um componente da especificação Servlet que pode inspecionar e alterar a requisição e a resposta, ou interromper o caminho.</p>
+<figure class="figure">
+<svg viewBox="0 0 700 175" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+  <defs><marker id="f1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+  <marker id="f2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#b45309"/></marker></defs>
+  <rect x="4" y="30" width="86" height="52" rx="7" fill="#fff" stroke="#1d4ed8" stroke-width="1.4"/>
+  <rect x="112" y="8" width="356" height="96" rx="9" fill="#e8eefc" stroke="#1d4ed8" stroke-width="1.2"/>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3"><rect x="122" y="40" width="104" height="52" rx="6"/><rect x="236" y="40" width="104" height="52" rx="6"/><rect x="350" y="40" width="108" height="52" rx="6"/></g>
+  <g fill="#fff" stroke="#047857" stroke-width="1.4"><rect x="490" y="30" width="96" height="52" rx="7"/><rect x="600" y="30" width="96" height="52" rx="7"/></g>
+  <g text-anchor="middle" font-weight="700" fill="#1f2937"><text x="47" y="54">Cliente</text><text x="174" y="62">CORS</text><text x="288" y="62">Token</text><text x="404" y="62">Autorização</text><text x="538" y="54" fill="#047857">Controller</text><text x="648" y="54" fill="#047857">Service</text></g>
+  <g text-anchor="middle" fill="#6b7280" font-size="9.6"><text x="47" y="70">bancada</text><text x="174" y="78">preflight, origem</text><text x="288" y="78">Bearer (Sem. 09)</text><text x="404" y="78">regras por rota</text><text x="538" y="70">@Valid no DTO</text><text x="648" y="70">@PreAuthorize</text></g>
+  <text x="290" y="26" text-anchor="middle" fill="#1d4ed8" font-weight="700">SecurityFilterChain (FilterChainProxy escolhe pela URL)</text>
+  <g stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#f1)"><path d="M91 56 H118"/><path d="M227 66 H232"/><path d="M341 66 H346"/><path d="M469 56 H486"/><path d="M587 56 H596"/></g>
+  <path d="M404 94 V136 H250" stroke="#b45309" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#f2)"/>
+  <text x="140" y="134" fill="#b45309" font-size="10.5" text-anchor="middle">ExceptionTranslationFilter</text>
+  <text x="140" y="150" fill="#b45309" font-size="10.5" text-anchor="middle">→ 401 ou 403 em ProblemDetail</text>
+  <text x="560" y="120" text-anchor="middle" fill="#047857" font-size="10.5">só chega aqui o que a cadeia deixou passar</text>
+</svg>
+<figcaption>O caminho até o controller. A ordem das regras importa: a primeira que casa com a URL vence.</figcaption>
+</figure>
+<p>Por dentro, quatro peças fazem esse trabalho: o <code>DelegatingFilterProxy</code> é a ponte entre o contêiner Servlet (Tomcat) e os beans do Spring; o <code>FilterChainProxy</code> escolhe qual <code>SecurityFilterChain</code> atende a URL; a <code>SecurityFilterChain</code> é a sua configuração (CORS, autenticação, regras por rota); e o <code>ExceptionTranslationFilter</code> transforma uma falha de segurança em 401 (não autenticado) ou 403 (sem permissão).</p>
+<p>No Spring Security 7, a configuração é um <code>@Bean</code> do tipo <code>SecurityFilterChain</code>, montado com a API de <em>lambdas</em> (<code>http.csrf(csrf -&gt; ...)</code>). As regras de rota usam <code>authorizeHttpRequests</code> e <code>requestMatchers</code>, e <code>anyRequest().authenticated()</code> fica por último, já que a primeira regra que casa vence. A anotação <code>@EnableMethodSecurity</code> liga o <code>@PreAuthorize</code> nos métodos dos services; sem ela, a anotação é ignorada em silêncio.</p>
+<div class="note"><div class="label">Por que sem CSRF e sem sessão</div><p>CSRF (<em>Cross-Site Request Forgery</em>) é um ataque que se aproveita do cookie de sessão que o navegador envia sozinho. Uma API que não usa cookie de sessão, e recebe o token num cabeçalho em cada requisição, não tem esse cookie para ser explorado. Por isso o ServiceHub desliga o CSRF e declara a política de sessão <code>STATELESS</code>, coerente com a restrição REST "sem estado".</p></div>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+<h2>12. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Os trechos abaixo são do projeto de referência (<code>src/main/java/com/servicehub/</code>). Leia-os procurando a teoria das seções anteriores.</p>
+<h3>A cadeia de filtros e o PasswordEncoder</h3>
+<pre style="break-inside:auto">// security/SecurityConfig.java (resumido)
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+  @Bean
+  SecurityFilterChain securityFilterChain(HttpSecurity http, ...) throws Exception {
+    http.csrf(csrf -&gt; csrf.disable())
+        .cors(cors -&gt; { })
+        .sessionManagement(s -&gt;
+            s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -&gt; auth
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers(HttpMethod.POST,
+                "/api/v1/auth/register", "/api/v1/auth/login").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/v1/services", "/api/v1/services/**",
+                "/api/v1/reviews/**", "/api/v1/info").permitAll()
+            .requestMatchers("/actuator/health", "/actuator/health/**",
+                "/actuator/info").permitAll()
+            .requestMatchers("/actuator/**").hasRole("ADMIN")
+            // ... documentação e /error liberados
+            .anyRequest().authenticated());
+        // ... resource server JWT e ProblemDetail para 401/403 (Semana 09)
+    return http.build();
+  }
+
+  @Bean
+  PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+}</pre>
+<h3>CORS com origens explícitas</h3>
+<pre>// SecurityConfig.corsConfigurationSource (resumido)
+// application.properties (numa linha só):
+//   servicehub.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:
+//       http://localhost:3000,http://localhost:5173}
+config.setAllowedOrigins(origens);
+config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Request-Id"));
+config.setExposedHeaders(List.of("Location", "X-Request-Id"));
+config.setAllowCredentials(false);   // o token vai no cabeçalho, não em cookie
+config.setMaxAge(3600L);             // o navegador guarda o preflight por 1 hora</pre>
+<h3>O DTO de cadastro: a lista branca dos campos</h3>
+<pre>// model/dto/RegisterDTO.java (resumido)
+@NotBlank(message = "O e-mail é obrigatório")
+@Email(message = "E-mail inválido")
+@Size(max = 255, message = "O e-mail deve ter no máximo 255 caracteres")
+private String email;
+
+@NotBlank(message = "A senha é obrigatória")
+@Size(min = 8, max = 72, message = "A senha deve ter entre 8 e 72 caracteres")
+@Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d).+$",
+         message = "A senha deve conter ao menos uma letra maiúscula e um número")
+private String password;
+
+@NotBlank(message = "O papel é obrigatório")
+@Pattern(regexp = "CLIENT|PROVIDER", message = "O papel deve ser CLIENT ou PROVIDER")
+private String role;</pre>
+<h3>Cadastro e login: só o hash vai ao banco</h3>
+<pre>// service/UserService.register (resumido)
+String email = normalizeEmail(dto.getEmail());          // trim + minúsculas (RN01)
+if (userRepository.existsByEmail(email)) throw new EmailAlreadyExistsException(email);
+user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));   // RN02
+user.setRole(Role.valueOf(dto.getRole()));
+return toResponseDTO(userRepository.saveAndFlush(user));          // DTO sem hash
+
+// service/AuthService.login (resumido)
+boolean matches = passwordEncoder.matches(dto.password(),
+        found.map(User::getPasswordHash).orElse(DUMMY_HASH));
+if (found.isEmpty() || !matches || !found.get().isActive())
+    throw new BadCredentialsException("E-mail ou senha inválidos.");</pre>
+<p>Dois detalhes de segurança no login. O <code>DUMMY_HASH</code> é um hash BCrypt fixo: quando o e-mail não existe, o BCrypt roda mesmo assim, e o tempo de resposta não revela quais contas existem. E a mensagem é a mesma para e-mail inexistente, senha errada ou conta inativa. Nunca se compara senha com <code>equals</code>: usa-se <code>matches</code>.</p>
+<h3>Sanitização do texto livre</h3>
+<pre>// service/TextSanitizer.java
+static String clean(String value) {
+    if (value == null) return null;
+    String trimmed = value.trim();
+    return trimmed.isEmpty() ? null
+        : HtmlUtils.htmlEscape(HtmlUtils.htmlUnescape(trimmed), "UTF-8");
+}</pre>
+<p>O <code>TextSanitizer</code> é aplicado no Service a <code>description</code>, <code>bio</code>, <code>notes</code> e <code>comment</code>. O <code>htmlUnescape</code> antes do escape torna a operação idempotente: reenviar num <code>PUT</code> o valor recebido num <code>GET</code> não vira <code>&amp;amp;lt;</code>.</p>
+<h3>Lista branca no <code>?sort=</code></h3>
+<pre>// controller/SortGuard.java (resumido) e uso em ServiceOfferingController
+static final Set&lt;String&gt; SORTABLE = Set.of("id", "title", "price", "category", "createdAt");
+
+static Pageable requireAllowed(Pageable pageable, Set&lt;String&gt; allowed) {
+    for (Sort.Order order : pageable.getSort())
+        if (!allowed.contains(order.getProperty()))
+            throw new InvalidRequestException("Não é possível ordenar por '"
+                + order.getProperty() + "'. Campos aceitos: " + new TreeSet&lt;&gt;(allowed));
+    return pageable;
+}</pre>
+<h3>Checagem de posse (BOLA)</h3>
+<pre>// service/ServiceRequestService.actorFor (resumido)
+if (me.isAdmin()) return Actor.ADMIN;
+if (request.getService().getProvider().getId().equals(me.id())) return Actor.PROVIDER;
+if (request.getClient().getId().equals(me.id())) return Actor.CLIENT;
+throw new AccessDeniedException("Você não participa desta ordem de serviço.");   // 403, RN13</pre>
+<p>O mesmo padrão aparece para o perfil (o próprio usuário ou ADMIN) e para o serviço (o dono ou ADMIN, RN05). Os testes de BOLA com dois usuários entram na Semana 09, quando houver token.</p>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>A IA gera segurança <em>plausível</em>, não a segurança do seu domínio: ela não sabe quem é dono de quê, quais rotas são públicas ou que papel não pode ser escolhido no cadastro. Por isso, nesta semana, a especificação vem inteira do Mapa, e a prova é um teste que tenta o ataque, não só o caminho feliz.</p>
+<table>
+<thead><tr><th style="width:18%">Movimento</th><th>Nesta semana</th></tr></thead>
+<tr><td><strong>Especificar</strong></td><td>Liste antes: rotas públicas do Mapa, RN01 a RN05, RN13 e a origem <code>http://localhost:5173</code>.</td></tr>
+<tr><td><strong>Gerar</strong></td><td>Peça um plano primeiro; depois o cadastro, em passos pequenos, com as versões explícitas (Spring Security 7, Boot 4.1).</td></tr>
+<tr><td><strong>Revisar</strong></td><td>Algum DTO devolve o hash? <code>role</code> ou <code>provider</code> vêm do corpo? Há <code>*</code> no CORS? O <code>sort</code> aceita tudo?</td></tr>
+<tr><td><strong>Provar</strong></td><td>Testes que atacam: cadastro com <code>role</code> ADMIN dá 400; <code>?sort=passwordHash</code> dá 400; HTML volta escapado.</td></tr>
+</table>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>adiciona segurança e login na minha API spring</pre><p>Sem versão, a IA tende a usar APIs removidas. Sem regras, ela escolhe as rotas públicas, aceita qualquer papel e devolve a entidade com o hash.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Delimita o escopo (só o cadastro), fixa as versões, cita as regras RN01–RN03, proíbe explicitamente devolver o hash e aceitar ADMIN, pede plano antes do código e define os testes que provam cada regra. Veja o prompt completo abaixo.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Ele continua a construção da semana 05: a tabela <code>users</code> já existe por migração, os DTOs e o <code>GlobalExceptionHandler</code> com ProblemDetail já funcionam.</p>
+<pre style="break-inside:auto">Contexto: API ServiceHub em Java 21 e Spring Boot 4.1 (starters por
+recurso), PostgreSQL 16 com Flyway e ddl-auto=validate. A tabela users
+já existe (colunas full_name, email, password_hash, role, active...).
+Já temos DTOs em records/classes e um GlobalExceptionHandler
+(@RestControllerAdvice) que devolve ProblemDetail, com errors[] de
+{field, message} no 400. O contrato é o Mapa de Construção:
+RN01 (e-mail único, sem diferenciar maiúsculas), RN02 (senha só como
+hash BCrypt, nunca em resposta), RN03 (no cadastro, papel só CLIENT
+ou PROVIDER).
+
+Objetivo: implementar o cadastro POST /api/v1/auth/register.
+1. Dependências: spring-boot-starter-security e
+   spring-boot-starter-validation (se ainda não houver).
+2. RegisterDTO com Bean Validation e mensagens em português:
+   fullName 2-100; email @Email até 255; password 8-72 com ao menos
+   uma maiúscula e um número; role @Pattern "CLIENT|PROVIDER".
+3. UserService.register (@Transactional): normaliza o e-mail
+   (trim + minúsculas); se já existir, lança EmailAlreadyExists
+   (409); grava passwordEncoder.encode(senha) em passwordHash.
+4. SecurityConfig com @Bean PasswordEncoder (BCryptPasswordEncoder)
+   e @Bean SecurityFilterChain: csrf desligado, sessão STATELESS,
+   OPTIONS /** e POST /api/v1/auth/register liberados, GET de
+   /api/v1/services e /api/v1/services/** liberados,
+   anyRequest().authenticated() por último.
+5. TextSanitizer (HtmlUtils.htmlUnescape e depois
+   HtmlUtils.htmlEscape(texto, "UTF-8")) aplicado no Service ao texto
+   livre (bio do usuário, description do serviço).
+6. Resposta 201 com Location e UserResponseDTO.
+
+Restrições:
+- NUNCA devolver password nem passwordHash em resposta nenhuma; não
+  usar a entidade User como corpo de entrada nem de saída.
+- NÃO aceitar role ADMIN no cadastro: deve dar 400 com errors[]
+  apontando o campo role (não 403, não ignorar em silêncio).
+- Não use WebSecurityConfigurerAdapter, antMatchers nem
+  authorizeRequests (removidos); nem StringEscapeUtils; nem MD5 ou
+  SHA para senha; nem pacotes javax.*.
+- Sem login nem JWT ainda (próxima etapa).
+- Não altere migrações já aplicadas.
+
+Antes de escrever código, mostre um plano: arquivos a criar ou
+alterar e a lista de testes. Espere o meu ok.
+
+Critério de aceite (cada regra com um teste):
+- @WebMvcTest: role "ADMIN" → 400 com errors contendo field "role";
+  email "maria" → 400 com field "email".
+- Teste do UserService: o hash gravado começa com "$2" e é diferente
+  da senha; "MARIA@X.COM" quando "maria@x.com" existe → 409.
+- Teste do TextSanitizer: "&lt;script&gt;" sai "&amp;lt;script&amp;gt;" e
+  "Instalação elétrica" sai igual.
+- ./mvnw verify passa.</pre>
+<p>Para fechar a entrega, peça em seguida, no mesmo estilo, o <code>SortGuard</code> (lista branca por controller, 400 com os campos aceitos) e o <code>CorsConfigurationSource</code> com origens vindas de <code>CORS_ALLOWED_ORIGINS</code>, incluindo <code>http://localhost:5173</code>, expondo <code>Location</code> e <code>X-Request-Id</code>.</p>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<table>
+<thead><tr><th style="width:42%">A IA sugere</th><th>No ServiceHub</th></tr></thead>
+<tr><td><code>extends WebSecurityConfigurerAdapter</code></td><td>Removido; <code>SecurityFilterChain</code> como <code>@Bean</code>.</td></tr>
+<tr><td><code>antMatchers</code>, <code>authorizeRequests</code></td><td><code>requestMatchers</code>, <code>authorizeHttpRequests</code>.</td></tr>
+<tr><td><code>@PreAuthorize</code> sem <code>@EnableMethodSecurity</code></td><td>A anotação é ignorada, sem erro nenhum.</td></tr>
+<tr><td>Biblioteca de escape que troca acentos</td><td><code>HtmlUtils.htmlEscape(texto, "UTF-8")</code>.</td></tr>
+<tr><td><code>allowedOrigins("*")</code> com credenciais</td><td>Origens explícitas; o Spring recusa a combinação.</td></tr>
+<tr><td>Devolver a entidade <code>User</code></td><td><code>UserResponseDTO</code>, sem <code>passwordHash</code>.</td></tr>
+<tr><td><code>user.getPassword()</code></td><td>O campo é <code>passwordHash</code>.</td></tr>
+<tr><td><code>@WebMvcTest</code> que falha com 401/403</td><td>Os filtros de segurança entram no teste fatiado; para testar só a validação, use <code>@AutoConfigureMockMvc(addFilters = false)</code>.</td></tr>
+</table>
+<p>As duas primeiras linhas vêm de tutoriais de versões antigas do Spring Security; o assistente as repete quando o contexto não diz a versão.</p>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Nenhum DTO de resposta tem <code>password</code> ou <code>passwordHash</code>?</li>
+  <li><code>role</code> fora de CLIENT e PROVIDER dá 400, e não 201 nem 403?</li>
+  <li>O <code>PasswordEncoder</code> é BCrypt e a comparação usa <code>matches</code>?</li>
+  <li>Há algum SQL montado com concatenação de texto?</li>
+  <li>O escape preserva acentos e não acumula num <code>PUT</code>?</li>
+  <li>CORS sem <code>*</code>, com <code>http://localhost:5173</code> e <code>OPTIONS</code> liberado?</li>
+  <li>A ordem das regras da cadeia termina em <code>anyRequest().authenticated()</code>?</li>
+</ul>
+<h3>Prova</h3>
+<p>Os testes do critério de aceite passam em <code>./mvnw verify</code>. Com a API no ar, três chamadas confirmam o comportamento (porta local 8080; no Compose, 8090):</p>
+<pre>curl -i -X POST http://localhost:8080/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"fullName":"Esperto","email":"e@x.com","password":"Senha123","role":"ADMIN"}'
+# esperado: 400, errors com field "role"
+
+curl -i -X POST http://localhost:8080/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"fullName":"Maria Silva","email":"maria@x.com","password":"Senha123","role":"CLIENT"}'
+# esperado: 201, Location, corpo sem password e sem passwordHash
+
+curl -i -X OPTIONS http://localhost:8080/api/v1/auth/register \
+  -H "Origin: http://localhost:5173" -H "Access-Control-Request-Method: POST"
+# esperado: Access-Control-Allow-Origin: http://localhost:5173</pre>
+<p>No banco, <code>SELECT password_hash FROM users WHERE email = 'maria@x.com'</code> deve devolver um valor que começa com <code>$2a$10$</code>.</p>
+<h3>Entrega da semana</h3>
+<ul>
+  <li><code>SecurityFilterChain</code> com as rotas públicas do Mapa e CORS para <code>http://localhost:5173</code>.</li>
+  <li><code>POST /api/v1/auth/register</code> com BCrypt e <code>role</code> só CLIENT ou PROVIDER; nenhuma resposta traz o hash.</li>
+  <li>Bean Validation em todos os DTOs de entrada, com 400 em ProblemDetail e <code>errors</code>.</li>
+  <li>Sanitização do texto livre e lista branca no <code>?sort=</code>, cada uma com um teste que tenta o ataque.</li>
+</ul>
+</section>
+
+<!-- 14 -->
+<section class="page" id="s14">
+<h2>14. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>CID</dt><dd>Confidencialidade, integridade e disponibilidade: os pilares da segurança.</dd>
+  <dt>Autenticação</dt><dd>Verificar quem é o usuário. Falha: 401.</dd>
+  <dt>Autorização</dt><dd>Verificar o que o usuário pode fazer. Falha: 403.</dd>
+  <dt>Superfície de ataque</dt><dd>Conjunto de pontos por onde um atacante pode interagir com o sistema.</dd>
+  <dt>Modelagem de ameaças</dt><dd>Analisar o que pode dar errado antes de projetar as defesas.</dd>
+  <dt>Hash</dt><dd>Função de mão única que gera uma impressão digital do dado.</dd>
+  <dt>Sal</dt><dd>Valor aleatório por usuário misturado à senha antes do hash.</dd>
+  <dt>BCrypt</dt><dd>Algoritmo de hash de senha lento, com sal e fator de custo.</dd>
+  <dt>Lista branca</dt><dd>Validação que aceita só o que está no formato esperado.</dd>
+  <dt>Injeção</dt><dd>Ataque em que dado do usuário é interpretado como comando.</dd>
+  <dt>XSS</dt><dd>Execução de script do atacante no navegador da vítima.</dd>
+  <dt>Escape</dt><dd>Troca de caracteres especiais por entidades para que sejam exibidos, não executados.</dd>
+  <dt>Origem</dt><dd>Esquema + host + porta de uma página ou API.</dd>
+  <dt>CORS</dt><dd>Mecanismo pelo qual o servidor autoriza outra origem a ler suas respostas no navegador.</dd>
+  <dt>Preflight</dt><dd>Requisição OPTIONS que o navegador envia antes da requisição real.</dd>
+  <dt>BOLA</dt><dd>Falha de autorização por objeto: acessar o recurso de outro trocando o id.</dd>
+</dl>
+
+<!-- 15 -->
+<h2 id="s15">15. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Diga qual pilar (confidencialidade, integridade ou disponibilidade) é atingido em cada caso: (a) a resposta de <code>GET /api/v1/users/7</code> traz o hash da senha; (b) um cliente consegue mudar o <code>totalPrice</code> de uma ordem já criada; (c) um script pede milhares de vezes <code>?size=100</code> por segundo.</li>
+  <li>Dê o status (401 ou 403) e justifique: (a) requisição sem cabeçalho <code>Authorization</code> para <code>GET /api/v1/service-requests</code>; (b) um CLIENT autenticado chama <code>GET /api/v1/users</code>; (c) token com assinatura inválida.</li>
+  <li>Um colega afirma: "nossa senha está segura, ela é criptografada com Base64 antes de ir para o banco". Corrija a afirmação usando os conceitos de codificação, criptografia e hash. Em seguida, explique o que significam as partes <code>$2a$</code> e <code>$10$</code> de um hash BCrypt e o que muda se o custo for 12.</li>
+  <li>Escreva regras de lista branca, com anotações de Bean Validation, para: (a) o preço de um serviço; (b) a nota de uma avaliação, de 1 a 5; (c) o papel no cadastro. Por que uma lista negra que bloqueia <code>&lt;script&gt;</code> não seria suficiente?</li>
+  <li>Analise os dois trechos abaixo:
+<pre>// trecho A
+String sql = "SELECT * FROM services WHERE title LIKE '%" + q + "%'";
+List&lt;Map&lt;String, Object&gt;&gt; rows = jdbcTemplate.queryForList(sql);
+
+// trecho B
+em.createQuery("FROM User u WHERE u.email = :email", User.class)
+  .setParameter("email", email);</pre>
+(a) Qual deles é vulnerável a injeção? Mostre um valor de <code>q</code> que explora a falha. (b) Reescreva o trecho vulnerável com Spring Data, sem SQL concatenado. (c) Que cuidado extra a busca com <code>LIKE</code> exige mesmo parametrizada?</li>
+  <li>Um prestador grava a descrição <code>Ótimo &lt;b&gt;preço&lt;/b&gt;</code>. Mostre o que o <code>TextSanitizer</code> grava e explique: (a) por que usar <code>HtmlUtils</code> com <code>"UTF-8"</code>; (b) para que serve o <code>htmlUnescape</code> antes do escape; (c) se o escape protege contra injeção de SQL.</li>
+  <li>A bancada de testes, em <code>http://localhost:5173</code>, faz <code>POST</code> com JSON e <code>Authorization</code> para a API em <code>http://localhost:8090</code>. (a) São a mesma origem? (b) Que requisição o navegador envia antes do POST, e por quê? (c) O que acontece se a cadeia de filtros exigir token no <code>OPTIONS</code>? (d) Por que o Postman funciona mesmo sem CORS configurado?</li>
+  <li>Reescreva o endpoint vulnerável da seção 10 para que um cliente que não participa da ordem receba 403. Diga em qual camada fica a checagem e por quê.</li>
+  <li>Um atacante envia <code>POST /api/v1/services</code> com <code>"provider": {"id": 1}</code> e <code>POST /api/v1/auth/register</code> com <code>"role": "ADMIN"</code>. Descreva o que o ServiceHub faz em cada caso, citando a regra RN e o item do OWASP.</li>
+  <li>Explique por que <code>GET /api/v1/users?sort=passwordHash,desc</code> é perigoso mesmo sem mostrar o hash, e o que o <code>SortGuard</code> devolve.</li>
+  <li>Aplique as quatro perguntas da modelagem de ameaças à funcionalidade "o cliente avalia a ordem concluída" (<code>POST /api/v1/service-requests/{id}/reviews</code>). Cite pelo menos duas ameaças, com a defesa e o teste de cada uma.</li>
+  <li>Um assistente gerou o código abaixo. Liste os problemas e escreva o trecho de prompt que teria evitado cada um.
+<pre>@Configuration
+public class Seg extends WebSecurityConfigurerAdapter {
+  protected void configure(HttpSecurity http) throws Exception {
+    http.authorizeRequests().antMatchers("/api/**").permitAll();
+    http.cors().configurationSource(r -&gt; {
+      CorsConfiguration c = new CorsConfiguration();
+      c.addAllowedOrigin("*"); c.setAllowCredentials(true); return c; });
+  }
+}</pre></li>
+</ol>
+
+<!-- 16 -->
+<h2 id="s16">16. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>PRESSMAN, R. S.; MAXIM, B. R. <em>Engenharia de software</em>. 9. ed. Grupo A, 2021. Capítulo 18 (engenharia de segurança).</li>
+  <li>RODRIGUES, T. N. et al. <em>Integração de aplicações</em>. Grupo A, 2020. Capítulo "Segurança em webservices".</li>
+  <li>MARTIN, R. C. <em>Arquitetura limpa</em>. Alta Books, 2019. Capítulo 20 (regras de negócio): as regras de posse e de papel são regras de negócio e moram no Service, não no controller.</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>OWASP API Security Top 10 (2023): <code>owasp.org/API-Security</code>. Leia ao menos API1, API3 e API8.</li>
+  <li>OWASP Cheat Sheet Series: <em>Password Storage</em>, <em>Input Validation</em> e <em>Cross Site Scripting Prevention</em> (<code>cheatsheetseries.owasp.org</code>).</li>
+  <li>Documentação oficial do Spring Security: arquitetura de filtros, <code>PasswordEncoder</code> e CORS (<code>docs.spring.io/spring-security</code>).</li>
+  <li>Documentação de CORS da MDN Web Docs (<code>developer.mozilla.org</code>, "Cross-Origin Resource Sharing").</li>
+  <li>Mapa de Construção do ServiceHub, em <code>docs/alunos</code>: regras RN01–RN13 e seção de CORS.</li>
+</ul>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Apostila · Semana 05 — Contrato da API com OpenAPI</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm;
+    @bottom-right { content: "Apostila · Semana 05 · p. " counter(page); font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+    @bottom-left  { content: "Desenvolvimento de API Back-End · UniEVANGÉLICA"; font: 8pt "Segoe UI", sans-serif; color: #6b7280; }
+  }
+  @page :first { @bottom-right { content: none; } @bottom-left { content: none; } }
+  :root { --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --soft:#f3f4f6; --accent:#1d4ed8; --accent-soft:#e8eefc;
+          --ok:#047857; --ok-soft:#e7f5ef; --bad:#b45309; --bad-soft:#fdf3e6; }
+  * { box-sizing: border-box; }
+  body { font: 11.5pt/1.6 "Segoe UI", "Calibri", Arial, sans-serif; color: var(--ink); margin: 0; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4mm; color: var(--accent); break-after: avoid; }
+  h2 { font-size: 15.5pt; margin: 8mm 0 3mm; padding-bottom: 1mm; border-bottom: 1.5px solid var(--accent); break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p { margin: 0 0 2.8mm; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 10pt; }
+  code { background: var(--soft); padding: 0 1mm; border-radius: 2px; }
+  pre { font: 9.4pt/1.45 Consolas, "Cascadia Mono", monospace; background: var(--soft); border: 1px solid var(--line);
+        border-radius: 4px; padding: 2.5mm 3mm; margin: 0 0 3.5mm; white-space: pre-wrap; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 4mm; font-size: 10pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--accent-soft); text-align: left; font-weight: 600; padding: 1.4mm 2mm; border: 1px solid var(--line); }
+  td { padding: 1.3mm 2mm; border: 1px solid var(--line); vertical-align: top; }
+  .page { break-before: page; }
+  .note { border: 1px solid #c7d4f5; background: var(--accent-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .warn { border: 1px solid #f0d2ad; background: var(--bad-soft); padding: 2.5mm 3.5mm; margin: 0 0 3.5mm; border-radius: 4px; break-inside: avoid; }
+  .note p:last-child, .warn p:last-child { margin-bottom: 0; }
+  .label { font-size: 8.8pt; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+  .warn .label { color: var(--bad); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
+  .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card p { text-align: left; }
+  .card pre { font-size: 8.8pt; }
+  .bad { border-color: #f0d2ad; background: var(--bad-soft); }
+  .good { border-color: #b7e0cc; background: var(--ok-soft); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
+  .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
+  .figure svg { max-width: 96%; }
+  figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li::before { content: "☐  "; }
+  dl.gloss { display: grid; grid-template-columns: 38mm 1fr; gap: 1.6mm 4mm; font-size: 10.5pt; }
+  dl.gloss dt { font-weight: 600; }
+  dl.gloss dd { margin: 0; }
+  .ex { counter-reset: ex; padding-left: 0; list-style: none; }
+  .ex > li { counter-increment: ex; position: relative; padding-left: 9mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .ex > li::before { content: counter(ex) "."; position: absolute; left: 0; font-weight: 700; color: var(--accent); }
+  .cover .top { border-top: 6px solid var(--accent); padding-top: 7mm; }
+  .cover .kicker { font-size: 10pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .cover h1 { font-size: 30pt; line-height: 1.1; margin: 3mm 0 2mm; color: var(--ink); }
+  .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
+  .cover .lead { font-size: 12pt; }
+  .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
+  .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
+  a { color: var(--accent); text-decoration: none; }
+  .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
+  @media screen { body { max-width: 210mm; margin: 0 auto; padding: 14mm 16mm; }
+    html { background: #e5e7eb; } body { box-shadow: 0 0 12px rgba(0,0,0,.12); }
+    .page { margin-top: 14mm; padding-top: 10mm; border-top: 1px dashed var(--line); } }
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="top">
+    <div class="kicker">Desenvolvimento de API Back-End · Engenharia de Software · 6º período</div>
+    <h1>Semana 05<br>Contrato da API com OpenAPI</h1>
+    <div class="sub">Apostila de estudo: teoria, exemplos, construção com IA e exercícios</div>
+    <p class="lead">Na Semana 04 a API ganhou banco, DTOs e um formato único de erro. Falta dizer isso a quem vai usá-la. Nesta semana o contrato da API vira um documento legível por pessoas e por máquinas: a especificação OpenAPI. Você vai entender o que um contrato fixa, como ler e escrever um documento OpenAPI, como evoluí-lo sem quebrar clientes e como o Springdoc gera esse documento a partir do código do ServiceHub. Leia antes ou depois da aula; os exercícios do fim ajudam a conferir o que ficou.</p>
+  </div>
+
+  <div class="toc" id="conteudo">
+    <h2 class="toc-h">Conteúdo</h2>
+    <ol>
+      <li><a href="#s1">Objetivos da semana</a></li>
+      <li><a href="#s2">O que é um contrato de API</a></li>
+      <li><a href="#s3">Design-first e code-first</a></li>
+      <li><a href="#s4">OpenAPI, Swagger e Springdoc</a></li>
+      <li><a href="#s5">A estrutura de um documento</a></li>
+      <li><a href="#s6">JSON Schema: descrevendo dados</a></li>
+      <li><a href="#s7">Reuso com $ref</a></li>
+      <li><a href="#s8">Exemplos e descrições</a></li>
+      <li><a href="#s9">Versionamento e compatibilidade</a></li>
+      <li><a href="#s10">O contrato a serviço de ferramentas</a></li>
+      <li><a href="#s11">As anotações do Springdoc</a></li>
+      <li><a href="#s12">Aplicação no ServiceHub</a></li>
+      <li><a href="#s13">Construindo com IA</a></li>
+      <li><a href="#s14">Glossário</a></li>
+      <li><a href="#s15">Exercícios</a></li>
+      <li><a href="#s16">Para estudar</a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 1 -->
+<section class="page" id="s1">
+<h2>1. Objetivos da semana <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Ao final desta semana você deve ser capaz de:</p>
+<ol>
+  <li>explicar o que um contrato de API fixa e comparar as abordagens design-first e code-first;</li>
+  <li>ler e escrever um documento OpenAPI com <code>info</code>, <code>servers</code>, <code>paths</code>, <code>components</code>, <code>schemas</code> e <code>securitySchemes</code>, usando JSON Schema e <code>$ref</code>;</li>
+  <li>classificar uma mudança de contrato como compatível ou como quebra, e decidir quando ela exige nova versão;</li>
+  <li>configurar o Springdoc 3 e documentar controllers e DTOs com <code>@Tag</code>, <code>@Operation</code>, <code>@ApiResponse</code>, <code>@Parameter</code> e <code>@Schema</code>;</li>
+  <li>documentar cada status real de uma rota, com os erros em ProblemDetail, o esquema <code>bearerAuth</code> e os grupos de documentação.</li>
+</ol>
+
+<!-- 2 -->
+<h2 id="s2">2. O que é um contrato de API <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um <strong>contrato de API</strong> é a descrição precisa de tudo que o cliente pode pedir e de tudo que o servidor promete devolver. Quem consome a API programa contra o contrato, e não contra o código interno. A Semana 01 apresentou essa separação entre interface e implementação; agora a interface ganha forma de documento.</p>
+<div class="grid2">
+  <div class="card"><h3 class="ch">O que o contrato fixa</h3><p>Rotas e métodos HTTP; parâmetros e corpos de entrada; formato das respostas; códigos de status e formato dos erros; como se autenticar.</p></div>
+  <div class="card"><h3 class="ch">Por que escrever</h3><p>Front-end e back-end trabalham em paralelo; quem consome não precisa adivinhar; ferramentas leem o documento e geram testes, clientes e telas de teste.</p></div>
+</div>
+<p>Um exemplo fora do ServiceHub: o aplicativo de um banco mostra o saldo porque o contrato diz que <code>GET /contas/{id}/saldo</code> devolve um número no campo <code>valor</code>, e 404 quando a conta não existe. Se o servidor renomear o campo para <code>saldo</code>, o aplicativo quebra, mesmo sem nenhum erro de compilação. Contrato é <strong>promessa</strong>: quem muda o que foi prometido quebra quem confiou nele.</p>
+<div class="warn"><div class="label">Confusão comum</div><p>Achar que documentação de API é só para gente ler. Hoje o documento também é lido por máquinas: geradores de código, simuladores e testes automatizados dependem de que ele esteja certo.</p></div>
+
+<!-- 3 -->
+<h2 id="s3">3. Design-first e code-first <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Há duas formas de chegar ao documento. A diferença está em quem nasce primeiro e, por isso, em quem é a fonte da verdade.</p>
+<table>
+<thead><tr><th style="width:18%">Aspecto</th><th>Design-first</th><th>Code-first</th></tr></thead>
+<tr><td>Ordem</td><td>Escreve o documento OpenAPI, depois implementa.</td><td>Implementa, e uma biblioteca gera o documento.</td></tr>
+<tr><td>Fonte da verdade</td><td>O arquivo YAML ou JSON.</td><td>O código anotado.</td></tr>
+<tr><td>Vantagem</td><td>Consumidores revisam e começam antes de o código existir.</td><td>O documento acompanha o código a cada mudança.</td></tr>
+<tr><td>Risco</td><td>O código divergir do documento sem ninguém notar.</td><td>Contrato feito às pressas, refletindo detalhes internos.</td></tr>
+<tr><td>Quando usar</td><td>API pública, vários times consumindo.</td><td>Time único, contrato estável, boa cobertura de testes.</td></tr>
+</table>
+<p>Não existe vencedor absoluto: é uma decisão de arquitetura, boa candidata a um registro de decisão (ADR). No ServiceHub as duas se encontram. O <strong>Mapa de Construção</strong> define o contrato antes do código (design-first), e o Springdoc gera o documento a partir do código (code-first). Testes provam que os dois batem.</p>
+<div class="warn"><div class="label">Armadilha</div><p>Dizer "usamos code-first" quando, na verdade, não houve contrato nenhum antes do código, só código. Code-first ainda exige decidir o contrato; a diferença é onde ele é escrito.</p></div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+<h2>4. OpenAPI, Swagger e Springdoc <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Os nomes se misturam em tutoriais. Cada um designa uma coisa diferente:</p>
+<table>
+<thead><tr><th style="width:24%">Nome</th><th>O que é</th><th style="width:32%">No ServiceHub</th></tr></thead>
+<tr><td>OpenAPI Specification</td><td>Padrão aberto, em JSON ou YAML, que descreve APIs HTTP. É mantido pela OpenAPI Initiative, ligada à Linux Foundation.</td><td>O documento em <code>/api-docs/v1</code></td></tr>
+<tr><td>Swagger UI</td><td>Página web que lê a especificação, lista as rotas e envia requisições pelo botão <em>Try it out</em>.</td><td>Aberta em <code>/docs</code></td></tr>
+<tr><td>Springdoc OpenAPI</td><td>Biblioteca que gera a especificação a partir dos controllers Spring.</td><td><code>springdoc-openapi-starter-webmvc-ui</code> 3.0.x</td></tr>
+<tr><td>Springfox</td><td>Biblioteca antiga com o mesmo objetivo, sem manutenção.</td><td>Não use.</td></tr>
+</table>
+<p>"Swagger" era o nome antigo da especificação. Quando ela foi doada à OpenAPI Initiative, passou a se chamar OpenAPI, e "Swagger" ficou como nome das ferramentas (Swagger UI, Swagger Editor).</p>
+
+<!-- 5 -->
+<h2 id="s5">5. A estrutura de um documento <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um documento OpenAPI é um único arquivo JSON ou YAML. A raiz declara, no campo <code>openapi</code>, a versão da especificação usada (por exemplo, <code>3.0.3</code> ou <code>3.1.0</code>). Abaixo dela ficam as partes principais:</p>
+<table>
+<thead><tr><th style="width:20%">Parte</th><th>Para que serve</th></tr></thead>
+<tr><td><code>info</code></td><td>Título, descrição, versão do contrato e contato.</td></tr>
+<tr><td><code>servers</code></td><td>Endereços base onde a API roda: local, homologação, produção.</td></tr>
+<tr><td><code>paths</code></td><td>Cada rota, como <code>/livros/{id}</code>. É o coração do documento.</td></tr>
+<tr><td>operations</td><td>Dentro de cada rota, um objeto por método (<code>get</code>, <code>post</code>…), com <code>parameters</code>, <code>requestBody</code> e <code>responses</code>.</td></tr>
+<tr><td><code>components</code></td><td>Peças reutilizáveis: <code>schemas</code>, <code>responses</code>, <code>parameters</code>, <code>examples</code> e <code>securitySchemes</code>.</td></tr>
+<tr><td><code>security</code></td><td>Campo opcional na raiz que aplica um esquema de segurança a todas as operações.</td></tr>
+</table>
+<figure class="figure">
+<svg viewBox="0 0 700 192" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif" font-size="11.5">
+  <defs><marker id="e1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1d4ed8"/></marker>
+  <marker id="e2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#047857"/></marker></defs>
+  <g fill="#fff" stroke="#1d4ed8" stroke-width="1.3">
+    <rect x="6" y="80" width="80" height="34" rx="6"/>
+    <rect x="118" y="14" width="90" height="28" rx="6"/><rect x="118" y="50" width="90" height="28" rx="6"/>
+    <rect x="118" y="96" width="90" height="28" rx="6"/><rect x="118" y="150" width="104" height="28" rx="6" fill="#e7f5ef" stroke="#047857"/>
+    <rect x="246" y="96" width="96" height="28" rx="6"/><rect x="368" y="96" width="56" height="28" rx="6"/>
+    <rect x="450" y="96" width="84" height="28" rx="6"/><rect x="560" y="96" width="50" height="28" rx="6"/>
+    <rect x="560" y="138" width="134" height="28" rx="6"/>
+    <rect x="246" y="150" width="140" height="28" rx="6" fill="#e7f5ef" stroke="#047857"/>
+  </g>
+  <g text-anchor="middle" fill="#1f2937">
+    <text x="46" y="101" font-weight="700">raiz</text>
+    <text x="163" y="32">info</text><text x="163" y="68">servers</text><text x="163" y="114" font-weight="700">paths</text>
+    <text x="170" y="168" fill="#047857" font-weight="700">components</text>
+    <text x="294" y="114">/livros/{id}</text><text x="396" y="114">get</text><text x="492" y="114">responses</text><text x="585" y="114">'200'</text>
+    <text x="627" y="156">content → schema</text>
+    <text x="316" y="168" fill="#047857">schemas: Livro</text>
+  </g>
+  <g stroke="#1d4ed8" stroke-width="1.5" fill="none" marker-end="url(#e1)">
+    <path d="M87 92 L115 30"/><path d="M87 95 L115 64"/><path d="M87 100 H115"/><path d="M87 106 L115 160"/>
+    <path d="M209 110 H243"/><path d="M343 110 H365"/><path d="M425 110 H447"/><path d="M535 110 H557"/><path d="M585 125 V135"/>
+    <path d="M223 164 H243"/>
+  </g>
+  <path d="M627 167 C 627 190, 420 190, 380 179" fill="none" stroke="#047857" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#e2)"/>
+  <text x="466" y="146" text-anchor="middle" fill="#047857" font-size="10">$ref: '#/components/schemas/Livro'</text>
+</svg>
+<figcaption>Caminho de leitura de um documento OpenAPI: raiz → paths → rota → método → responses → status → content → schema, que aponta para components.</figcaption>
+</figure>
+
+<h3>Um exemplo genérico em YAML</h3>
+<p>Uma biblioteca, fora do ServiceHub, para separar o padrão da ferramenta. Em YAML, a indentação aninha os campos e o hífen abre um item de lista; JSON e YAML são equivalentes.</p>
+<pre>openapi: 3.0.3
+info:
+  title: Biblioteca API
+  version: 1.2.0
+servers:
+  - url: https://api.biblioteca.exemplo/v1
+paths:
+  /livros/{id}:
+    get:
+      summary: Busca um livro pelo id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+components:
+  schemas:
+    Livro:
+      type: object
+      required: [titulo, isbn]
+      properties:
+        id:       { type: integer, format: int64 }
+        titulo:   { type: string, maxLength: 200 }
+        situacao: { type: string, enum: [DISPONIVEL, EMPRESTADO] }
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }</pre>
+<ul>
+  <li><code>openapi</code> é a versão do <em>padrão</em>; <code>info.version</code> é a versão do <em>seu contrato</em>. A diferença costuma cair em prova.</li>
+  <li><code>{id}</code> na rota exige um parâmetro <code>in: path</code> obrigatório. Outros lugares de parâmetro: <code>query</code>, <code>header</code> e <code>cookie</code>.</li>
+  <li><code>securitySchemes</code> só <em>declara</em> o mecanismo de autenticação; cada operação (ou o campo raiz <code>security</code>) diz se o exige. Declarar não protege nada: quem protege é o servidor, no ServiceHub o Spring Security.</li>
+</ul>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+<h2>6. JSON Schema: descrevendo dados <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Os <code>schemas</code> do OpenAPI usam o vocabulário do <strong>JSON Schema</strong>: palavras-chave que dizem que tipo um valor tem e que regras precisa cumprir. A versão 3.1 do OpenAPI se alinhou por completo ao JSON Schema; a 3.0 usa um subconjunto dele. As palavras básicas são as mesmas nas duas:</p>
+<table>
+<thead><tr><th style="width:22%">Palavra-chave</th><th>Significado</th><th style="width:30%">De onde vem no Java (Springdoc)</th></tr></thead>
+<tr><td><code>type</code></td><td><code>string</code>, <code>integer</code>, <code>number</code>, <code>boolean</code>, <code>array</code>, <code>object</code></td><td>Tipo do campo no DTO</td></tr>
+<tr><td><code>required</code></td><td>Campos que não podem faltar</td><td><code>@NotNull</code>, <code>@NotBlank</code></td></tr>
+<tr><td><code>format</code></td><td>Refina o tipo: <code>int64</code>, <code>date-time</code>, <code>email</code>, <code>uuid</code></td><td><code>Long</code>, <code>LocalDateTime</code>, <code>UUID</code></td></tr>
+<tr><td><code>enum</code></td><td>Conjunto fechado de valores aceitos</td><td>Um <code>enum</code> Java, como <code>ServiceCategory</code></td></tr>
+<tr><td><code>minLength</code>, <code>maxLength</code></td><td>Limites de tamanho de texto</td><td><code>@Size(min, max)</code></td></tr>
+<tr><td><code>minimum</code>, <code>maximum</code></td><td>Limites numéricos</td><td><code>@Min</code>, <code>@Max</code>, <code>@DecimalMin</code></td></tr>
+</table>
+<p>O ponto importante: a Bean Validation da Semana 04 não é só validação em tempo de execução. O Springdoc lê essas anotações e as escreve no contrato. Um <code>@Size(max = 150)</code> no título vira <code>maxLength: 150</code> no schema, sem você escrever de novo.</p>
+<div class="note"><div class="label">Para lembrar</div><p><code>format</code> é uma dica para quem consome. Quem garante a regra continua sendo a validação no servidor: um cliente pode ignorar o documento e mandar qualquer coisa.</p></div>
+
+<!-- 7 -->
+<h2 id="s7">7. Reuso com $ref <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p><code>$ref</code> é uma <strong>referência</strong>: no lugar do conteúdo, um caminho até onde ele está definido. O caminho segue o padrão JSON Pointer: <code>#/</code> é a raiz do próprio documento, e cada <code>/</code> desce um nível.</p>
+<pre>paths:
+  /livros/{id}:
+    get:
+      responses:
+        '200':
+          description: Livro encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Livro'
+        '404':
+          $ref: '#/components/responses/NaoEncontrado'</pre>
+<p>Mudou <code>Livro</code>? Todas as rotas que apontam para ele mudam juntas. É o princípio de não repetir (DRY) aplicado ao contrato. O <code>$ref</code> também pode apontar para outro arquivo, o que ajuda em contratos grandes escritos à mão. No code-first, o Springdoc gera os <code>$ref</code> sozinho: cada DTO aparece uma vez em <code>components/schemas</code>, e as rotas só apontam para ele.</p>
+
+<!-- 8 -->
+<h2 id="s8">8. Exemplos e descrições <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um contrato que só tem tipos responde "o quê", mas não "por quê" nem "quando". Três elementos fazem o contrato se explicar:</p>
+<ul>
+  <li><strong><code>summary</code> e <code>description</code>:</strong> <code>summary</code> é a linha curta da lista de rotas; <code>description</code> explica regras, quem pode chamar e efeitos colaterais.</li>
+  <li><strong><code>example</code>:</strong> um valor realista por campo. Ferramentas usam o exemplo para pré-preencher o <em>Try it out</em>, montar testes e simular respostas.</li>
+  <li><strong>Erros descritos:</strong> cada status diz <em>quando</em> ocorre. "409 se o e-mail já existe", e não só "Conflict".</li>
+</ul>
+<table>
+<thead><tr><th style="width:16%">Campo</th><th style="width:30%">Descrição fraca</th><th>Descrição útil</th></tr></thead>
+<tr><td><code>isbn</code></td><td><code>string</code> · "ISBN"</td><td>13 dígitos, sem hífens · exemplo <code>9788550808161</code></td></tr>
+<tr><td><code>price</code></td><td><code>number</code> · "Preço"</td><td>Preço em reais, maior que zero, duas casas · exemplo <code>150.00</code></td></tr>
+</table>
+<div class="warn"><div class="label">Erro comum em código gerado por IA</div><p><code>example = "string"</code>, descrições que só repetem o nome do campo e respostas de erro sem dizer quando acontecem. Regra prática: uma boa descrição responde o que o tipo sozinho não responde.</p></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+<h2>9. Versionamento e compatibilidade <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Há duas versões diferentes num contrato, e confundi-las é comum.</p>
+<div class="grid2">
+  <div class="card"><h3 class="ch">info.version: 1.2.0</h3><p>Versão do <em>documento</em>. Muda a cada alteração do contrato e costuma seguir o versionamento semântico, MAJOR.MINOR.PATCH: MAJOR quebra clientes, MINOR acrescenta sem quebrar, PATCH corrige texto ou exemplo.</p></div>
+  <div class="card"><h3 class="ch">/api/v1/…</h3><p>Versão <em>na URL</em>. Muda só quando há quebra. A v1 continua no ar enquanto os clientes migram para a v2. Alternativas: cabeçalho ou tipo de mídia; a URL é a mais simples de ver e de testar.</p></div>
+</div>
+<p>Por isso todas as rotas do ServiceHub começam em <code>/api/v1</code>: a porta para uma v2 fica aberta desde o primeiro dia. Mas criar <code>/api/v2</code> para qualquer ajuste multiplica código a manter. A pergunta certa é: <em>a mudança quebra quem já usa?</em></p>
+<table>
+<thead><tr><th style="width:46%">Mudança no contrato</th><th>Efeito em quem já consome</th></tr></thead>
+<tr><td>Nova rota ou novo parâmetro opcional</td><td>Compatível: ninguém é obrigado a usar.</td></tr>
+<tr><td>Novo campo na resposta</td><td>Compatível, se o cliente ignora campos desconhecidos.</td></tr>
+<tr><td>Remover ou renomear campo da resposta</td><td>Quebra: o cliente lê um campo que sumiu.</td></tr>
+<tr><td>Campo opcional da entrada vira obrigatório</td><td>Quebra: requisições antigas passam a dar 400.</td></tr>
+<tr><td>Trocar o tipo de um campo (número para texto)</td><td>Quebra: a leitura falha no cliente.</td></tr>
+<tr><td>Trocar o status de sucesso (200 para 201)</td><td>Quebra clientes que testam o código exato.</td></tr>
+</table>
+<p>A regra que resume a tabela é uma leitura do <strong>princípio da robustez</strong>: na entrada, seja tolerante; na saída, nunca retire o que já prometeu. Um caso sutil: acrescentar um valor novo a um <code>enum</code> da <em>resposta</em> pode quebrar clientes que tratam só os valores conhecidos.</p>
+
+<!-- 10 -->
+<h2 id="s10">10. O contrato a serviço de ferramentas <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Um documento legível por máquina gera trabalho pronto. Três usos aparecem em qualquer equipe que leva o contrato a sério (aqui, só o conceito; não vamos gerar clientes na disciplina):</p>
+<ul>
+  <li><strong>Cliente gerado:</strong> um gerador, como o OpenAPI Generator, lê o documento e produz classes e métodos tipados em TypeScript, Java, Kotlin e outras linguagens.</li>
+  <li><strong>Servidor simulado (mock):</strong> responde com os exemplos do contrato. O front-end trabalha antes de o back-end existir.</li>
+  <li><strong>Teste de contrato:</strong> confere se a implementação responde como o contrato promete, com os mesmos status, campos e tipos, e falha antes que o cliente descubra. Na variante guiada pelo consumidor, cada cliente declara o que espera e o servidor prova que atende.</li>
+</ul>
+<p>Ferramentas de apoio consomem o mesmo arquivo: o <strong>Swagger UI</strong> lista as rotas e envia requisições; o <strong>Swagger Editor</strong> valida o YAML com prévia ao lado, útil no design-first; o <strong>Postman</strong>, cliente HTTP com coleções, variáveis de ambiente e testes, importa um documento OpenAPI e cria a coleção. É a vantagem de um padrão aberto.</p>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+<h2>11. As anotações do Springdoc <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Só com a dependência no <code>pom.xml</code>, o Springdoc já documenta todas as rotas, mas mal: sem descrições, com status adivinhados e sem exemplos. As anotações transformam esse rascunho em contrato. Cada uma responde a uma pergunta de quem consome:</p>
+<table>
+<thead><tr><th style="width:26%">Pergunta</th><th style="width:30%">Anotação</th><th>Onde</th></tr></thead>
+<tr><td>Em que grupo está?</td><td><code>@Tag(name, description)</code></td><td>Na classe do controller, uma por recurso.</td></tr>
+<tr><td>O que a rota faz?</td><td><code>@Operation(summary, description)</code></td><td>No método.</td></tr>
+<tr><td>O que pode voltar?</td><td><code>@ApiResponses</code> / <code>@ApiResponse</code></td><td>No método, um por status.</td></tr>
+<tr><td>O que eu envio?</td><td><code>@Parameter</code>, <code>@ParameterObject</code>, <code>@Schema</code></td><td>Nos parâmetros e nos campos dos DTOs.</td></tr>
+</table>
+<p>Um controller genérico de livros, documentado (resumido):</p>
+<pre>@RestController
+@RequestMapping("/livros")
+@Tag(name = "Livros", description = "Acervo da biblioteca")
+public class LivroController {
+
+  @Operation(summary = "Buscar livro por id",
+      description = "Público. Livro retirado do acervo responde 404.")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Livro encontrado"),
+    @ApiResponse(responseCode = "404", description = "Livro não existe",
+      content = @Content(mediaType = "application/problem+json",
+        schema = @Schema(implementation = ProblemDetail.class),
+        examples = @ExampleObject(name = "nao-encontrado", value = """
+          {"type": "urn:biblioteca:problem:not-found",
+           "title": "Recurso não encontrado", "status": 404,
+           "detail": "Livro não encontrado: 99", "instance": "/livros/99"}""")))
+  })
+  @GetMapping("/{id}")
+  public LivroResponse buscar(
+      @Parameter(description = "Id do livro", example = "42") @PathVariable Long id) { ... }
+}</pre>
+<ul>
+  <li><strong><code>summary</code></strong> é verbo e objeto, curto; <strong><code>description</code></strong> diz quem pode chamar e o que a rota decide sozinha.</li>
+  <li>Cada <strong><code>@ApiResponse</code></strong> de erro aponta para <code>ProblemDetail</code>, com o tipo de mídia <code>application/problem+json</code>. O <strong><code>@ExampleObject</code></strong> mostra no Swagger UI um corpo de erro realista.</li>
+  <li><strong><code>@ParameterObject</code></strong>, usado num <code>Pageable</code>, abre o objeto em <code>page</code>, <code>size</code> e <code>sort</code>, um campo cada no formulário.</li>
+  <li><strong><code>@Schema(description, example)</code></strong> num campo de record vira descrição e exemplo do schema; o exemplo pré-preenche o corpo do <em>Try it out</em>.</li>
+  <li><strong><code>@SecurityRequirements</code></strong> vazio numa operação diz "esta rota é pública", tirando o cadeado que um requisito global de segurança colocaria.</li>
+</ul>
+<div class="warn"><div class="label">Documente o que existe, nem mais nem menos</div><p>Dois erros opostos. Documentar 400, 401, 403, 404, 409 e 500 em toda rota "por garantia" mente sobre o contrato. Inventar uma classe <code>ErrorResponse</code> que não existe no projeto também: o erro real é <code>ProblemDetail</code>. Cada status documentado deve corresponder a uma condição que o código produz ou que o contrato do Mapa exige.</p></div>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+<h2>12. Aplicação no ServiceHub <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Os trechos abaixo são do código real do projeto. Cortes estão marcados como "resumido".</p>
+<h3>Dependência e propriedades</h3>
+<pre>&lt;!-- pom.xml --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springdoc&lt;/groupId&gt;
+  &lt;artifactId&gt;springdoc-openapi-starter-webmvc-ui&lt;/artifactId&gt;
+  &lt;version&gt;3.0.3&lt;/version&gt;
+&lt;/dependency&gt;
+
+# application.properties
+springdoc.api-docs.path=/api-docs
+springdoc.swagger-ui.path=/docs
+springdoc.swagger-ui.operations-sorter=method
+springdoc.swagger-ui.tags-sorter=alpha
+springdoc.swagger-ui.doc-expansion=none</pre>
+<p>A linha 3.x do Springdoc é a que acompanha o Spring Boot 4; a 2.x, comum em tutoriais, não funciona com ele. Os caminhos padrão seriam <code>/v3/api-docs</code> e <code>/swagger-ui.html</code>; o ServiceHub usa <code>/docs</code> e <code>/api-docs</code>, como o Mapa pede.</p>
+
+<h3>O bean OpenAPI: cabeçalho e segurança</h3>
+<p><code>config/OpenApiConfig.java</code> (resumido; a descrição completa e a licença foram cortadas):</p>
+<pre style="break-inside:auto">@Bean
+public OpenAPI servicehubOpenAPI(ObjectProvider&lt;BuildProperties&gt; buildProperties) {
+    BuildProperties props = buildProperties.getIfAvailable();
+    return new OpenAPI()
+        .info(new Info().title("ServiceHub API")
+            .version(props != null ? props.getVersion() : "dev"))
+        .servers(List.of(
+            new Server().url("http://localhost:8080").description("Execução local"),
+            new Server().url("http://localhost:8090").description("Docker Compose")))
+        .components(new Components().addSecuritySchemes(BEARER, new SecurityScheme()
+            .type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")))
+        .addSecurityItem(new SecurityRequirement().addList(BEARER));
+}</pre>
+<p>O <code>addSecurityItem</code> global marca todas as rotas como protegidas; as públicas (cadastro, login, catálogo) declaram <code>@SecurityRequirements</code> vazio. Os <code>servers</code> viram o seletor de ambiente do <em>Try it out</em>. Um segundo bean, <code>securityResponsesCustomizer</code> (um <code>OpenApiCustomizer</code>), percorre as operações e acrescenta 401 e 403, com schema <code>ProblemDetail</code>, a toda rota que não é pública. Assim esses dois status não precisam ser repetidos em cada controller.</p>
+
+<h3>Grupos v1 e public</h3>
+<p style="text-align:left">Dois beans <code>GroupedOpenApi</code> recortam a documentação. O grupo <code>v1</code> (<code>.group("v1").pathsToMatch("/api/v1/**")</code>) traz a API inteira; o grupo <code>public</code> reúne o que um visitante sem conta usa: cadastro, login, catálogo, avaliações e <code>/info</code>, excluindo <code>/api/v1/services/*/status</code>. Os dois recebem o <code>securityResponsesCustomizer</code>. Cada grupo tem a sua especificação (<code>/api-docs/v1</code> e <code>/api-docs/public</code>), e um seletor no topo do <code>/docs</code> troca entre eles.</p>
+<h3>Um controller documentado</h3>
+<p style="text-align:left"><code>controller/ServiceOfferingController.java</code> (resumido; <code>PROBLEM</code> vale <code>"application/problem+json"</code>):</p>
+<pre style="break-inside:auto">@Tag(name = "Serviços",
+     description = "Catálogo de serviços oferecidos pelos prestadores da plataforma")
+public class ServiceOfferingController {
+
+    @Operation(summary = "Cadastrar serviço",
+        description = "Apenas PROVIDER. O prestador é o usuário do token "
+            + "(providerId não é aceito no corpo). Responde com o serviço "
+            + "criado e o header Location.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Serviço criado"),
+        @ApiResponse(responseCode = "400",
+            description = "Campos inválidos, categoria inexistente ou JSON malformado",
+            content = @Content(mediaType = PROBLEM,
+                schema = @Schema(implementation = ProblemDetail.class))),
+        @ApiResponse(responseCode = "403",
+            description = "Apenas PROVIDER publica serviços",
+            content = @Content(mediaType = PROBLEM,
+                schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    @PostMapping
+    public ResponseEntity&lt;ServiceOfferingResponseDTO&gt; create(
+            @Valid @RequestBody ServiceOfferingDTO dto) { ... }</pre>
+<p>A <code>description</code> conta uma regra de segurança (o prestador vem do token): quem consome precisa saber disso para montar o corpo certo. Na listagem, cada filtro tem <code>@Parameter(description, example)</code>, o <code>Pageable</code> recebe <code>@ParameterObject</code>, e a <code>@Operation</code> diz em texto o tamanho padrão (20), o máximo (100) e os campos aceitos em <code>sort</code>, porque o teto não aparece sozinho na especificação.</p>
+
+<h3>Um DTO com @Schema</h3>
+<pre>@Schema(description = "Abertura de ordem de serviço. "
+        + "Cliente, status e preço são definidos pela API.")
+public record ServiceRequestCreateDTO(
+        @Schema(description = "ID do serviço contratado", example = "12")
+        @NotNull(message = "O serviço é obrigatório")
+        @Positive(message = "O id do serviço deve ser positivo")
+        Long serviceId,
+
+        @Schema(description = "Data e hora desejadas (horário de Brasília)",
+                example = "2026-11-10T09:00:00")
+        @Future(message = "A data agendada deve estar no futuro")
+        LocalDateTime scheduledAt,
+        String notes   // @Schema e @Size(max = 1000) omitidos (resumido)
+) { }</pre>
+<p>A descrição da classe avisa o que o cliente <em>não</em> envia: é a defesa contra mass assignment da Semana 04, agora escrita no contrato.</p>
+
+<h3>O teste de contrato do projeto</h3>
+<p><code>OpenApiIntegrationTest</code> (resumido) busca a especificação real e confere o que o contrato promete:</p>
+<pre>@Test
+@DisplayName("deve documentar o esquema bearerAuth (botão Authorize no Swagger)")
+void deveDocumentarEsquemaBearer() {
+    String body = rest.getForEntity("/api-docs/v1", String.class).getBody();
+    assertThat(body).contains("\"bearerAuth\"")
+            .contains("\"scheme\":\"bearer\"").contains("\"bearerFormat\":\"JWT\"");
+}</pre>
+<p>Os outros casos da mesma classe conferem que <code>/docs</code> abre, que o grupo <code>public</code> não expõe <code>/api/v1/users</code> e que a especificação menciona <code>ProblemDetail</code>.</p>
+</section>
+
+<!-- 13 -->
+<section class="page" id="s13">
+<h2>13. Construindo com IA <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Documentação é onde a IA mais "inventa": ela lista status plausíveis em vez dos reais. Por isso a especificação vem do Mapa e do código, nunca do assistente.</p>
+<ul>
+  <li><strong>Especificar:</strong> escreva a tabela de status por rota a partir da seção 6.3 do Mapa.</li>
+  <li><strong>Gerar:</strong> peça um plano que ligue cada status a uma condição do código; só depois as anotações.</li>
+  <li><strong>Revisar:</strong> cada status bate com uma exceção do código ou com o Mapa? Nenhum 500?</li>
+  <li><strong>Provar:</strong> um corpo inválido no <code>/docs</code> devolve o 400 documentado.</li>
+</ul>
+
+<h3>Prompt fraco e prompt bom</h3>
+<div class="grid2">
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>adiciona swagger no projeto e documenta tudo</pre><p>Vêm Springfox, 500 em toda rota e uma <code>ErrorResponse</code> inventada.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><p>Fixa versão e caminhos, entrega a tabela de status, exige ProblemDetail com exemplo, pede plano e um aceite verificável. Está logo abaixo.</p></div>
+</div>
+
+<h3>O prompt desta semana</h3>
+<p>Ponto de partida: o projeto da Semana 04, com o CRUD de serviços e o <code>GlobalExceptionHandler</code>.</p>
+<pre style="break-inside:auto">Contexto: API ServiceHub, Java 21, Spring Boot 4.1, pacote
+com.servicehub. Já existem ServiceOfferingController (CRUD em
+/api/v1/services), DTOs em record e GlobalExceptionHandler com
+ProblemDetail (RFC 9457), type urn:servicehub:problem:&lt;tipo&gt;.
+O contrato é a seção 6.3 do Mapa (anexo).
+
+Objetivo: documentar o ServiceOfferingController no OpenAPI.
+
+Status por rota (seção 6.3 do Mapa):
+- POST   /services        201 · 400 · 401 · 403
+- GET    /services        200 · 400 (filtro ou sort inválido)
+- GET    /services/{id}   200 · 404
+- PUT    /services/{id}   200 · 400 · 401 · 403 · 404 · 409
+- DELETE /services/{id}   204 · 401 · 403 · 404 · 409
+
+Restrições:
+- springdoc-openapi-starter-webmvc-ui 3.0.x. NÃO use Springfox nem
+  springdoc 2.x. Caminhos: springdoc.swagger-ui.path=/docs e
+  springdoc.api-docs.path=/api-docs.
+- @Tag na classe; @Operation com summary e description em cada rota.
+- Cada erro: @ApiResponse com @Content(mediaType =
+  "application/problem+json", schema = @Schema(implementation =
+  ProblemDetail.class)) e um @ExampleObject com o JSON do Mapa
+  (type, title, status, detail, instance).
+- NUNCA documente 500. NÃO crie classe ErrorResponse.
+- 401 e 403 de token: declare o esquema bearerAuth no bean OpenAPI
+  e um OpenApiCustomizer que os acrescenta às rotas protegidas. As
+  rotas GET públicas recebem @SecurityRequirements vazio.
+- Listagem: @Parameter com exemplo em cada filtro e @ParameterObject
+  no Pageable; a description informa padrão 20, máximo 100 e os
+  campos aceitos em sort.
+- @Schema com exemplo do domínio nos DTOs (nunca "string").
+- Não altere o comportamento de nenhuma rota.
+
+Antes do código, mostre um plano: uma tabela com rota, status,
+condição que o produz (exceção ou regra) e type. Marque como
+"pendente" o status que o Mapa exige e o código ainda não produz
+(ex.: 401/403 antes da Semana 08; 409 antes das ordens).
+
+Critério de aceite: o Swagger em /docs mostra, em cada rota, cada
+status da tabela com o schema ProblemDetail e o exemplo; nenhuma
+rota mostra 500; /api-docs/v1 contém "bearerAuth".</pre>
+
+<h3>O que a IA costuma errar nesta etapa</h3>
+<ul>
+  <li>Springfox ou springdoc 2.x, que não funcionam com o Boot 4; caminhos padrão <code>/v3/api-docs</code> e <code>/swagger-ui.html</code>.</li>
+  <li>Inventar <code>ErrorResponse</code> em vez de usar <code>ProblemDetail</code>.</li>
+  <li>Listar "400 a 500 em toda rota por garantia", inclusive status que a rota não devolve.</li>
+  <li>Esquecer <code>@SecurityRequirements</code> nas rotas públicas, que ficam com cadeado no <code>/docs</code>.</li>
+</ul>
+<h3>Checklist de revisão</h3>
+<ul class="checklist">
+  <li>Springdoc 3.0.x no <code>pom.xml</code>? <code>/docs</code> e <code>/api-docs</code> nas propriedades?</li>
+  <li>Cada status anotado aparece na tabela do plano, ligado a uma exceção do <code>GlobalExceptionHandler</code> ou a uma regra do Mapa?</li>
+  <li>Todo erro usa <code>application/problem+json</code> e <code>ProblemDetail</code>, com exemplo cujo <code>type</code> existe em <code>ProblemTypes</code>? Nenhuma rota documenta 500?</li>
+  <li>O <code>git diff</code> mostra só anotações e configuração?</li>
+</ul>
+<h3>Prova</h3>
+<pre>mvnw.cmd spring-boot:run
+curl -s http://localhost:8080/api-docs/v1</pre>
+<p>Abra <code>http://localhost:8080/docs</code>: <code>POST /api/v1/services</code> mostra 201, 400, 401 e 403, cada erro com schema e exemplo; envie <code>"price": 0</code> pelo <em>Try it out</em> e compare com o exemplo. Feche com um teste que lê <code>/api-docs/v1</code> e confere <code>bearerAuth</code> e <code>ProblemDetail</code>.</p>
+</section>
+
+<!-- 14 -->
+<section class="page" id="s14">
+<h2>14. Glossário <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<dl class="gloss">
+  <dt>Contrato de API</dt><dd>Descrição precisa do que o cliente pode pedir e do que o servidor promete devolver.</dd>
+  <dt>OpenAPI</dt><dd>Padrão aberto, em JSON ou YAML, para descrever APIs HTTP.</dd>
+  <dt>Swagger UI</dt><dd>Página que lê um documento OpenAPI, lista as rotas e permite testá-las.</dd>
+  <dt>Springdoc</dt><dd>Biblioteca que gera o documento OpenAPI a partir de controllers Spring.</dd>
+  <dt>Design-first</dt><dd>Abordagem em que o documento é escrito antes do código.</dd>
+  <dt>Code-first</dt><dd>Abordagem em que o documento é gerado a partir do código anotado.</dd>
+  <dt>Path / operation</dt><dd>Uma rota do documento e, dentro dela, o objeto de cada método HTTP.</dd>
+  <dt>Components</dt><dd>Seção de peças reutilizáveis: schemas, respostas, parâmetros, exemplos, segurança.</dd>
+  <dt>Schema</dt><dd>Descrição da forma de um dado, com o vocabulário do JSON Schema.</dd>
+  <dt>$ref</dt><dd>Referência a uma definição feita em outro ponto do documento.</dd>
+  <dt>securityScheme</dt><dd>Declaração de um mecanismo de autenticação, como bearer JWT.</dd>
+  <dt>Versionamento semântico</dt><dd>Esquema MAJOR.MINOR.PATCH: quebra, acréscimo compatível, correção.</dd>
+  <dt>Mudança que quebra</dt><dd>Alteração que faz um cliente existente parar de funcionar.</dd>
+  <dt>Teste de contrato</dt><dd>Teste que confere se a implementação responde como o contrato promete.</dd>
+</dl>
+
+<!-- 15 -->
+<h2 id="s15">15. Exercícios <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<ol class="ex">
+  <li>Com suas palavras, o que um contrato de API fixa? Por que renomear um campo da resposta quebra o cliente mesmo sem erro de compilação?</li>
+  <li>Uma empresa vai abrir uma API para dez parceiros externos, que precisam começar a integração antes de o back-end ficar pronto. Design-first ou code-first? Justifique e diga qual é o principal risco da abordagem escolhida.</li>
+  <li>Explique a diferença entre OpenAPI, Swagger UI, Springdoc e Springfox.</li>
+  <li>Num documento, a raiz tem <code>openapi: 3.0.3</code> e <code>info.version: 2.4.1</code>. O que cada número indica?</li>
+  <li>Escreva em YAML a operação <code>GET /autores/{id}</code> de uma API de biblioteca, com o parâmetro de caminho, a resposta 200 apontando por <code>$ref</code> para o schema <code>Autor</code> e a resposta 404.</li>
+  <li>Que palavras-chave de JSON Schema o Springdoc deve gerar para um campo <code>@NotBlank @Size(min = 3, max = 150) String title</code>? E para <code>@DecimalMin("0.01") BigDecimal price</code>?</li>
+  <li>Classifique como compatível ou quebra, justificando: (a) acrescentar o campo <code>rating</code> na resposta de serviço; (b) renomear <code>price</code> para <code>valor</code>; (c) tornar <code>scheduledAt</code> obrigatório na abertura de ordem; (d) criar <code>GET /api/v1/categories</code>.</li>
+  <li>Analise a anotação: <code>@ApiResponse(responseCode = "500", description = "Erro", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))</code> em <code>GET /api/v1/services/{id}</code>. Aponte dois problemas em relação às regras do ServiceHub e reescreva a documentação de erro correta para essa rota.</li>
+  <li>Para que serve <code>@SecurityRequirements</code> vazio numa operação? O que acontece no <code>/docs</code> se ele faltar em <code>POST /api/v1/auth/login</code>?</li>
+  <li>Diferencie cliente gerado, servidor simulado e teste de contrato. Qual dos três o ServiceHub já tem, e onde?</li>
+  <li>Escreva um prompt, no formato da seção 13, para documentar o <code>AuthController</code> (<code>/auth/register</code>, <code>/auth/login</code>, <code>/auth/me</code>) com os status da seção 6.1 do Mapa. Inclua o critério de aceite.</li>
+</ol>
+
+<!-- 16 -->
+<h2 id="s16">16. Para estudar <a class="back" href="#conteudo">↑ conteúdo</a></h2>
+<p>Leituras disponíveis na Minha Biblioteca, pelo acesso institucional:</p>
+<ul>
+  <li>RODRIGUES, T. N. et al. <em>Integração de aplicações</em>. Grupo A, 2020. Capítulos "Conceito e uso de web service e APIs" e "Software de apoio" (Postman).</li>
+  <li>FOWLER, M. <em>Padrões de arquitetura de aplicações corporativas</em>. Bookman, 2006. Capítulo 15, Data Transfer Object: o DTO é exatamente o que vira schema no contrato.</li>
+</ul>
+<p>Referências abertas:</p>
+<ul>
+  <li>OpenAPI Specification: <code>spec.openapis.org</code>. Leia as seções Paths, Components e Schema Object.</li>
+  <li>Documentação oficial do Springdoc: <code>springdoc.org</code>.</li>
+  <li>IETF. RFC 9457: <em>Problem Details for HTTP APIs</em>. 2023 (o formato de erro documentado nesta semana).</li>
+</ul>
+</section>
+
+</body>
+</html>
