@@ -24,10 +24,10 @@ public class JwtUserConverter implements Converter<Jwt, AbstractAuthenticationTo
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
         Object uid = jwt.getClaim(TokenService.CLAIM_USER_ID);
-        if (!(uid instanceof Number number)) {
-            throw new DisabledException("Token sem identificação de usuário.");
+        if (!(uid instanceof Long || uid instanceof Integer)) {
+            throw new DisabledException("Token sem identificação de usuário válida.");
         }
-        User user = userRepository.findById(number.longValue())
+        User user = userRepository.findById(((Number) uid).longValue())
                 .filter(User::isActive)
                 .orElseThrow(() -> new DisabledException("Usuário inexistente ou desativado."));
         return new AuthUserAuthentication(new AuthUser(user.getId(), user.getEmail(), user.getRole()), jwt);

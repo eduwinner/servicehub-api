@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private static final String INVALID = "E-mail ou senha inválidos.";
+    /** Hash BCrypt fixo: quando o e-mail não existe, o BCrypt roda mesmo assim e o tempo de resposta não revela contas. */
+    private static final String DUMMY_HASH = "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -35,11 +37,12 @@ public class AuthService {
 
     /** Mesma resposta para e-mail inexistente, senha errada ou conta inativa: não revela qual falhou. */
     public TokenResponse login(LoginDTO dto) {
-        User user = userRepository.findByEmail(UserService.normalizeEmail(dto.email()))
-                .filter(User::isActive)
-                .filter(u -> passwordEncoder.matches(dto.password(), u.getPasswordHash()))
-                .orElseThrow(() -> new BadCredentialsException(INVALID));
-        return tokenService.issue(user);
+        var found = userRepository.findByEmail(UserService.normalizeEmail(dto.email()));
+        boolean matches = passwordEncoder.matches(dto.password(), found.map(User::getPasswordHash).orElse(DUMMY_HASH));
+        if (found.isEmpty() || !matches || !found.get().isActive()) {
+            throw new BadCredentialsException(INVALID);
+        }
+        return tokenService.issue(found.get());
     }
 
     public UserResponseDTO me() {

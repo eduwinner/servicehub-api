@@ -65,11 +65,11 @@ public class ReviewService {
         }
     }
 
-    /** Público; serviço inativo responde 404 como em GET /services/{id} (RN12). */
+    /** Público; serviço inativo responde 404, exceto para o dono e o ADMIN (RN12). */
     @Transactional(readOnly = true)
     public Page<ReviewResponseDTO> byService(Long serviceId, Pageable pageable) {
         ServiceOffering service = serviceRepository.findById(serviceId)
-                .filter(ServiceOffering::isActive)
+                .filter(s -> s.isActive() || canManage(s))
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado: " + serviceId));
         return reviewRepository.findByRequest_Service_Id(service.getId(), pageable).map(this::toResponse);
     }
@@ -78,6 +78,12 @@ public class ReviewService {
     public ReviewResponseDTO findById(Long id) {
         return reviewRepository.findById(id).map(this::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Avaliação não encontrada: " + id));
+    }
+
+    private boolean canManage(ServiceOffering service) {
+        return currentUser.find()
+                .map(u -> u.isAdmin() || u.id().equals(service.getProvider().getId()))
+                .orElse(false);
     }
 
     private ReviewResponseDTO toResponse(Review r) {

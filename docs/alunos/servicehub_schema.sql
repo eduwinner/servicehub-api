@@ -12,6 +12,15 @@
 --       até este estado. Nunca edite uma migração já aplicada.
 --    3. Ajuste as entidades JPA até o Hibernate validar sem erro.
 --
+--  ATENÇÃO ao migrar um banco que já tem dados:
+--    • Antes de criar o CHECK (email = LOWER(email)), rode
+--        SELECT LOWER(email), COUNT(*) FROM users GROUP BY LOWER(email) HAVING COUNT(*) > 1;
+--      E-mails iguais exceto pelas maiúsculas viram duplicados ao normalizar e a UNIQUE falha.
+--      Resolva os duplicados (mescle ou renomeie) ANTES da migração.
+--    • Antes dos CHECKs de price, category e status, confira se não há valores fora da regra.
+--    • Uma migração que falhou no meio deixa o Flyway marcado como failed: corrija o SQL e use
+--      flyway repair (ou apague o banco de desenvolvimento) antes de tentar de novo.
+--
 --  Para conferir o schema isolado, num banco vazio:
 --    docker run --rm -d --name schema-check -e POSTGRES_PASSWORD=secret -p 5499:5432 postgres:16-alpine
 --    psql -h localhost -p 5499 -U postgres -f servicehub_schema.sql

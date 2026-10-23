@@ -166,7 +166,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "Erro interno. Informe o X-Request-Id ao suporte.", request);
     }
 
-    static ProblemDetail problem(HttpStatus status, URI type, String title, String detail, HttpServletRequest request) {
+    /** Fonte única do formato de erro: usado também pelos filtros de segurança (ProblemResponseWriter). */
+    public static ProblemDetail problem(HttpStatus status, URI type, String title, String detail, HttpServletRequest request) {
         return problem(status, type, title, detail, request.getRequestURI());
     }
 
