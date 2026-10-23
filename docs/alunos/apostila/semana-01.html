@@ -36,12 +36,12 @@
   .warn .label { color: var(--bad); }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-bottom: 3.5mm; }
   .card { border: 1px solid var(--line); border-radius: 4px; padding: 2.5mm 3mm; break-inside: avoid; }
-  .card h4 { margin: 0 0 1.5mm; font-size: 11.5pt; }
+  .card .ch { margin: 0 0 1.5mm; font-size: 11.5pt; }
   .card p { text-align: left; }
   .card pre { font-size: 8.8pt; }
   .bad { border-color: #f0d2ad; background: var(--bad-soft); }
   .good { border-color: #b7e0cc; background: var(--ok-soft); }
-  .bad h4 { color: var(--bad); } .good h4 { color: var(--ok); }
+  .bad .ch { color: var(--bad); } .good .ch { color: var(--ok); }
   .figure { border: 1px solid var(--line); border-radius: 4px; padding: 3mm; margin: 0 0 4mm; break-inside: avoid; text-align: center; }
   .figure svg { max-width: 96%; }
   figcaption { font-size: 9.4pt; color: var(--muted); margin-top: 1.5mm; }
@@ -59,7 +59,7 @@
   .cover .sub { font-size: 13.5pt; color: var(--accent); margin-bottom: 6mm; }
   .cover .lead { font-size: 12pt; }
   .toc { border: 1px solid var(--line); border-radius: 4px; padding: 3mm 5mm; background: #fafbfd; margin-top: 5mm; }
-  .toc h3 { margin-top: 0; }
+  .toc .toc-h { margin: 0 0 2mm; padding: 0; border: 0; font-size: 12.5pt; }
   .toc ol { padding-left: 6mm; columns: 2; column-gap: 12mm; font-size: 11pt; margin: 0; }
   a { color: var(--accent); text-decoration: none; }
   .back { float: right; font-size: 9.5pt; font-weight: 400; margin-top: 3mm; }
@@ -79,7 +79,7 @@
   </div>
 
   <div class="toc" id="conteudo">
-    <h3>Conteúdo</h3>
+    <h2 class="toc-h">Conteúdo</h2>
     <ol>
       <li><a href="#s1">Objetivos da semana</a></li>
       <li><a href="#s2">O que é uma API</a></li>
@@ -132,10 +132,10 @@
 <!-- 3 -->
 <h2 id="s3">3. Por que as APIs importam <a class="back" href="#conteudo">↑ conteúdo</a></h2>
 <div class="grid2">
-  <div class="card"><h4>Integração</h4><p>Sistemas escritos em linguagens e épocas diferentes conversam por um formato comum, sem que um precise conhecer o código do outro.</p></div>
-  <div class="card"><h4>Reuso</h4><p>A mesma regra de negócio, implementada uma vez, atende ao site, ao aplicativo e aos parceiros.</p></div>
-  <div class="card"><h4>Encapsulamento e segurança</h4><p>A API expõe só o necessário. Tabelas, senhas e regras internas ficam atrás dela, o que reduz a superfície de ataque.</p></div>
-  <div class="card"><h4>Evolução independente</h4><p>Times diferentes mudam o front-end e o back-end em ritmos diferentes, desde que o contrato seja mantido.</p></div>
+  <div class="card"><h3 class="ch">Integração</h3><p>Sistemas escritos em linguagens e épocas diferentes conversam por um formato comum, sem que um precise conhecer o código do outro.</p></div>
+  <div class="card"><h3 class="ch">Reuso</h3><p>A mesma regra de negócio, implementada uma vez, atende ao site, ao aplicativo e aos parceiros.</p></div>
+  <div class="card"><h3 class="ch">Encapsulamento e segurança</h3><p>A API expõe só o necessário. Tabelas, senhas e regras internas ficam atrás dela, o que reduz a superfície de ataque.</p></div>
+  <div class="card"><h3 class="ch">Evolução independente</h3><p>Times diferentes mudam o front-end e o back-end em ritmos diferentes, desde que o contrato seja mantido.</p></div>
 </div>
 <p>Há também o lado de negócio: muitas empresas vendem capacidades técnicas como produto, por meio de APIs públicas de pagamento, mapas ou mensagens. Para quem desenvolve, isso significa que o contrato da API é tão importante quanto o código que a implementa.</p>
 </section>
@@ -257,13 +257,13 @@
 <h3>Inversão de controle e injeção de dependência</h3>
 <p>O <strong>Spring Framework</strong> é, antes de tudo, um <strong>contêiner de inversão de controle</strong>. Em vez de cada classe criar os objetos de que precisa, o Spring cria esses objetos, chamados <strong>beans</strong>, e os entrega a quem pede. Esse mecanismo se chama <strong>injeção de dependência</strong>.</p>
 <div class="grid2">
-<div class="card bad"><h4>Sem injeção</h4>
+<div class="card bad"><h3 class="ch">Sem injeção</h3>
 <pre>class PedidoService {
   private final Repositorio repo =
       new RepositorioPostgres();
 }</pre>
 <p>A classe escolhe sozinha a implementação. Trocar o banco ou testar com um dublê exige mudar o código.</p></div>
-<div class="card good"><h4>Com injeção</h4>
+<div class="card good"><h3 class="ch">Com injeção</h3>
 <pre>@Service
 class PedidoService {
   private final Repositorio repo;
@@ -337,13 +337,13 @@ class PedidoService {
 <h2 id="s10">10. Nomeando recursos <a class="back" href="#conteudo">↑ conteúdo</a></h2>
 <p>A URI identifica o recurso; o método HTTP diz a ação. Por isso URIs usam <strong>substantivos</strong>, e não verbos.</p>
 <div class="grid2">
-<div class="card good"><h4>Bem formadas</h4>
+<div class="card good"><h3 class="ch">Bem formadas</h3>
 <pre>GET    /api/v1/services
 GET    /api/v1/services/12
 POST   /api/v1/services
 PATCH  /api/v1/service-requests/31/status
 GET    /api/v1/services/12/reviews</pre></div>
-<div class="card bad"><h4>Antipadrões</h4>
+<div class="card bad"><h3 class="ch">Antipadrões</h3>
 <pre>GET  /getService?id=12
 POST /createNewService
 GET  /service/delete?id=12
@@ -400,8 +400,8 @@ PUT  /UpdateServiceData</pre></div>
 
 <h3>Prompt fraco e prompt bom</h3>
 <div class="grid2">
-<div class="card bad"><h4>Fraco</h4><pre>me explica o que é REST</pre><p>A resposta vem genérica, pode misturar conceitos e não se conecta ao que você está construindo.</p></div>
-<div class="card good"><h4>Bom</h4><pre>Estou estudando APIs REST para um projeto em Java 21 e Spring Boot 4. Explique as seis restrições de Fielding, uma por vez, com um exemplo de API de agendamento de serviços. Depois me faça 3 perguntas para eu verificar se entendi. Não use exemplos com SOAP.</pre><p>Dá contexto, delimita o assunto, pede exemplo concreto e transforma a IA em tutora, não em resposta pronta.</p></div>
+<div class="card bad"><h3 class="ch">Fraco</h3><pre>me explica o que é REST</pre><p>A resposta vem genérica, pode misturar conceitos e não se conecta ao que você está construindo.</p></div>
+<div class="card good"><h3 class="ch">Bom</h3><pre>Estou estudando APIs REST para um projeto em Java 21 e Spring Boot 4. Explique as seis restrições de Fielding, uma por vez, com um exemplo de API de agendamento de serviços. Depois me faça 3 perguntas para eu verificar se entendi. Não use exemplos com SOAP.</pre><p>Dá contexto, delimita o assunto, pede exemplo concreto e transforma a IA em tutora, não em resposta pronta.</p></div>
 </div>
 
 <h3>O prompt desta semana</h3>
