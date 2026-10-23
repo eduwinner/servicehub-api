@@ -22,7 +22,7 @@ docker compose up -d --build
 - A API só sobe depois que o Postgres passa no healthcheck; a própria API tem healthcheck em `/actuator/health`.
 - Dados persistem no volume `pg_data` (`docker compose down` mantém; `down -v` apaga).
 - Variáveis: crie um `.env` (opcional) para trocar `JWT_SECRET`, senha do admin, portas (`API_PORT`, `DB_PORT`) etc. Os padrões do Compose são só para desenvolvimento.
-- pgAdmin: `docker compose --profile tools up -d` (porta 8091).
+- pgAdmin (porta 8091, só em localhost, sem login): `docker compose --profile tools up -d`. Já abre com dois servidores no grupo **ServiceHub**: o banco deste projeto e o "Banco do aluno" em `localhost:5433`. Para inspecionar só o banco de uma equipe (com o compose dela rodando), suba apenas o pgAdmin: `docker compose --profile tools up -d pgadmin`. Usuário/senha do banco do aluno diferentes do padrão: defina `STUDENT_DB_USER`/`STUDENT_DB_PASS` ou ajuste em Properties.
 - Depuração remota (perfil dev, porta 5005): `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build`.
 - Admin inicial padrão do Compose: `admin@servicehub.com` / `Admin123`.
 

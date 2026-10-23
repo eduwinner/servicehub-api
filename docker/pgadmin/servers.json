@@ -1,0 +1,26 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "ServiceHub (referência)",
+      "Group": "ServiceHub",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "servicehub",
+      "Username": "servicehub",
+      "PassFile": "/tmp/pgpassfile",
+      "SSLMode": "prefer",
+      "Comment": "Banco deste projeto, pela rede interna do Docker Compose."
+    },
+    "2": {
+      "Name": "Banco do aluno (localhost:5433)",
+      "Group": "ServiceHub",
+      "Host": "host.docker.internal",
+      "Port": 5433,
+      "MaintenanceDB": "servicehub",
+      "Username": "servicehub",
+      "PassFile": "/tmp/pgpassfile",
+      "SSLMode": "prefer",
+      "Comment": "Postgres publicado no host pelo compose do aluno. Se a porta, o usuário ou a senha forem outros, ajuste em Properties > Connection."
+    }
+  }
+}

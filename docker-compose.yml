@@ -1,7 +1,7 @@
 # ServiceHub API + PostgreSQL (Aula 12)
 #
 #   docker compose up -d --build           API em http://localhost:8090 (Swagger em /docs)
-#   docker compose --profile tools up -d   também sobe o pgAdmin em http://localhost:8091
+#   docker compose --profile tools up -d   também sobe o pgAdmin em http://localhost:8091 (sem login)
 #   docker compose down                    para tudo, mantendo os dados do volume pg_data
 #   docker compose down -v                 para tudo e APAGA os dados
 #
@@ -58,6 +58,11 @@ services:
       - servicehub-net
     restart: unless-stopped
 
+  # pgAdmin web (opcional). Abre já com dois servidores cadastrados, sem login nem senha:
+  #   "ServiceHub (referência)"          → postgres:5432, o banco deste compose
+  #   "Banco do aluno (localhost:5433)"  → Postgres publicado no host pelo compose do aluno
+  # Só o pgAdmin, sem subir o nosso banco (para inspecionar o banco de uma equipe):
+  #   docker compose --profile tools up -d pgadmin
   pgadmin:
     image: dpage/pgadmin4
     container_name: servicehub-pgadmin
@@ -65,10 +70,23 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    # grava as senhas num pgpass com permissão 600 (exigência do libpq) e segue o entrypoint oficial
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        echo "postgres:5432:*:${DB_USER:-servicehub}:${DB_PASS:-secret}" > /tmp/pgpassfile
+        echo "host.docker.internal:*:*:${STUDENT_DB_USER:-servicehub}:${STUDENT_DB_PASS:-secret}" >> /tmp/pgpassfile
+        chmod 600 /tmp/pgpassfile
+        exec /entrypoint.sh
+    volumes:
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
-      - "${PGADMIN_PORT:-8091}:80"
-    depends_on:
-      - postgres
+      - "127.0.0.1:${PGADMIN_PORT:-8091}:80"
     networks:
       - servicehub-net
 

@@ -31,7 +31,7 @@ Docker (Phase 5):
 
 ```
 docker compose up -d --build                       # API 8090 + Postgres 16 (5433), healthchecks, volume pg_data
-docker compose --profile tools up -d               # + pgAdmin 8091
+docker compose --profile tools up -d               # + pgAdmin 127.0.0.1:8091, desktop mode (no login), servers preloaded from docker/pgadmin/servers.json, passwords via /tmp/pgpassfile written by the entrypoint
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d   # dev profile + debug 5005
 ```
 
