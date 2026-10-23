@@ -84,7 +84,7 @@ A Aula 16 pede "Integração Front-End" na demo, mas nenhuma aula entrega um cli
 | Aula 11 slides 10–24 | JDK 17 nas imagens; o projeto pede 21 | Atualizar para `eclipse-temurin:21-jre-alpine` |
 | Aula 12 slide 5 | `version: '3.9'` é obsoleto no Compose v2 | Remover a chave |
 | Aula 12 slide 13 | Usa `${DB_HOST}` no `application.properties` sem default; local, sem `.env`, a app não sobe | Mostrar `${DB_HOST:localhost}` |
-| Aula 14 slide 6 | `actions/checkout@v3` e `setup-java@v3`; usar `@v4` | Atualizar |
+| Aula 14 slide 6 | `actions/checkout@v3` e `setup-java@v3`; usar `@v5` (como no ci.yml) | Atualizar |
 | Aula 4 slide 19 | `CREATE INDEX idx_users_email` redundante com `UNIQUE` (o projeto precisou de uma V6 só para remover) | Tirar do slide, ou manter como exemplo de "migração corretiva" |
 | Aulas 7, 13 e 15 | Não há slides (7 e 13 são provas; a 15, Governança, não existe na pasta) | Criar a 15; ela é a casa natural de métricas, logs, ADR e versionamento |
 
