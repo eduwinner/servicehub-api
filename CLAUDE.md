@@ -86,6 +86,13 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d   # dev pro
 - SQL is logged through `org.hibernate.SQL` (DEBUG), not `show-sql`, so lines carry the MDC `requestId`.
 - Postman collection: `docs/postman/servicehub.postman_collection.json` (full cycle, default baseUrl 8090).
 
+## CI, observability and test bench (Phase 6)
+
+- `.github/workflows/ci.yml`: `./mvnw -B verify` (Testcontainers works on ubuntu runners), JaCoCo artifact, `docker build`, then `docker compose up` + healthcheck + `curl /api/v1/info`. `mvnw` must keep the executable bit in git (`git update-index --chmod=+x mvnw`).
+- Actuator: health/info public; `/actuator/**` else ADMIN only (`SecurityConfig`). `micrometer-registry-prometheus` exposes `servicehub_service_requests_transitions_total{to}`.
+- `frontend/`: professor's test bench (vanilla HTML/CSS/JS, no build; `node serve.mjs` on 5173) running the 15-step contract cycle against any student API; Playwright spec `e2e/ciclo-completo.spec.mjs` with projects `rapido` (headless) and `aovivo` (headed). Use the local binary (`./node_modules/.bin/playwright`), not the global one. Steps expose `data-testid="step-<id>"` and `data-state` (idle|running|ok|fail|skipped); `body[data-run]` is ok|fail at the end.
+- Student material lives in `docs/alunos/` (`mapa.html` is the PDF source; regenerate `Mapa.pdf` with headless Chrome `--print-to-pdf --no-pdf-header-footer`).
+
 ## Architecture
 
 Standard layered Spring MVC structure under `src/main/java/com/servicehub/`:
