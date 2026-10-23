@@ -147,7 +147,7 @@
       <dt>Disciplina</dt><dd>Desenvolvimento de API Back-End (11296)</dd>
       <dt>Instituição</dt><dd>UniEVANGÉLICA — Universidade Evangélica de Goiás</dd>
       <dt>Professor</dt><dd>Prof. Esp. Eduardo Dias Pereira</dd>
-      <dt>Versão</dt><dd>1.1 — outubro de 2026 (inclui o requisito de CORS para a bancada de testes)</dd>
+      <dt>Versão</dt><dd>1.2 — outubro de 2026</dd>
     </dl>
   </div>
 </section>
@@ -518,9 +518,9 @@
     <tr><td class="m GET">GET</td><td><code>/users</code></td><td>ADMIN</td><td>200 Página de Usuário</td><td>401 · 403</td></tr>
     <tr><td class="m GET">GET</td><td><code>/users/{id}</code></td><td>o próprio ou ADMIN</td><td>200 Usuário</td><td>401 · 403 · 404</td></tr>
     <tr><td class="m PUT">PUT</td><td><code>/users/{id}</code></td><td>o próprio ou ADMIN</td><td>200 Usuário</td><td>400 · 401 · 403 · 404 — altera só nome, telefone, bio e avatar</td></tr>
-    <tr><td class="m DELETE">DELETE</td><td><code>/users/{id}</code></td><td>ADMIN</td><td>204</td><td>401 · 403 · 404 · 409 ordens ativas — exclusão lógica; desativa também os serviços do usuário</td></tr>
-    <tr><td class="m PATCH">PATCH</td><td><code>/users/{id}/role</code></td><td>ADMIN</td><td>200 Usuário</td><td>400 · 401 · 403 · 404</td></tr>
-    <tr><td class="m PATCH">PATCH</td><td><code>/users/{id}/active</code></td><td>ADMIN</td><td>200 Usuário</td><td>400 · 401 · 403 · 404 — reativar não reativa os serviços</td></tr>
+    <tr><td class="m DELETE">DELETE</td><td><code>/users/{id}</code></td><td>ADMIN</td><td>204</td><td>401 · 403 · 404 · 409 ordens ativas, própria conta ou último ADMIN — exclusão lógica (desativa os serviços)</td></tr>
+    <tr><td class="m PATCH">PATCH</td><td><code>/users/{id}/role</code></td><td>ADMIN</td><td>200 Usuário</td><td>400 · 401 · 403 · 404 · 409 própria conta ou último ADMIN</td></tr>
+    <tr><td class="m PATCH">PATCH</td><td><code>/users/{id}/active</code></td><td>ADMIN</td><td>200 Usuário</td><td>400 · 401 · 403 · 404 · 409 ao desativar (regras do DELETE)</td></tr>
   </tbody>
 </table>
 
@@ -531,7 +531,7 @@
     <tr><td class="m GET">GET</td><td><code>/services</code></td><td>público</td><td>200 Página de Serviço</td><td>— só ativos. Filtros: <code>category</code>, <code>providerId</code>, <code>minPrice</code>, <code>maxPrice</code>, <code>q</code> (busca no título, sem diferenciar maiúsculas)</td></tr>
     <tr><td class="m GET">GET</td><td><code>/services/{id}</code></td><td>público</td><td>200 Serviço</td><td>404 (inativo: 404 para o público, visível ao dono e ao ADMIN)</td></tr>
     <tr><td class="m POST">POST</td><td><code>/services</code></td><td>PROVIDER</td><td>201 Serviço</td><td>400 · 401 · 403 — o prestador é o usuário do token</td></tr>
-    <tr><td class="m PUT">PUT</td><td><code>/services/{id}</code></td><td>dono ou ADMIN</td><td>200 Serviço</td><td>400 · 401 · 403 · 404 — aceita <code>active</code> para reativar/desativar</td></tr>
+    <tr><td class="m PUT">PUT</td><td><code>/services/{id}</code></td><td>dono ou ADMIN</td><td>200 Serviço</td><td>400 · 401 · 403 · 404 · 409 <code>active=false</code> com ordens ativas</td></tr>
     <tr><td class="m DELETE">DELETE</td><td><code>/services/{id}</code></td><td>dono ou ADMIN</td><td>204</td><td>401 · 403 · 404 · 409 ordens ativas — exclusão lógica</td></tr>
     <tr><td class="m GET">GET</td><td><code>/services/{id}/reviews</code></td><td>público</td><td>200 Página de Avaliação</td><td>404</td></tr>
   </tbody>

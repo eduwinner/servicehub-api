@@ -22,6 +22,7 @@ import java.util.Locale;
 public class AdminInitializer implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(AdminInitializer.class);
+    static final String DEFAULT_PASSWORD = "Admin123";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -44,7 +45,19 @@ public class AdminInitializer implements ApplicationRunner {
             log.warn("SERVICEHUB_ADMIN_EMAIL/SERVICEHUB_ADMIN_PASSWORD não definidos: nenhum ADMIN inicial criado.");
             return;
         }
-        if (userRepository.existsByEmail(email)) {
+        if (DEFAULT_PASSWORD.equals(password)) {
+            log.warn("SERVICEHUB_ADMIN_PASSWORD está com o valor padrão do Compose. Troque antes de qualquer uso fora da sala de aula.");
+        }
+        var existing = userRepository.findByEmail(email);
+        if (existing.isPresent()) {
+            // recupera o acesso administrativo se a conta configurada foi desativada ou rebaixada
+            User admin = existing.get();
+            if (!admin.isActive() || admin.getRole() != Role.ADMIN) {
+                admin.setActive(true);
+                admin.setRole(Role.ADMIN);
+                userRepository.save(admin);
+                log.warn("ADMIN configurado ({}) estava desativado ou rebaixado e foi restaurado.", email);
+            }
             return;
         }
         User admin = new User();

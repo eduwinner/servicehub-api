@@ -87,6 +87,9 @@ public class UserController {
     @Operation(summary = "Remover usuário (ADMIN)", description = "Exclusão lógica: a conta deixa de logar, tokens emitidos deixam de valer e os serviços do usuário saem do catálogo.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Usuário removido"),
+            @ApiResponse(responseCode = "409", description = "Própria conta, último ADMIN ou usuário com ordens em andamento",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
     })
@@ -99,6 +102,9 @@ public class UserController {
     @Operation(summary = "Alterar papel (ADMIN)", description = "Promove ou rebaixa um usuário. O novo papel vale imediatamente, inclusive para tokens já emitidos.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Papel alterado"),
+            @ApiResponse(responseCode = "409", description = "Rebaixar a própria conta ou o último ADMIN ativo",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+
             @ApiResponse(responseCode = "400", description = "Papel inválido",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "401", description = "Não autenticado",
@@ -119,6 +125,9 @@ public class UserController {
                     + "Reativar não reativa os serviços.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Situação alterada"),
+            @ApiResponse(responseCode = "409", description = "Desativar a própria conta, o último ADMIN ou um usuário com ordens em andamento",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+
             @ApiResponse(responseCode = "400", description = "Campo active ausente",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "401", description = "Não autenticado",

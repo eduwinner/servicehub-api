@@ -70,7 +70,7 @@ public class ServiceOfferingService {
 
     /** RN05: só o dono ou o ADMIN altera. */
     public ServiceOfferingResponseDTO updateService(Long id, ServiceUpdateDTO dto) {
-        ServiceOffering service = findEntityById(id);
+        ServiceOffering service = findEntityForUpdate(id);
         requireOwnerOrAdmin(service);
         apply(service, dto);
         if (dto.getActive() != null) {
@@ -84,7 +84,7 @@ public class ServiceOfferingService {
 
     /** RN05 e exclusão lógica (o histórico de ordens e avaliações é preservado). */
     public void deleteService(Long id) {
-        ServiceOffering service = findEntityById(id);
+        ServiceOffering service = findEntityForUpdate(id);
         requireOwnerOrAdmin(service);
         requireNoActiveRequests(service);
         service.setActive(false);
@@ -115,6 +115,10 @@ public class ServiceOfferingService {
         if (!canManage(service)) {
             throw new AccessDeniedException("Apenas o prestador dono ou um ADMIN pode alterar este serviço.");
         }
+    }
+
+    private ServiceOffering findEntityForUpdate(Long id) {
+        return serviceOfferingRepository.findByIdForUpdate(id).orElseThrow(() -> notFound(id));
     }
 
     private ServiceOffering findEntityById(Long id) {

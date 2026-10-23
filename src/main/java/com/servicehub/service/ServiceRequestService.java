@@ -57,7 +57,10 @@ public class ServiceRequestService {
     @PreAuthorize("hasAnyRole('CLIENT', 'PROVIDER')")
     public ServiceRequestResponseDTO create(ServiceRequestCreateDTO dto) {
         AuthUser me = currentUser.get();
-        ServiceOffering service = serviceRepository.findById(dto.serviceId())
+        // ordem fixa de travas (cliente, depois serviço) evita deadlock com a desativação de contas
+        User client = userRepository.findByIdForUpdate(me.id())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + me.id()));
+        ServiceOffering service = serviceRepository.findByIdForUpdate(dto.serviceId())
                 .orElseThrow(() -> new ResourceNotFoundException("Serviço não encontrado: " + dto.serviceId()));
         if (!service.isActive()) {
             throw new BusinessRuleException("Serviço inativo não aceita novas ordens.");
@@ -65,7 +68,6 @@ public class ServiceRequestService {
         if (service.getProvider().getId().equals(me.id())) {
             throw new BusinessRuleException("Você não pode contratar o seu próprio serviço.");
         }
-        User client = userRepository.getReferenceById(me.id());
         ServiceRequest request = new ServiceRequest();
         request.setService(service);
         request.setClient(client);
@@ -102,7 +104,8 @@ public class ServiceRequestService {
 
     /** RN08: valida a transição na máquina de estados e quem pode executá-la. */
     public ServiceRequestResponseDTO changeStatus(Long id, RequestStatus target) {
-        ServiceRequest request = load(id);
+        ServiceRequest request = requestRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ordem de serviço não encontrada: " + id));
         RequestStatus.Actor actor = actorFor(request, currentUser.get());
         RequestStatus from = request.getStatus();
         if (!from.canTransitionTo(target)) {

@@ -110,6 +110,9 @@ public class ServiceOfferingController {
     @Operation(summary = "Atualizar serviço", description = "Apenas o prestador dono ou ADMIN. Substitui título, descrição, preço e categoria; active=true reativa e active=false desativa.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Serviço atualizado"),
+            @ApiResponse(responseCode = "409", description = "active=false com ordens em andamento (PENDING, ACCEPTED ou IN_PROGRESS)",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+
             @ApiResponse(responseCode = "400", description = "Campos inválidos",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "Serviço não encontrado",
@@ -125,6 +128,9 @@ public class ServiceOfferingController {
     @Operation(summary = "Remover serviço", description = "Apenas o prestador dono ou ADMIN. Exclusão lógica: o serviço sai do catálogo, mas o histórico é preservado.")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Serviço removido"),
+            @ApiResponse(responseCode = "409", description = "Serviço com ordens em andamento",
+                    content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class))),
+
             @ApiResponse(responseCode = "404", description = "Serviço não encontrado",
                     content = @Content(mediaType = PROBLEM, schema = @Schema(implementation = ProblemDetail.class)))
     })

@@ -18,6 +18,11 @@ public record JwtProperties(String secret, long expirationSeconds) {
             throw new IllegalStateException("Defina JWT_SECRET com pelo menos " + MIN_SECRET_BYTES
                     + " bytes. A API não sobe sem um segredo forte para assinar os tokens.");
         }
+        if (secret.startsWith("troque-este-segredo")) {
+            org.slf4j.LoggerFactory.getLogger(JwtProperties.class).warn(
+                    "JWT_SECRET está com o valor padrão do Compose: qualquer pessoa com o repositório consegue forjar tokens. "
+                            + "Defina um segredo próprio no .env antes de qualquer uso fora da sala de aula.");
+        }
         if (expirationSeconds <= 0) {
             expirationSeconds = 86_400;
         }

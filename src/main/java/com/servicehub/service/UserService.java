@@ -89,6 +89,9 @@ public class UserService {
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDTO changeRole(Long id, Role role) {
         User user = findEntityById(id);
+        if (role != Role.ADMIN) {
+            requireNotLockingOutAdmins(user);
+        }
         user.setRole(role);
         return toResponseDTO(userRepository.saveAndFlush(user));
     }
@@ -96,7 +99,12 @@ public class UserService {
     /** Reativar a conta não reativa os serviços: o prestador decide quais voltam ao catálogo. */
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDTO changeActive(Long id, boolean active) {
-        User user = findEntityById(id);
+        User user = userRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
+        if (!active) {
+            requireNotLockingOutAdmins(user);
+            serviceOfferingRepository.lockAllByProvider(id); // fila com contratações em andamento (RN10)
+        }
         if (!active && (requestRepository.existsByClient_IdAndStatusIn(id, RequestStatus.ACTIVE)
                 || requestRepository.existsByService_Provider_IdAndStatusIn(id, RequestStatus.ACTIVE))) {
             throw new BusinessRuleException("O usuário tem ordens em andamento (como cliente ou prestador). "
@@ -113,6 +121,17 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserResponseDTO> findAll(Pageable pageable) {
         return userRepository.findAll(pageable).map(this::toResponseDTO);
+    }
+
+    /** Ninguém desativa ou rebaixa a si mesmo, e a plataforma nunca fica sem ADMIN ativo. */
+    private void requireNotLockingOutAdmins(User target) {
+        if (target.getId().equals(currentUser.get().id())) {
+            throw new BusinessRuleException("Você não pode desativar nem rebaixar a sua própria conta.");
+        }
+        if (target.getRole() == Role.ADMIN && target.isActive()
+                && userRepository.countByRoleAndActiveTrue(Role.ADMIN) <= 1) {
+            throw new BusinessRuleException("A plataforma precisa de ao menos um ADMIN ativo.");
+        }
     }
 
     private void requireSelfOrAdmin(Long id) {
