@@ -1,0 +1,16 @@
+{
+  "name": "servicehub-bancada",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Bancada de testes da ServiceHub API: valida ao vivo o ciclo completo do contrato na API de cada equipe.",
+  "type": "module",
+  "scripts": {
+    "bancada": "node serve.mjs",
+    "teste": "playwright test --project=rapido",
+    "aovivo": "playwright test --project=aovivo",
+    "relatorio": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1"
+  }
+}

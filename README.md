@@ -123,6 +123,10 @@ Todo erro responde `application/problem+json` no formato ProblemDetail (RFC 9457
 
 Toda resposta traz o header `X-Request-Id`, também gravado nos logs, para rastrear uma requisição. Detalhes em [ADR-0004](docs/adr/0004-problem-detail-rfc-9457.md).
 
+## Bancada de testes (professor)
+
+[frontend/](frontend/README.md) traz uma página que executa o ciclo completo do contrato contra a API de qualquer equipe e mostra cada requisição e resposta, além de um roteiro Playwright para rodar o ciclo ao vivo em sala (`npm run aovivo`). A API precisa liberar CORS para `http://localhost:5173`.
+
 ## Material dos alunos
 
 - [Mapa de Construção (PDF)](docs/alunos/Mapa.pdf): schema, endpoints e regras de negócio que a API deve atingir.

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bancada ServiceHub</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="3" y="3" width="26" height="26" rx="7" fill="currentColor"/>
+        <path d="M10 16.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <h1>Bancada ServiceHub</h1>
+        <p class="subtitle">Validação ao vivo do contrato da API</p>
+      </div>
+    </div>
+
+    <form class="config" id="config" autocomplete="off">
+      <label class="field">
+        <span>Equipe ou aluno</span>
+        <input id="team" data-testid="team" type="text" placeholder="Ex.: Grupo 3 — Ana e Pedro">
+      </label>
+      <label class="field field-url">
+        <span>URL da API</span>
+        <input id="baseUrl" data-testid="base-url" type="url" required value="http://localhost:8090" spellcheck="false">
+      </label>
+      <label class="field field-pace">
+        <span>Ritmo</span>
+        <select id="pace" data-testid="pace">
+          <option value="700">Apresentação</option>
+          <option value="0">Rápido</option>
+        </select>
+      </label>
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="runAll" data-testid="run-all">Executar ciclo completo</button>
+        <button type="button" class="btn" id="reset" data-testid="reset">Reiniciar</button>
+      </div>
+    </form>
+  </header>
+
+  <main class="workspace">
+    <section class="flow" aria-labelledby="flow-title">
+      <div class="flow-head">
+        <h2 id="flow-title">Ciclo do serviço</h2>
+        <p class="summary" id="summary" data-testid="summary" aria-live="polite">Nenhum passo executado.</p>
+      </div>
+      <ol class="steps" id="steps" data-testid="steps"></ol>
+      <button type="button" class="btn btn-quiet" id="copyReport" data-testid="copy-report">Copiar relatório</button>
+    </section>
+
+    <section class="inspector" aria-labelledby="inspector-title" data-testid="inspector">
+      <div class="inspector-head">
+        <h2 id="inspector-title">Requisição e resposta</h2>
+        <p class="inspector-step" id="inspectorStep">Selecione ou execute um passo.</p>
+      </div>
+      <div class="exchange">
+        <div class="pane">
+          <h3>Requisição</h3>
+          <p class="line mono" id="reqLine" data-testid="request-line">—</p>
+          <pre class="code" id="reqBody" data-testid="request-body"></pre>
+        </div>
+        <div class="pane">
+          <h3>Resposta</h3>
+          <p class="line" id="resLine" data-testid="response-line">—</p>
+          <pre class="code" id="resBody" data-testid="response-body"></pre>
+        </div>
+      </div>
+      <p class="verdict" id="verdict" data-testid="verdict" hidden></p>
+    </section>
+  </main>
+
+  <template id="stepTemplate">
+    <li class="step" data-state="idle">
+      <button type="button" class="step-main">
+        <span class="step-num"></span>
+        <span class="step-text">
+          <span class="step-title"></span>
+          <span class="step-route mono"></span>
+        </span>
+        <span class="step-actor"></span>
+        <span class="step-status" aria-live="polite">não executado</span>
+      </button>
+      <button type="button" class="step-run btn btn-small" aria-label="Executar este passo">Executar</button>
+    </li>
+  </template>
+</body>
+</html>
