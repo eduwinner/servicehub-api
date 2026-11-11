@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -42,7 +43,13 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUserConverter converter,
-                                            ProblemResponseWriter problems) throws Exception {
+                                            ProblemResponseWriter problems,
+                                            @Value("${servicehub.metrics.internal-port:0}") int metricsPort)
+            throws Exception {
+        // coleta do Prometheus: só este caminho, só na porta interna (ADR-0008)
+        RequestMatcher scrapeInterno = request -> metricsPort > 0
+                && request.getLocalPort() == metricsPort
+                && "/actuator/prometheus".equals(request.getRequestURI());
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> { })
@@ -53,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/services", "/api/v1/services/**",
                                 "/api/v1/reviews/**", "/api/v1/info").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers(scrapeInterno).permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers(PUBLIC_DOCS).permitAll()
                         .requestMatchers("/error").permitAll()

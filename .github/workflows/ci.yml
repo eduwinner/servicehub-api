@@ -66,4 +66,8 @@ jobs:
             sleep 3
           done
           curl -sf http://localhost:8090/api/v1/info
+          # métricas: fechadas na porta pública, abertas só na porta interna 8081 (ADR-0008)
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8090/actuator/prometheus)" = 401
+          docker compose exec -T api wget -qO- http://localhost:8081/actuator/prometheus | grep -q jvm_memory_used_bytes
+          ! curl -sf --max-time 3 http://localhost:8081/actuator/prometheus
           docker compose down -v

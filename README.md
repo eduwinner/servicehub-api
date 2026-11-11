@@ -100,6 +100,7 @@ Regras da máquina de estados em [ADR-0006](docs/adr/0006-maquina-de-estados-da-
 - `GET /actuator/health` (público) e `GET /actuator/info`.
 - `GET /actuator/metrics` e `GET /actuator/prometheus` (só ADMIN): métricas da JVM, HTTP e a métrica de negócio `servicehub_service_requests_transitions_total{to="..."}`, que conta quantas ordens chegaram a cada status.
 - Logs com `X-Request-Id` em cada linha; no perfil `prod`, em JSON (ECS).
+- Prometheus e Grafana (opcional): `docker compose --profile observability up -d`. O Prometheus fica em `localhost:9090` e o Grafana em `localhost:3001`, sem login, com o painel **ServiceHub API** pronto. O painel mostra requisições por status, latência p95 por rota, erros, pool de conexões, JVM e ordens por status. O Prometheus coleta pela porta interna 8081, que não é publicada e libera só `/actuator/prometheus` ([ADR-0008](docs/adr/0008-porta-interna-para-coleta-do-prometheus.md)).
 
 ## Integração contínua
 

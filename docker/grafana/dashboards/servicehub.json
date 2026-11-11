@@ -1,0 +1,105 @@
+{
+  "uid": "servicehub-api",
+  "title": "ServiceHub API",
+  "description": "Métricas da API coletadas pelo Prometheus (Aula 15)",
+  "tags": ["servicehub"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "API no ar",
+      "description": "1 = o Prometheus conseguiu coletar a API na última tentativa",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "up{job=\"servicehub-api\"}" }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{ "type": "value", "options": { "0": { "text": "FORA", "color": "red" }, "1": { "text": "NO AR", "color": "green" } } }],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        },
+        "overrides": []
+      },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Ordens por status (transições desde o startup)",
+      "description": "servicehub_service_requests_transitions_total{to}: métrica de negócio do ServiceRequestService",
+      "gridPos": { "x": 4, "y": 0, "w": 20, "h": 5 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum by (to) (servicehub_service_requests_transitions_total)", "legendFormat": "{{to}}" }],
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] },
+      "options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Requisições por segundo, por status HTTP",
+      "gridPos": { "x": 0, "y": 5, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum by (status) (rate(http_server_requests_seconds_count{job=\"servicehub-api\"}[1m]))", "legendFormat": "{{status}}" }],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Latência p95 por rota",
+      "gridPos": { "x": 12, "y": 5, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "histogram_quantile(0.95, sum by (le, method, uri) (rate(http_server_requests_seconds_bucket{job=\"servicehub-api\", uri!~\"/actuator.*\"}[5m])))", "legendFormat": "{{method}} {{uri}}" }],
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Erros por segundo (4xx e 5xx)",
+      "gridPos": { "x": 0, "y": 13, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(rate(http_server_requests_seconds_count{job=\"servicehub-api\", status=~\"4..\"}[1m]))", "legendFormat": "4xx (erro do cliente)" },
+        { "refId": "B", "expr": "sum(rate(http_server_requests_seconds_count{job=\"servicehub-api\", status=~\"5..\"}[1m]))", "legendFormat": "5xx (erro da API)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Conexões do pool (HikariCP)",
+      "gridPos": { "x": 12, "y": 13, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(hikaricp_connections_active{job=\"servicehub-api\"})", "legendFormat": "ativas" },
+        { "refId": "B", "expr": "sum(hikaricp_connections_idle{job=\"servicehub-api\"})", "legendFormat": "ociosas" },
+        { "refId": "C", "expr": "sum(hikaricp_connections_pending{job=\"servicehub-api\"})", "legendFormat": "esperando" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Memória heap da JVM",
+      "gridPos": { "x": 0, "y": 21, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "refId": "A", "expr": "sum(jvm_memory_used_bytes{job=\"servicehub-api\", area=\"heap\"})", "legendFormat": "usada" },
+        { "refId": "B", "expr": "sum(jvm_memory_max_bytes{job=\"servicehub-api\", area=\"heap\"})", "legendFormat": "máxima" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "CPU do processo",
+      "gridPos": { "x": 12, "y": 21, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "process_cpu_usage{job=\"servicehub-api\"}", "legendFormat": "CPU" }],
+      "fieldConfig": { "defaults": { "unit": "percentunit", "max": 1, "min": 0 }, "overrides": [] }
+    }
+  ]
+}
