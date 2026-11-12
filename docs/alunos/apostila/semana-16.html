@@ -269,7 +269,7 @@
 <tr><td>Sem limite de taxa (<em>rate limiting</em>)</td><td>Fora do escopo do semestre.</td><td>O login fica exposto a tentativas em massa de senha (força bruta).</td><td>Limite de requisições por cliente num gateway ou num filtro, respondendo 429.</td></tr>
 <tr><td>Sem rastreamento distribuído (<em>tracing</em>)</td><td>Há uma única API; o <code>X-Request-Id</code> já liga a requisição às linhas de log.</td><td>Não seria possível seguir uma chamada através de outros serviços.</td><td>Tracing com identificadores de <em>trace</em> e <em>span</em>, se surgirem outros serviços.</td></tr>
 <tr><td>Só a v1, sem headers de depreciação</td><td>Ainda não houve mudança incompatível no contrato.</td><td>Nenhum hoje; vira risco quando nascer a v2.</td><td>Filtro que emite os headers <code>Deprecation</code> e <code>Sunset</code> nas rotas da v1.</td></tr>
-<tr><td>Métricas lidas com token de ADMIN</td><td>Simplicidade no ambiente da disciplina.</td><td>Um coletor de métricas precisaria guardar uma credencial.</td><td>Porta de gerenciamento separada, acessível só na rede interna.</td></tr>
+<tr><td>Sem alertas automáticos</td><td>O painel do Grafana basta no ambiente da disciplina.</td><td>Alguém precisa olhar o painel para notar o problema.</td><td>Regras de alerta no Prometheus ligadas ao SLO.</td></tr>
 </table>
 <div class="note"><div class="label">Para lembrar</div><p>"Não deu tempo" é desculpa, não limitação. A coluna do caminho é o que transforma a frase em engenharia: mostra que a equipe sabe como resolveria e o que isso custaria.</p></div>
 </section>
